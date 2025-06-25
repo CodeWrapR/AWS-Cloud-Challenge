@@ -1,125 +1,190 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>AWS Day 1 Learning + Quiz</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #ffffff;
-            color: #333;
-            margin: 0;
-            padding: 0;
-        }
-        nav {
-            background: #232f3e;
-            color: white;
-            padding: 1em;
-            text-align: center;
-        }
-        .container {
-            padding: 2em;
-        }
-        .tab-button {
-            background-color: #f3f3f3;
-            border: 1px solid #ccc;
-            cursor: pointer;
-            padding: 10px;
-            margin-right: 5px;
-        }
-        .tab-button.active {
-            background-color: #ddd;
-        }
-        .tab-content {
-            display: none;
-            padding: 1em;
-            border: 1px solid #ccc;
-            margin-top: 1em;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        .question {
-            margin: 1em 0;
-        }
-        .question input {
-            margin-right: 10px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AWS Day 1: Learn & Quiz</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f4f8;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    nav {
+      background-color: #1e2a38;
+      color: #fff;
+      padding: 1.5rem;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    .container {
+      padding: 2rem;
+      max-width: 900px;
+      margin: auto;
+    }
+    .tab-button {
+      background-color: #e2e8f0;
+      border: none;
+      padding: 0.75rem 1.25rem;
+      margin-right: 0.5rem;
+      cursor: pointer;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+    .tab-button.active {
+      background-color: #cbd5e1;
+    }
+    .tab-content {
+      display: none;
+      background: #fff;
+      border-radius: 5px;
+      padding: 2rem;
+      margin-top: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .tab-content.active {
+      display: block;
+    }
+    ul li {
+      margin: 1rem 0;
+    }
+    .question {
+      margin: 1.5rem 0;
+    }
+    .result {
+      background-color: #d1fae5;
+      border: 1px solid #10b981;
+      padding: 1rem;
+      margin-top: 2rem;
+      border-radius: 5px;
+      display: none;
+    }
+    .btn-submit {
+      background-color: #2563eb;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-<nav>
-    <h1>AWS Day 1: Learn and Test</h1>
-</nav>
-<div class="container">
+  <nav>AWS Day 1: Learn & Quiz</nav>
+  <div class="container">
     <div>
-        <button class="tab-button active" onclick="showTab('learn')">🧠 Flashcard Learning</button>
-        <button class="tab-button" onclick="showTab('quiz')">📝 Quiz Game</button>
+      <button class="tab-button active" onclick="showTab('learn', this)">📘 Flashcard Learning</button>
+      <button class="tab-button" onclick="showTab('quiz', this)">📝 Quiz Game</button>
     </div>
 
     <div id="learn" class="tab-content active">
-        <h2>Flashcard Learning</h2>
-        <ul>
-            <li><strong>What is Cloud Computing?</strong><br>Cloud computing is delivering computing services over the internet including servers, storage, databases, networking, software, analytics, and more.</li>
-            <li><strong>What is AWS?</strong><br>AWS is Amazon’s cloud platform offering over 200 fully featured services from data centers globally.</li>
-            <li><strong>Benefits of Cloud:</strong><br>Pay-as-you-go, scalability, flexibility, speed, cost-efficiency, and global reach.</li>
-            <li><strong>Cloud Economics:</strong><br>Optimizing resources, reducing CapEx, and aligning spend with usage.</li>
-            <li><strong>Cloud Design Principles:</strong><br>Design for failure, implement elasticity, automate, decouple components, use managed services.</li>
-            <li><strong>IaaS, PaaS, SaaS:</strong><br>
-                <ul>
-                    <li>IaaS: You manage the OS, middleware, runtime, and data (e.g., EC2).</li>
-                    <li>PaaS: You manage just the app and data (e.g., Elastic Beanstalk).</li>
-                    <li>SaaS: Provider manages everything (e.g., Gmail, Salesforce).</li>
-                </ul>
-            </li>
-        </ul>
+      <h2>Flashcard Learning</h2>
+      <ul>
+        <li><strong>Cloud Computing:</strong> Internet-based computing services (storage, compute, databases, etc.).</li>
+        <li><strong>AWS Overview:</strong> Cloud platform by Amazon with 200+ services globally available.</li>
+        <li><strong>Benefits of Cloud:</strong> Pay-as-you-go, scalability, flexibility, global presence.</li>
+        <li><strong>Cloud Economics:</strong> Cost optimization, reduce CapEx, align costs with usage.</li>
+        <li><strong>Design Principles:</strong> Design for failure, use automation, leverage managed services, build loosely coupled systems.</li>
+        <li><strong>Delivery Models:</strong> 
+          <ul>
+            <li><strong>IaaS:</strong> EC2, manage OS and runtime.</li>
+            <li><strong>PaaS:</strong> Elastic Beanstalk, manage code/app only.</li>
+            <li><strong>SaaS:</strong> Fully managed (e.g., Gmail, Salesforce).</li>
+          </ul>
+        </li>
+      </ul>
     </div>
 
     <div id="quiz" class="tab-content">
-        <h2>Quiz Game</h2>
+      <h2>Quiz Game</h2>
+      <form id="quizForm">
         <div class="question">
-            <p>1. Which of the following are benefits of cloud computing? (Select all that apply)</p>
-            <input type="checkbox" id="q1a" name="q1"> Scalability<br>
-            <input type="checkbox" id="q1b" name="q1"> Pay upfront for years<br>
-            <input type="checkbox" id="q1c" name="q1"> High Availability<br>
+          <p>1. Which of these are cloud computing benefits?</p>
+          <input type="checkbox" name="q1" value="Scalability"> Scalability<br>
+          <input type="checkbox" name="q1" value="CapEx Heavy"> CapEx Heavy<br>
+          <input type="checkbox" name="q1" value="Global Reach"> Global Reach<br>
         </div>
         <div class="question">
-            <p>2. You are a startup planning to launch an MVP quickly. Which service model suits best?</p>
-            <input type="radio" name="q2"> IaaS<br>
-            <input type="radio" name="q2"> PaaS<br>
-            <input type="radio" name="q2"> SaaS<br>
+          <p>2. Best model for deploying an app without managing the OS:</p>
+          <input type="radio" name="q2" value="IaaS"> IaaS<br>
+          <input type="radio" name="q2" value="PaaS"> PaaS<br>
+          <input type="radio" name="q2" value="SaaS"> SaaS<br>
         </div>
         <div class="question">
-            <p>3. Which AWS service is a typical example of IaaS?</p>
-            <input type="radio" name="q3"> Lambda<br>
-            <input type="radio" name="q3"> EC2<br>
-            <input type="radio" name="q3"> RDS<br>
+          <p>3. A startup needs a CRM system and doesn’t want to manage infrastructure. What’s ideal?</p>
+          <input type="radio" name="q3" value="SaaS"> SaaS<br>
+          <input type="radio" name="q3" value="PaaS"> PaaS<br>
+          <input type="radio" name="q3" value="IaaS"> IaaS<br>
         </div>
         <div class="question">
-            <p>4. You want to deploy code without managing servers. What should you use?</p>
-            <input type="radio" name="q4"> EC2<br>
-            <input type="radio" name="q4"> Lambda<br>
-            <input type="radio" name="q4"> S3<br>
+          <p>4. Which service is a good example of IaaS?</p>
+          <input type="radio" name="q4" value="EC2"> EC2<br>
+          <input type="radio" name="q4" value="Lambda"> Lambda<br>
+          <input type="radio" name="q4" value="WorkDocs"> WorkDocs<br>
         </div>
         <div class="question">
-            <p>5. Cloud Design Principle includes:</p>
-            <input type="checkbox" name="q5"> Monolithic design<br>
-            <input type="checkbox" name="q5"> Design for failure<br>
-            <input type="checkbox" name="q5"> Use managed services<br>
+          <p>5. Which align with cloud design principles?</p>
+          <input type="checkbox" name="q5" value="Design for Failure"> Design for Failure<br>
+          <input type="checkbox" name="q5" value="Monolithic Design"> Monolithic Design<br>
+          <input type="checkbox" name="q5" value="Automate Everything"> Automate Everything<br>
         </div>
+        <div class="question">
+          <p>6. Your team wants to scale resources during a product launch. What AWS feature supports this?</p>
+          <input type="radio" name="q6" value="Elasticity"> Elasticity<br>
+          <input type="radio" name="q6" value="Snapshots"> Snapshots<br>
+          <input type="radio" name="q6" value="Data Lifecycle"> Data Lifecycle<br>
+        </div>
+        <div class="question">
+          <p>7. Identify the correct delivery models:</p>
+          <input type="checkbox" name="q7" value="EC2-IaaS"> EC2 - IaaS<br>
+          <input type="checkbox" name="q7" value="RDS-PaaS"> RDS - PaaS<br>
+          <input type="checkbox" name="q7" value="Salesforce-SaaS"> Salesforce - SaaS<br>
+        </div>
+        <button class="btn-submit" type="button" onclick="checkAnswers()">Check Answers</button>
+        <div class="result" id="resultBox"></div>
+      </form>
     </div>
-</div>
+  </div>
+  <script>
+    function showTab(id, btn) {
+      document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(id).classList.add('active');
+    }
 
-<script>
-function showTab(tabId) {
-    const buttons = document.querySelectorAll('.tab-button');
-    const tabs = document.querySelectorAll('.tab-content');
-    buttons.forEach(btn => btn.classList.remove('active'));
-    tabs.forEach(tab => tab.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-    event.target.classList.add('active');
-}
-</script>
+    function checkAnswers() {
+      let score = 0;
+      const resultBox = document.getElementById('resultBox');
+
+      const q1 = Array.from(document.querySelectorAll("input[name='q1']:checked")).map(e => e.value);
+      if (q1.includes('Scalability') && q1.includes('Global Reach') && !q1.includes('CapEx Heavy')) score++;
+
+      const q2 = document.querySelector("input[name='q2']:checked")?.value;
+      if (q2 === 'PaaS') score++;
+
+      const q3 = document.querySelector("input[name='q3']:checked")?.value;
+      if (q3 === 'SaaS') score++;
+
+      const q4 = document.querySelector("input[name='q4']:checked")?.value;
+      if (q4 === 'EC2') score++;
+
+      const q5 = Array.from(document.querySelectorAll("input[name='q5']:checked")).map(e => e.value);
+      if (q5.includes('Design for Failure') && q5.includes('Automate Everything') && !q5.includes('Monolithic Design')) score++;
+
+      const q6 = document.querySelector("input[name='q6']:checked")?.value;
+      if (q6 === 'Elasticity') score++;
+
+      const q7 = Array.from(document.querySelectorAll("input[name='q7']:checked")).map(e => e.value);
+      if (q7.includes('EC2-IaaS') && q7.includes('Salesforce-SaaS') && q7.includes('RDS-PaaS')) score++;
+
+      resultBox.innerHTML = `<strong>You scored ${score}/7</strong><br>${score === 7 ? '🎉 Excellent!' : '📘 Review flashcards and try again.'}`;
+      resultBox.style.display = 'block';
+    }
+  </script>
 </body>
 </html>
