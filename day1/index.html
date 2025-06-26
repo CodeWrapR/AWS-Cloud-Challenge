@@ -2,13 +2,27 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>AWS Day 1: Learn & Quiz</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    /* Base responsive typography */
+    html {
+      font-size: 16px;
+    }
+    
+    @media (max-width: 768px) {
+      html {
+        font-size: 14px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      html {
+        font-size: 13px;
+      }
     }
     
     body {
@@ -1237,26 +1251,8 @@
       userAnswers = {};
     }
 
-    // Keyboard navigation for flashcards
-    document.addEventListener('keydown', function(event) {
-      if (document.getElementById('learn').classList.contains('active')) {
-        switch(event.key) {
-          case 'ArrowLeft':
-            event.preventDefault();
-            prevCard();
-            break;
-          case 'ArrowRight':
-            event.preventDefault();
-            nextCard();
-            break;
-          case ' ':
-          case 'Enter':
-            event.preventDefault();
-            flipCard();
-            break;
-        }
-      }
-    });
+    // Keyboard navigation for flashcards (desktop only)
+    document.addEventListener('keydown', handleKeydown);
 
     // Cleanup function to remove debug text
     function cleanupDebugText() {
@@ -1290,10 +1286,65 @@
       });
     }
 
+    // Mobile-specific optimizations
+    function initMobileOptimizations() {
+      // Prevent zoom on input focus for iOS
+      const metaViewport = document.querySelector('meta[name="viewport"]');
+      if (metaViewport) {
+        metaViewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+      }
+      
+      // Add touch feedback for mobile
+      const touchElements = document.querySelectorAll('.flashcard, .btn-aws, .btn-submit, .option, .tab-button');
+      touchElements.forEach(element => {
+        element.addEventListener('touchstart', function() {
+          this.style.opacity = '0.7';
+        });
+        
+        element.addEventListener('touchend', function() {
+          this.style.opacity = '1';
+        });
+        
+        element.addEventListener('touchcancel', function() {
+          this.style.opacity = '1';
+        });
+      });
+      
+      // Improve mobile keyboard navigation
+      if ('ontouchstart' in window) {
+        // Disable keyboard navigation on touch devices
+        document.removeEventListener('keydown', handleKeydown);
+      }
+    }
+    
+    // Enhanced keyboard handling
+    function handleKeydown(event) {
+      if (document.getElementById('learn').classList.contains('active')) {
+        switch(event.key) {
+          case 'ArrowLeft':
+            event.preventDefault();
+            prevCard();
+            break;
+          case 'ArrowRight':
+            event.preventDefault();
+            nextCard();
+            break;
+          case ' ':
+          case 'Enter':
+            event.preventDefault();
+            flipCard();
+            break;
+        }
+      }
+    }
+
     // Initialize the application
     window.addEventListener('load', function() {
       updateCard();
       loadQuiz();
+      
+      // Initialize mobile optimizations
+      initMobileOptimizations();
       
       // Clean up any debug text
       cleanupDebugText();
@@ -1311,10 +1362,12 @@
       console.log('   • ' + flashcards.length + ' progressive flashcards');
       console.log('   • ' + questions.length + ' scenario-based quiz questions');
       console.log('   • AWS Console-inspired design');
+      console.log('   • Mobile-optimized interface');
       console.log('');
       console.log('⌨️ Navigation:');
-      console.log('   • Arrow keys: Navigate flashcards');
-      console.log('   • Spacebar: Flip cards');
+      console.log('   • Arrow keys: Navigate flashcards (desktop)');
+      console.log('   • Spacebar: Flip cards (desktop)');
+      console.log('   • Touch: Tap to interact (mobile)');
       console.log('');
       console.log('Ready for learning! 🎯');
     });
