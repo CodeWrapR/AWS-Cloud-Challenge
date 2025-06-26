@@ -6,23 +6,12 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <title>AWS Day 1: Learn & Quiz</title>
+  <title>AWS Cloud Learning Platform</title>
   <style>
-    /* Base responsive typography */
-    html {
-      font-size: 16px;
-    }
-    
-    @media (max-width: 768px) {
-      html {
-        font-size: 14px;
-      }
-    }
-    
-    @media (max-width: 480px) {
-      html {
-        font-size: 13px;
-      }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
     
     body {
@@ -110,6 +99,7 @@
     .tab-container {
       border-bottom: 1px solid #d5dbdb;
       margin-bottom: 24px;
+      display: flex;
     }
     
     .tab-button {
@@ -213,7 +203,7 @@
     
     .flashcard {
       width: 100%;
-      height: 350px;
+      height: 380px;
       background: white;
       border: 1px solid #d5dbdb;
       border-radius: 8px;
@@ -222,6 +212,7 @@
       position: relative;
       cursor: pointer;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin: 0 auto;
     }
     
     .flashcard:hover {
@@ -243,8 +234,9 @@
       justify-content: center;
       align-items: center;
       text-align: center;
-      padding: 24px;
+      padding: 20px;
       overflow-y: auto;
+      box-sizing: border-box;
     }
     
     .front {
@@ -271,21 +263,23 @@
     }
     
     .card-title {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 500;
       color: #232f3e;
-      margin-bottom: 20px;
-      line-height: 1.4;
+      margin-bottom: 16px;
+      line-height: 1.3;
     }
     
     .card-content {
-      font-size: 16px;
-      line-height: 1.8;
+      font-size: 15px;
+      line-height: 1.6;
       color: #232f3e;
       white-space: pre-line;
       word-wrap: break-word;
       overflow-wrap: break-word;
       max-width: 100%;
+      text-align: left;
+      width: 100%;
     }
     
     .card-content strong {
@@ -546,59 +540,131 @@
       background-color: #5a6269;
     }
     
-    /* Hide the debug text that's showing incorrectly */
-    .front::after,
-    .back::after {
-      content: none;
-    }
-    
-    /* Ensure only the intended content shows */
-    .front > *:not(.card-category):not(.card-title):not(.card-content) {
-      display: none;
-    }
-    
-    .back > *:not(.card-category):not(.card-title):not(.card-content) {
-      display: none;
-    }
+    /* Mobile Responsiveness */
     @media (max-width: 768px) {
       .container {
-        padding: 16px;
+        padding: 12px;
       }
       
       .aws-nav {
-        padding: 0 16px;
+        padding: 0 12px;
+        height: 50px;
+      }
+      
+      .aws-logo {
+        font-size: 16px;
       }
       
       .aws-service-name {
         display: none;
       }
       
+      .aws-breadcrumb {
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+      
+      .page-title {
+        font-size: 22px;
+        margin-bottom: 6px;
+      }
+      
+      .page-description {
+        font-size: 13px;
+      }
+      
+      .tab-button {
+        padding: 12px 16px;
+        font-size: 13px;
+      }
+      
+      .tab-container {
+        flex-direction: column;
+        gap: 0;
+        align-items: stretch;
+      }
+      
+      .content-body {
+        padding: 16px;
+      }
+      
       .flashcard {
-        height: 250px;
+        height: 320px;
+      }
+      
+      .front, .back {
+        padding: 16px;
+      }
+      
+      .card-title {
+        font-size: 16px;
+        margin-bottom: 12px;
+      }
+      
+      .card-content {
+        font-size: 14px;
+        line-height: 1.5;
       }
       
       .controls {
         flex-direction: column;
         gap: 12px;
+        padding: 12px;
       }
       
-      .controls .progress-info {
+      .progress-info {
         margin: 0;
+        order: 1;
+      }
+      
+      .btn-aws {
+        padding: 10px 16px;
+        font-size: 14px;
+        justify-content: center;
+      }
+      
+      #prevBtn {
+        order: 2;
+      }
+      
+      #nextBtn {
+        order: 3;
       }
     }
     
-    /* Additional spacing for readability */
-    p {
-      margin-bottom: 16px;
-    }
-    
-    ul, ol {
-      margin-bottom: 16px;
-      padding-left: 20px;
-    }
-    
-    li {
-      margin-bottom: 8px;
+    @media (max-width: 480px) {
+      .container {
+        padding: 8px;
+      }
+      
+      .page-title {
+        font-size: 20px;
+      }
+      
+      .flashcard {
+        height: 280px;
+      }
+      
+      .card-title {
+        font-size: 15px;
+      }
+      
+      .card-content {
+        font-size: 13px;
+      }
+      
+      .front, .back {
+        padding: 12px;
+      }
+      
+      .content-body {
+        padding: 12px;
+      }
+      
+      .tab-button {
+        padding: 10px 12px;
+        font-size: 12px;
+      }
     }
   </style>
 </head>
@@ -626,7 +692,6 @@
       <h1 class="page-title">AWS Cloud Learning</h1>
       <p class="page-description">
         Build your foundational understanding of cloud computing and AWS services through interactive flashcards and scenario-based assessments. 
-        
         Progress through beginner concepts to advanced infrastructure knowledge.
       </p>
     </div>
@@ -696,7 +761,6 @@
         <h2 class="content-title">AWS Fundamentals Assessment</h2>
         <p class="content-subtitle">
           Test your knowledge with real-world scenarios and business use cases. 
-          
           Mixed question types including single-select and multi-select formats.
         </p>
       </div>
@@ -822,6 +886,36 @@
       // Level 3: AWS Global Infrastructure
       {
         level: 3,
+        front: "What is an AWS Region?",
+        back: "An AWS Region is a physical geographical area (like 'US East' or 'Europe') that contains multiple data centers.\n\nKey Characteristics:\n• Each Region is completely independent and isolated\n• Contains multiple Availability Zones (typically 3-6)\n• Provides fault tolerance and stability\n• Some services are region-specific\n• Data doesn't leave a region unless you explicitly move it\n\nExample: us-east-1 (Northern Virginia), eu-west-1 (Ireland)",
+        category: "AWS Infrastructure"
+      },
+      {
+        level: 3,
+        front: "How to Choose an AWS Region?",
+        back: "Consider these critical factors:\n\n1. Compliance (legal data residency requirements)\n2. Proximity (closer = faster response times for users)\n3. Available Services (not all services available in all regions)\n4. Pricing (costs vary by region)\n5. Disaster Recovery (geographic separation for backup)\n\nExample: EU companies often choose eu-west-1 (Ireland) for GDPR compliance and proximity to European users.",
+        category: "AWS Infrastructure"
+      },
+      {
+        level: 3,
+        front: "What is an Availability Zone (AZ)?",
+        back: "An Availability Zone is one or more discrete data centers within a Region, each with redundant power, networking, and connectivity.\n\nKey Features:\n• Physically separated (miles apart) within a Region\n• Connected by high-speed, low-latency networking\n• Isolated from failures in other AZs\n• Each AZ has independent power and cooling\n• Enables high availability architecture\n\nExample: us-east-1a, us-east-1b, us-east-1c are different AZs in the same region.",
+        category: "AWS Infrastructure"
+      },
+      {
+        level: 3,
+        front: "Why Multiple Availability Zones?",
+        back: "Multiple AZs provide essential benefits:\n\n• High Availability (if one AZ fails, others continue operating)\n• Fault Tolerance (isolated failures don't affect other AZs)\n• Load Distribution (spread application traffic)\n• Disaster Recovery (within the same geographic region)\n• Network Resilience (multiple network paths)\n\nBest Practice: Deploy applications across multiple AZs for maximum reliability.",
+        category: "AWS Infrastructure"
+      },
+      {
+        level: 3,
+        front: "AWS Global Infrastructure Hierarchy",
+        back: "The complete hierarchy from largest to smallest:\n\n1. Regions (26+ worldwide geographic areas)\n2. Availability Zones (84+ isolated data center groups)\n3. Data Centers (100+ physical buildings)\n4. Edge Locations (400+ CDN cache points)\n5. Regional Edge Caches (13+ larger cache locations)\n\nThis hierarchy enables global reach with local performance and reliability.",
+        category: "AWS Infrastructure"
+      },
+      {
+        level: 3,
         front: "What are AWS Edge Locations?",
         back: "Edge Locations are data centers used by CloudFront (AWS's Content Delivery Network) to cache content closer to users for faster delivery.\n\nKey Facts:\n• 400+ Edge Locations worldwide (more than Regions and AZs combined)\n• Cache popular content like images, videos, and web pages\n• Reduce latency by serving content from nearby locations\n• Automatically updated from origin servers\n• Make websites and applications load faster globally\n\nExample: A user in Tokyo gets content from Tokyo Edge Location instead of a server in Virginia.",
         category: "AWS Infrastructure"
@@ -889,6 +983,47 @@
         explanation: "EC2, Lambda, and ECS all provide different types of compute capabilities. S3 is storage and RDS is a database service, not compute services."
       },
       {
+        question: "A startup wants to understand the difference between traditional IT and cloud computing. Which statements accurately describe cloud computing advantages?",
+        type: "checkbox",
+        scenario: "Cloud Fundamentals",
+        options: [
+          "No upfront hardware purchase required",
+          "Pay only for resources actually used",
+          "Instant access to computing resources",
+          "Requires large IT staff to manage infrastructure",
+          "Higher upfront costs but lower operational costs"
+        ],
+        correct: ["No upfront hardware purchase required", "Pay only for resources actually used", "Instant access to computing resources"],
+        explanation: "Cloud computing eliminates upfront hardware costs, uses pay-as-you-go pricing, and provides instant resource access. It actually reduces IT staff needs and has low upfront costs."
+      },
+      {
+        question: "Your team is building a mobile app and needs to choose the right service model. The developers want to focus only on writing code without managing servers or operating systems. Which service model should they choose?",
+        type: "radio",
+        scenario: "Service Model Selection",
+        options: [
+          "IaaS (Infrastructure as a Service)",
+          "PaaS (Platform as a Service)",
+          "SaaS (Software as a Service)",
+          "Traditional on-premises hosting"
+        ],
+        correct: ["PaaS (Platform as a Service)"],
+        explanation: "PaaS allows developers to focus on code while the platform manages the underlying infrastructure, runtime, and operating system. This matches their requirement perfectly."
+      },
+      {
+        question: "A company is explaining cloud service models to their board using the pizza analogy. Which descriptions are correct?",
+        type: "checkbox",
+        scenario: "Service Models Understanding",
+        options: [
+          "IaaS: You get oven and ingredients, make pizza yourself",
+          "PaaS: You get prepared dough, add your own toppings",
+          "SaaS: You get delivered pizza, just eat it",
+          "IaaS requires the least management responsibility",
+          "SaaS provides the most control over the infrastructure"
+        ],
+        correct: ["IaaS: You get oven and ingredients, make pizza yourself", "PaaS: You get prepared dough, add your own toppings", "SaaS: You get delivered pizza, just eat it"],
+        explanation: "The pizza analogy correctly shows increasing service levels. IaaS requires most management, while SaaS provides least control but most convenience."
+      },
+      {
         question: "A global media company wants to deliver video content with minimal latency worldwide. Which AWS infrastructure component is most important?",
         type: "radio",
         scenario: "Content Delivery",
@@ -930,6 +1065,20 @@
         explanation: "RDS is a database service, not a storage type. S3, EBS, EFS, and Glacier are different storage solutions designed for specific use cases and access patterns."
       },
       {
+        question: "A data center manager is explaining the essential components of a modern data center. Which components are critical for 99.99% uptime?",
+        type: "checkbox",
+        scenario: "Data Center Infrastructure",
+        options: [
+          "Redundant power systems (UPS and generators)",
+          "Advanced cooling systems to prevent overheating",
+          "Physical security with biometric access",
+          "Fire suppression systems that won't damage equipment",
+          "Only basic air conditioning"
+        ],
+        correct: ["Redundant power systems (UPS and generators)", "Advanced cooling systems to prevent overheating", "Physical security with biometric access", "Fire suppression systems that won't damage equipment"],
+        explanation: "High availability data centers require redundant power, proper cooling, security, and specialized fire suppression. Basic air conditioning is insufficient for enterprise-grade operations."
+      },
+      {
         question: "A financial services company needs to ensure regulatory compliance and data sovereignty. What should guide their AWS deployment?",
         type: "radio",
         scenario: "Compliance Requirements",
@@ -968,61 +1117,6 @@
         ],
         correct: ["AWS Lambda (Serverless)"],
         explanation: "Lambda automatically scales based on demand without any server management, making it perfect for unpredictable workloads. You only pay for actual execution time."
-      },
-      {
-        question: "Which AWS services help with application integration and communication between microservices?",
-        type: "checkbox",
-        scenario: "Microservices Architecture",
-        options: [
-          "Amazon SQS - Message queuing service",
-          "Amazon SNS - Pub/sub messaging service",
-          "AWS Step Functions - Workflow orchestration",
-          "Amazon API Gateway - API management",
-          "Amazon EC2 - Virtual servers"
-        ],
-        correct: ["Amazon SQS - Message queuing service", "Amazon SNS - Pub/sub messaging service", "AWS Step Functions - Workflow orchestration", "Amazon API Gateway - API management"],
-        explanation: "EC2 provides compute capacity but doesn't specifically help with application integration. SQS, SNS, Step Functions, and API Gateway are designed for connecting and coordinating microservices."
-      },
-      {
-        question: "A data science team needs to process large datasets and build machine learning models. Which AWS services would help?",
-        type: "checkbox",
-        scenario: "Data Science Workload",
-        options: [
-          "Amazon SageMaker - ML platform for model building",
-          "Amazon S3 - Data lake storage",
-          "Amazon Athena - Query data without servers",
-          "AWS Glue - ETL data preparation service",
-          "Amazon WorkDocs - Document collaboration"
-        ],
-        correct: ["Amazon SageMaker - ML platform for model building", "Amazon S3 - Data lake storage", "Amazon Athena - Query data without servers", "AWS Glue - ETL data preparation service"],
-        explanation: "WorkDocs is for document collaboration, not data science. SageMaker, S3, Athena, and Glue form a complete data science and analytics pipeline for ML workloads."
-      },
-      {
-        question: "Your company operates in multiple countries and needs disaster recovery capabilities. How should you design your AWS architecture?",
-        type: "radio",
-        scenario: "Disaster Recovery",
-        options: [
-          "Deploy everything in a single Availability Zone",
-          "Use multiple Regions with automated failover",
-          "Rely only on local backups",
-          "Use multiple Edge Locations as primary infrastructure"
-        ],
-        correct: ["Use multiple Regions with automated failover"],
-        explanation: "Multi-Region deployment provides the highest level of disaster recovery and business continuity. It protects against regional disasters and ensures global availability."
-      },
-      {
-        question: "Which networking services help build secure and scalable application architectures in AWS?",
-        type: "checkbox",
-        scenario: "Network Architecture",
-        options: [
-          "Amazon VPC - Virtual private cloud networking",
-          "AWS WAF - Web application firewall",
-          "Amazon CloudFront - Content delivery network",
-          "Elastic Load Balancer - Distribute incoming traffic",
-          "Amazon Glacier - Cold storage service"
-        ],
-        correct: ["Amazon VPC - Virtual private cloud networking", "AWS WAF - Web application firewall", "Amazon CloudFront - Content delivery network", "Elastic Load Balancer - Distribute incoming traffic"],
-        explanation: "Glacier is a storage service, not a networking service. VPC, WAF, CloudFront, and ELB provide essential networking capabilities for secure and scalable architectures."
       }
     ];
 
@@ -1251,72 +1345,6 @@
       userAnswers = {};
     }
 
-    // Keyboard navigation for flashcards (desktop only)
-    document.addEventListener('keydown', handleKeydown);
-
-    // Cleanup function to remove debug text
-    function cleanupDebugText() {
-      // Find and hide any text nodes that contain debug information
-      const walker = document.createTreeWalker(
-        document.body,
-        NodeFilter.SHOW_TEXT,
-        {
-          acceptNode: function(node) {
-            if (node.textContent.includes('front:') || 
-                node.textContent.includes('back:') || 
-                node.textContent.includes('level:') ||
-                node.textContent.includes('category:')) {
-              return NodeFilter.FILTER_ACCEPT;
-            }
-            return NodeFilter.FILTER_REJECT;
-          }
-        }
-      );
-
-      const textNodes = [];
-      let node;
-      while (node = walker.nextNode()) {
-        textNodes.push(node);
-      }
-
-      textNodes.forEach(textNode => {
-        if (textNode.parentNode && !textNode.parentNode.classList.contains('card-content')) {
-          textNode.textContent = '';
-        }
-      });
-    }
-
-    // Mobile-specific optimizations
-    function initMobileOptimizations() {
-      // Prevent zoom on input focus for iOS
-      const metaViewport = document.querySelector('meta[name="viewport"]');
-      if (metaViewport) {
-        metaViewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
-      }
-      
-      // Add touch feedback for mobile
-      const touchElements = document.querySelectorAll('.flashcard, .btn-aws, .btn-submit, .option, .tab-button');
-      touchElements.forEach(element => {
-        element.addEventListener('touchstart', function() {
-          this.style.opacity = '0.7';
-        });
-        
-        element.addEventListener('touchend', function() {
-          this.style.opacity = '1';
-        });
-        
-        element.addEventListener('touchcancel', function() {
-          this.style.opacity = '1';
-        });
-      });
-      
-      // Improve mobile keyboard navigation
-      if ('ontouchstart' in window) {
-        // Disable keyboard navigation on touch devices
-        document.removeEventListener('keydown', handleKeydown);
-      }
-    }
-    
     // Enhanced keyboard handling
     function handleKeydown(event) {
       if (document.getElementById('learn').classList.contains('active')) {
@@ -1338,21 +1366,15 @@
       }
     }
 
+    // Keyboard navigation for flashcards (desktop only)
+    document.addEventListener('keydown', handleKeydown);
+
     // Initialize the application
     window.addEventListener('load', function() {
       updateCard();
       loadQuiz();
       
-      // Initialize mobile optimizations
-      initMobileOptimizations();
-      
-      // Clean up any debug text
-      cleanupDebugText();
-      
-      // Set up periodic cleanup
-      setInterval(cleanupDebugText, 1000);
-      
-      // Clean console output - fix the console.clear error
+      // Clean console output
       if (typeof console.clear === 'function') {
         console.clear();
       }
@@ -1373,34 +1395,4 @@
     });
   </script>
 </body>
-</html>,
-        front: "What is an AWS Region?",
-        back: "An AWS Region is a physical geographical area (like 'US East' or 'Europe') that contains multiple data centers.\n\nKey Characteristics:\n• Each Region is completely independent and isolated\n• Contains multiple Availability Zones (typically 3-6)\n• Provides fault tolerance and stability\n• Some services are region-specific\n• Data doesn't leave a region unless you explicitly move it\n\nExample: us-east-1 (Northern Virginia), eu-west-1 (Ireland)",
-        category: "AWS Infrastructure"
-      },
-      {
-        level: 3,
-        front: "How to Choose an AWS Region?",
-        back: "Consider these critical factors:\n\n1. Compliance (legal data residency requirements)\n2. Proximity (closer = faster response times for users)\n3. Available Services (not all services available in all regions)\n4. Pricing (costs vary by region)\n5. Disaster Recovery (geographic separation for backup)\n\nExample: EU companies often choose eu-west-1 (Ireland) for GDPR compliance and proximity to European users.",
-        category: "AWS Infrastructure"
-      },
-      {
-        level: 3,
-        front: "What is an Availability Zone (AZ)?",
-        back: "An Availability Zone is one or more discrete data centers within a Region, each with redundant power, networking, and connectivity.\n\nKey Features:\n• Physically separated (miles apart) within a Region\n• Connected by high-speed, low-latency networking\n• Isolated from failures in other AZs\n• Each AZ has independent power and cooling\n• Enables high availability architecture\n\nExample: us-east-1a, us-east-1b, us-east-1c are different AZs in the same region.",
-        category: "AWS Infrastructure"
-      },
-      {
-        level: 3,
-        front: "Why Multiple Availability Zones?",
-        back: "Multiple AZs provide essential benefits:\n\n• High Availability (if one AZ fails, others continue operating)\n• Fault Tolerance (isolated failures don't affect other AZs)\n• Load Distribution (spread application traffic)\n• Disaster Recovery (within the same geographic region)\n• Network Resilience (multiple network paths)\n\nBest Practice: Deploy applications across multiple AZs for maximum reliability.",
-        category: "AWS Infrastructure"
-      },
-      {
-        level: 3,
-        front: "AWS Global Infrastructure Hierarchy",
-        back: "The complete hierarchy from largest to smallest:\n\n1. Regions (26+ worldwide geographic areas)\n2. Availability Zones (84+ isolated data center groups)\n3. Data Centers (100+ physical buildings)\n4. Edge Locations (400+ CDN cache points)\n5. Regional Edge Caches (13+ larger cache locations)\n\nThis hierarchy enables global reach with local performance and reliability.",
-        category: "AWS Infrastructure"
-      },
-      {
-        level: 3
+</html>
