@@ -7,27 +7,28 @@
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f0f4f8;
+      background: linear-gradient(to bottom right, #f0f8ff, #e6f7ff);
       margin: 0;
       padding: 0;
       color: #333;
     }
     nav {
-      background-color: #1e2a38;
+      background-color: #232f3e;
       color: #fff;
       padding: 1.5rem;
       text-align: center;
-      font-size: 1.5rem;
+      font-size: 1.75rem;
       font-weight: bold;
     }
     .container {
       padding: 2rem;
-      max-width: 900px;
+      max-width: 1000px;
       margin: auto;
     }
     .tab-button {
-      background-color: #e2e8f0;
-      border: none;
+      background-color: #d1ecf1;
+      color: #004085;
+      border: 1px solid #bee5eb;
       padding: 0.75rem 1.25rem;
       margin-right: 0.5rem;
       cursor: pointer;
@@ -35,20 +36,20 @@
       font-weight: bold;
     }
     .tab-button.active {
-      background-color: #cbd5e1;
+      background-color: #17a2b8;
+      color: white;
     }
     .tab-content {
       display: none;
       background: #fff;
-      border-radius: 5px;
+      border-radius: 8px;
       padding: 2rem;
       margin-top: 1.5rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
     }
     .tab-content.active {
       display: block;
     }
-
     .flashcard-container {
       perspective: 1000px;
       margin: 1rem 0;
@@ -56,11 +57,9 @@
     .flashcard {
       width: 100%;
       height: 200px;
-      text-align: center;
-      line-height: 1.5;
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 10px;
+      background: linear-gradient(to right, #ffffff, #f0f8ff);
+      border: 2px solid #d1ecf1;
+      border-radius: 12px;
       box-shadow: 0 6px 12px rgba(0,0,0,0.1);
       transition: transform 0.6s;
       transform-style: preserve-3d;
@@ -80,12 +79,14 @@
       align-items: center;
       justify-content: center;
       font-size: 1.2rem;
+      font-weight: bold;
+      border-radius: 12px;
     }
     .back {
       transform: rotateY(180deg);
-      background: #f9fafb;
+      background: #e3f2fd;
+      color: #004085;
     }
-
     .controls {
       margin-top: 1rem;
       display: flex;
@@ -96,20 +97,20 @@
       padding: 0.5rem 1rem;
       border: none;
       border-radius: 6px;
-      background: #2563eb;
+      background: #28a745;
       color: white;
       cursor: pointer;
-    }
-
-    .progress {
       font-weight: bold;
     }
-
+    .progress {
+      font-weight: bold;
+      color: #17a2b8;
+    }
     .question {
       margin: 1.5rem 0;
     }
     .btn-submit {
-      background-color: #2563eb;
+      background-color: #007bff;
       color: white;
       padding: 0.75rem 1.5rem;
       border: none;
@@ -118,187 +119,204 @@
       font-weight: bold;
     }
     .result {
-      background-color: #d1fae5;
-      border: 1px solid #10b981;
+      background-color: #d4edda;
+      border: 1px solid #c3e6cb;
       padding: 1rem;
       margin-top: 2rem;
       border-radius: 5px;
+      color: #155724;
       display: none;
     }
   </style>
 </head>
 <body>
-<nav>AWS Day 1: Learn & Quiz</nav>
-<div class="container">
-  <div>
-    <button class="tab-button active" onclick="showTab('learn', this)">📘 Flashcard Learning</button>
-    <button class="tab-button" onclick="showTab('quiz', this)">📝 Quiz Game</button>
-  </div>
+  <nav>AWS Day 1: Learn & Quiz</nav>
+  <div class="container">
+    <div>
+      <button class="tab-button active" onclick="showTab('learn', this)">📘 Flashcard Learning</button>
+      <button class="tab-button" onclick="showTab('quiz', this)">📝 Quiz Game</button>
+    </div>
 
-  <!-- Flashcard Learning -->
-  <div id="learn" class="tab-content active">
-    <h2>Flashcard Learning</h2>
-    <div class="flashcard-container">
-      <div class="flashcard" onclick="flipCard(this)" id="flashcard">
-        <div class="front" id="cardFront">What is Cloud Computing?</div>
-        <div class="back" id="cardBack">Cloud computing delivers IT resources like compute, storage, and databases over the internet on a pay-as-you-go basis.</div>
+    <div id="learn" class="tab-content active">
+      <h2>Flashcard Learning</h2>
+      <div class="flashcard-container">
+        <div id="flashcard" class="flashcard" onclick="flipCard()">
+          <div class="front" id="frontText"></div>
+          <div class="back" id="backText"></div>
+        </div>
+        <div class="controls">
+          <button class="btn-nav" onclick="prevCard()">⏮ Prev</button>
+          <span class="progress" id="progressText"></span>
+          <button class="btn-nav" onclick="nextCard()">Next ⏭</button>
+        </div>
       </div>
     </div>
-    <div class="controls">
-      <button class="btn-nav" onclick="prevCard()">⬅️ Previous</button>
-      <div class="progress" id="progress">1 / 7</div>
-      <button class="btn-nav" onclick="nextCard()">Next ➡️</button>
-    </div>
-  </div>
 
-  <!-- Quiz Game -->
-  <div id="quiz" class="tab-content">
-    <h2>Quiz Game</h2>
-    <form id="quizForm">
-      <div class="question">
-        <p>1. Which of these are cloud computing benefits?</p>
-        <input type="checkbox" name="q1" value="Scalability"> Scalability<br>
-        <input type="checkbox" name="q1" value="CapEx Heavy"> CapEx Heavy<br>
-        <input type="checkbox" name="q1" value="Global Reach"> Global Reach<br>
-      </div>
-      <div class="question">
-        <p>2. Best model for deploying an app without managing the OS:</p>
-        <input type="radio" name="q2" value="IaaS"> IaaS<br>
-        <input type="radio" name="q2" value="PaaS"> PaaS<br>
-        <input type="radio" name="q2" value="SaaS"> SaaS<br>
-      </div>
-      <div class="question">
-        <p>3. A startup needs a CRM system and doesn’t want to manage infrastructure. What’s ideal?</p>
-        <input type="radio" name="q3" value="SaaS"> SaaS<br>
-        <input type="radio" name="q3" value="PaaS"> PaaS<br>
-        <input type="radio" name="q3" value="IaaS"> IaaS<br>
-      </div>
-      <div class="question">
-        <p>4. Which service is a good example of IaaS?</p>
-        <input type="radio" name="q4" value="EC2"> EC2<br>
-        <input type="radio" name="q4" value="Lambda"> Lambda<br>
-        <input type="radio" name="q4" value="WorkDocs"> WorkDocs<br>
-      </div>
-      <div class="question">
-        <p>5. Which align with cloud design principles?</p>
-        <input type="checkbox" name="q5" value="Design for Failure"> Design for Failure<br>
-        <input type="checkbox" name="q5" value="Monolithic Design"> Monolithic Design<br>
-        <input type="checkbox" name="q5" value="Automate Everything"> Automate Everything<br>
-      </div>
-      <div class="question">
-        <p>6. Your team wants to scale resources during a product launch. What AWS feature supports this?</p>
-        <input type="radio" name="q6" value="Elasticity"> Elasticity<br>
-        <input type="radio" name="q6" value="Snapshots"> Snapshots<br>
-        <input type="radio" name="q6" value="Data Lifecycle"> Data Lifecycle<br>
-      </div>
-      <div class="question">
-        <p>7. Identify the correct delivery models:</p>
-        <input type="checkbox" name="q7" value="EC2-IaaS"> EC2 - IaaS<br>
-        <input type="checkbox" name="q7" value="RDS-PaaS"> RDS - PaaS<br>
-        <input type="checkbox" name="q7" value="Salesforce-SaaS"> Salesforce - SaaS<br>
-      </div>
-      <button class="btn-submit" type="button" onclick="checkAnswers()">Check Answers</button>
+    <div id="quiz" class="tab-content">
+      <h2>Quiz Game</h2>
+      <form id="quizForm"></form>
+      <button class="btn-submit" onclick="checkAnswers()">Check Answers</button>
       <div class="result" id="resultBox"></div>
-    </form>
+    </div>
   </div>
-</div>
 
-<script>
-  const flashcards = [
-    {
-      front: "What is Cloud Computing?",
-      back: "Cloud computing delivers IT resources like compute, storage, and databases over the internet on a pay-as-you-go basis."
-    },
-    {
-      front: "What is AWS?",
-      back: "Amazon Web Services is a cloud platform offering 200+ services including compute, storage, and networking."
-    },
-    {
-      front: "Benefits of Cloud?",
-      back: "Scalability, global access, reduced costs, faster deployment, and on-demand resources."
-    },
-    {
-      front: "Cloud Economics?",
-      back: "Helps reduce CapEx, shift to OpEx, and only pay for what you use."
-    },
-    {
-      front: "Design for Failure?",
-      back: "Build systems assuming components will fail and recover automatically."
-    },
-    {
-      front: "IaaS Example?",
-      back: "You manage OS and app: AWS EC2 is an IaaS model."
-    },
-    {
-      front: "SaaS Example?",
-      back: "All managed for you: Examples include Gmail and Salesforce."
+  <script>
+    const flashcards = [
+      { front: "What is Cloud Computing?", back: "Cloud computing provides computing services over the internet like storage, servers, and databases." },
+      { front: "AWS Overview", back: "Amazon Web Services is a cloud platform offering 200+ fully featured services from data centers globally." },
+      { front: "Benefits of Cloud", back: "Scalability, Pay-as-you-go, Flexibility, High availability, Global reach" },
+      { front: "IaaS Example", back: "EC2 - You manage OS, storage, apps. AWS provides infrastructure." },
+      { front: "PaaS Example", back: "Elastic Beanstalk - You deploy code, AWS manages OS, runtime." },
+      { front: "SaaS Example", back: "WorkDocs or Gmail - Fully managed software apps." },
+      { front: "Elasticity in AWS", back: "Ability to automatically scale resources based on demand." },
+      { front: "Cloud Design Principle: Loose Coupling", back: "Design systems where components function independently." },
+      { front: "Availability Zone", back: "A physical data center in a region with redundant power, networking." },
+      { front: "Use of IAM", back: "IAM lets you control who can access what in AWS." }
+    ];
+
+    let currentCard = 0;
+    let isFlipped = false;
+
+    function updateCard() {
+      document.getElementById("frontText").innerText = flashcards[currentCard].front;
+      document.getElementById("backText").innerText = flashcards[currentCard].back;
+      document.getElementById("flashcard").classList.remove("flip");
+      isFlipped = false;
+      document.getElementById("progressText").innerText = `Card ${currentCard + 1} of ${flashcards.length}`;
     }
-  ];
 
-  let currentIndex = 0;
+    function flipCard() {
+      const card = document.getElementById("flashcard");
+      card.classList.toggle("flip");
+      isFlipped = !isFlipped;
+    }
 
-  function updateCard() {
-    document.getElementById("flashcard").classList.remove("flip");
-    document.getElementById("cardFront").innerText = flashcards[currentIndex].front;
-    document.getElementById("cardBack").innerText = flashcards[currentIndex].back;
-    document.getElementById("progress").innerText = `${currentIndex + 1} / ${flashcards.length}`;
-  }
+    function nextCard() {
+      if (currentCard < flashcards.length - 1) {
+        currentCard++;
+        updateCard();
+      }
+    }
 
-  function nextCard() {
-    if (currentIndex < flashcards.length - 1) {
-      currentIndex++;
+    function prevCard() {
+      if (currentCard > 0) {
+        currentCard--;
+        updateCard();
+      }
+    }
+
+    function showTab(id, btn) {
+      document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(id).classList.add('active');
+    }
+
+    // Quiz Section
+    const questions = [
+      {
+        q: "Which of these are benefits of cloud computing?",
+        type: "checkbox",
+        options: ["Scalability", "Global Reach", "High CapEx"],
+        correct: ["Scalability", "Global Reach"]
+      },
+      {
+        q: "What AWS service is a PaaS?",
+        type: "radio",
+        options: ["EC2", "Elastic Beanstalk", "WorkDocs"],
+        correct: "Elastic Beanstalk"
+      },
+      {
+        q: "You are a startup needing a ready-to-use CRM. What’s best?",
+        type: "radio",
+        options: ["SaaS", "PaaS", "IaaS"],
+        correct: "SaaS"
+      },
+      {
+        q: "Choose examples of SaaS.",
+        type: "checkbox",
+        options: ["Gmail", "Salesforce", "EC2"],
+        correct: ["Gmail", "Salesforce"]
+      },
+      {
+        q: "Which are IaaS services?",
+        type: "checkbox",
+        options: ["EC2", "S3", "Lambda"],
+        correct: ["EC2"]
+      },
+      {
+        q: "Scenario: Your app needs automatic scaling. What do you use?",
+        type: "radio",
+        options: ["Elastic Load Balancer", "EC2 Auto Scaling", "Snapshot"],
+        correct: "EC2 Auto Scaling"
+      },
+      {
+        q: "Cloud Design Best Practices include:",
+        type: "checkbox",
+        options: ["Automation", "Monoliths", "Loose Coupling"],
+        correct: ["Automation", "Loose Coupling"]
+      },
+      {
+        q: "What helps users securely access AWS services?",
+        type: "radio",
+        options: ["IAM", "S3", "Route53"],
+        correct: "IAM"
+      },
+      {
+        q: "What AWS offering allows serverless code execution?",
+        type: "radio",
+        options: ["Lambda", "EC2", "RDS"],
+        correct: "Lambda"
+      },
+      {
+        q: "Which of these are AWS Global Infrastructure components?",
+        type: "checkbox",
+        options: ["Regions", "Edge Locations", "Load Balancers"],
+        correct: ["Regions", "Edge Locations"]
+      }
+    ];
+
+    function loadQuiz() {
+      const form = document.getElementById("quizForm");
+      form.innerHTML = '';
+      questions.forEach((q, idx) => {
+        const qDiv = document.createElement("div");
+        qDiv.className = "question";
+        qDiv.innerHTML = `<p>${idx + 1}. ${q.q}</p>`;
+        q.options.forEach(opt => {
+          const input = document.createElement("input");
+          input.type = q.type;
+          input.name = "q" + idx;
+          input.value = opt;
+          qDiv.appendChild(input);
+          qDiv.append(opt + "<br>");
+        });
+        form.appendChild(qDiv);
+      });
+    }
+
+    function checkAnswers() {
+      let score = 0;
+      questions.forEach((q, idx) => {
+        const answers = Array.from(document.querySelectorAll(`input[name='q${idx}']:checked`)).map(e => e.value);
+        if (q.type === "radio") {
+          if (answers[0] === q.correct) score++;
+        } else {
+          const correctSet = new Set(q.correct);
+          const answerSet = new Set(answers);
+          if (q.correct.length === answers.length && q.correct.every(a => answerSet.has(a))) {
+            score++;
+          }
+        }
+      });
+      document.getElementById("resultBox").innerHTML = `<strong>You scored ${score}/${questions.length}</strong>`;
+      document.getElementById("resultBox").style.display = "block";
+    }
+
+    window.onload = () => {
       updateCard();
-    }
-  }
-
-  function prevCard() {
-    if (currentIndex > 0) {
-      currentIndex--;
-      updateCard();
-    }
-  }
-
-  function flipCard(card) {
-    card.classList.toggle("flip");
-  }
-
-  function showTab(id, btn) {
-    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById(id).classList.add('active');
-  }
-
-  function checkAnswers() {
-    let score = 0;
-    const resultBox = document.getElementById('resultBox');
-
-    const q1 = Array.from(document.querySelectorAll("input[name='q1']:checked")).map(e => e.value);
-    if (q1.includes('Scalability') && q1.includes('Global Reach') && !q1.includes('CapEx Heavy')) score++;
-
-    const q2 = document.querySelector("input[name='q2']:checked")?.value;
-    if (q2 === 'PaaS') score++;
-
-    const q3 = document.querySelector("input[name='q3']:checked")?.value;
-    if (q3 === 'SaaS') score++;
-
-    const q4 = document.querySelector("input[name='q4']:checked")?.value;
-    if (q4 === 'EC2') score++;
-
-    const q5 = Array.from(document.querySelectorAll("input[name='q5']:checked")).map(e => e.value);
-    if (q5.includes('Design for Failure') && q5.includes('Automate Everything') && !q5.includes('Monolithic Design')) score++;
-
-    const q6 = document.querySelector("input[name='q6']:checked")?.value;
-    if (q6 === 'Elasticity') score++;
-
-    const q7 = Array.from(document.querySelectorAll("input[name='q7']:checked")).map(e => e.value);
-    if (q7.includes('EC2-IaaS') && q7.includes('Salesforce-SaaS') && q7.includes('RDS-PaaS')) score++;
-
-    resultBox.innerHTML = `<strong>You scored ${score}/7</strong><br>${score === 7 ? '🎉 Excellent!' : '📘 Review flashcards and try again.'}`;
-    resultBox.style.display = 'block';
-  }
-
-  window.onload = updateCard;
-</script>
+      loadQuiz();
+    };
+  </script>
 </body>
 </html>
