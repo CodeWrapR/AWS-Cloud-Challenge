@@ -5,184 +5,1053 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AWS Day 1: Learn & Quiz</title>
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to bottom right, #f0f8ff, #e6f7ff);
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      color: #333;
     }
-    nav {
+    
+    body {
+      font-family: 'Amazon Ember', 'Helvetica Neue', Roboto, Arial, sans-serif;
+      background-color: #f2f3f3;
+      color: #232f3e;
+      line-height: 1.6;
+    }
+    
+    /* AWS-style header */
+    .aws-header {
       background-color: #232f3e;
-      color: #fff;
-      padding: 1.5rem;
-      text-align: center;
-      font-size: 1.75rem;
-      font-weight: bold;
-    }
-    .container {
-      padding: 2rem;
-      max-width: 1000px;
-      margin: auto;
-    }
-    .tab-button {
-      background-color: #d1ecf1;
-      color: #004085;
-      border: 1px solid #bee5eb;
-      padding: 0.75rem 1.25rem;
-      margin-right: 0.5rem;
-      cursor: pointer;
-      border-radius: 5px;
-      font-weight: bold;
-    }
-    .tab-button.active {
-      background-color: #17a2b8;
       color: white;
+      padding: 0;
+      border-bottom: 1px solid #3c4043;
     }
+    
+    .aws-nav {
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      height: 60px;
+    }
+    
+    .aws-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 18px;
+      font-weight: 600;
+      color: #ff9900;
+    }
+    
+    .aws-service-name {
+      margin-left: 20px;
+      font-size: 16px;
+      color: white;
+      border-left: 1px solid #666;
+      padding-left: 20px;
+    }
+    
+    /* AWS-style breadcrumb */
+    .aws-breadcrumb {
+      background-color: #f9f9f9;
+      padding: 12px 20px;
+      border-bottom: 1px solid #d5dbdb;
+      font-size: 14px;
+    }
+    
+    .breadcrumb-link {
+      color: #0073bb;
+      text-decoration: none;
+    }
+    
+    .breadcrumb-link:hover {
+      text-decoration: underline;
+    }
+    
+    /* Main content container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    
+    /* AWS-style page header */
+    .page-header {
+      margin-bottom: 32px;
+    }
+    
+    .page-title {
+      font-size: 28px;
+      font-weight: 300;
+      color: #232f3e;
+      margin-bottom: 8px;
+    }
+    
+    .page-description {
+      font-size: 14px;
+      color: #687078;
+      line-height: 1.5;
+    }
+    
+    /* AWS-style tabs */
+    .tab-container {
+      border-bottom: 1px solid #d5dbdb;
+      margin-bottom: 24px;
+    }
+    
+    .tab-button {
+      background: none;
+      border: none;
+      padding: 16px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #687078;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s ease;
+    }
+    
+    .tab-button:hover {
+      color: #232f3e;
+      background-color: #fafafa;
+    }
+    
+    .tab-button.active {
+      color: #0073bb;
+      border-bottom-color: #0073bb;
+      background-color: white;
+    }
+    
+    /* AWS-style content panels */
     .tab-content {
       display: none;
-      background: #fff;
+      background: white;
       border-radius: 8px;
-      padding: 2rem;
-      margin-top: 1.5rem;
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      overflow: hidden;
     }
+    
     .tab-content.active {
       display: block;
     }
+    
+    .content-header {
+      background-color: #fafafa;
+      padding: 20px 24px;
+      border-bottom: 1px solid #d5dbdb;
+    }
+    
+    .content-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-bottom: 8px;
+    }
+    
+    .content-subtitle {
+      font-size: 14px;
+      color: #687078;
+    }
+    
+    .content-body {
+      padding: 24px;
+    }
+    
+    /* Flashcard styling */
     .flashcard-container {
       perspective: 1000px;
-      margin: 1rem 0;
+      margin: 24px 0;
     }
+    
+    .difficulty-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      padding: 12px 16px;
+      background-color: #f9f9f9;
+      border-radius: 4px;
+      border-left: 4px solid #0073bb;
+    }
+    
+    .difficulty-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-right: 12px;
+    }
+    
+    .difficulty-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #d5dbdb;
+    }
+    
+    .difficulty-dot.active { background: #1b660f; }
+    .difficulty-dot.medium { background: #ff9900; }
+    .difficulty-dot.hard { background: #d13212; }
+    
+    .difficulty-text {
+      font-size: 14px;
+      color: #687078;
+      margin-left: 8px;
+    }
+    
     .flashcard {
       width: 100%;
-      height: 200px;
-      background: linear-gradient(to right, #ffffff, #f0f8ff);
-      border: 2px solid #d1ecf1;
-      border-radius: 12px;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+      height: 350px;
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
       transition: transform 0.6s;
       transform-style: preserve-3d;
       position: relative;
       cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
+    
+    .flashcard:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
     .flip {
       transform: rotateY(180deg);
     }
+    
     .front, .back {
       position: absolute;
       width: 100%;
       height: 100%;
       backface-visibility: hidden;
-      padding: 1rem;
+      border-radius: 8px;
       display: flex;
-      align-items: center;
+      flex-direction: column;
       justify-content: center;
-      font-size: 1.2rem;
-      font-weight: bold;
+      align-items: center;
+      text-align: center;
+      padding: 24px;
+      overflow-y: auto;
+    }
+    
+    .front {
+      background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+      color: #232f3e;
+    }
+    
+    .back {
+      background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+      color: #232f3e;
+      transform: rotateY(180deg);
+    }
+    
+    .card-category {
+      font-size: 12px;
+      font-weight: 500;
+      color: #0073bb;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+      padding: 4px 12px;
+      background-color: rgba(0, 115, 187, 0.1);
       border-radius: 12px;
     }
-    .back {
-      transform: rotateY(180deg);
-      background: #e3f2fd;
-      color: #004085;
+    
+    .card-title {
+      font-size: 20px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-bottom: 20px;
+      line-height: 1.4;
     }
+    
+    .card-content {
+      font-size: 16px;
+      line-height: 1.8;
+      color: #232f3e;
+      white-space: pre-line;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      max-width: 100%;
+    }
+    
+    .card-content strong {
+      font-weight: 600;
+    }
+    
+    /* AWS-style controls */
     .controls {
-      margin-top: 1rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-top: 24px;
+      padding: 16px;
+      background-color: #fafafa;
+      border-radius: 4px;
     }
-    .btn-nav {
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 6px;
-      background: #28a745;
+    
+    .btn-aws {
+      background-color: #0073bb;
       color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
       cursor: pointer;
-      font-weight: bold;
+      transition: background-color 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    .progress {
-      font-weight: bold;
-      color: #17a2b8;
+    
+    .btn-aws:hover {
+      background-color: #005a9b;
     }
-    .question {
-      margin: 1.5rem 0;
+    
+    .btn-aws:disabled {
+      background-color: #d5dbdb;
+      color: #687078;
+      cursor: not-allowed;
     }
+    
+    .btn-secondary {
+      background-color: #fafafa;
+      color: #232f3e;
+      border: 1px solid #d5dbdb;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #f2f3f3;
+    }
+    
+    .progress-info {
+      font-size: 14px;
+      color: #687078;
+      text-align: center;
+      flex: 1;
+      margin: 0 16px;
+    }
+    
+    .progress-text {
+      font-weight: 500;
+      color: #232f3e;
+    }
+    
+    /* Quiz styling */
+    .question-container {
+      margin-bottom: 32px;
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .question-header {
+      background-color: #f9f9f9;
+      padding: 16px 20px;
+      border-bottom: 1px solid #d5dbdb;
+    }
+    
+    .scenario-tag {
+      display: inline-block;
+      background-color: #ff9900;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    
+    .question-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: #232f3e;
+      line-height: 1.5;
+    }
+    
+    .question-body {
+      padding: 20px;
+    }
+    
+    .option-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .option {
+      display: flex;
+      align-items: flex-start;
+      padding: 12px 16px;
+      background: #fafafa;
+      border: 1px solid #d5dbdb;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .option:hover {
+      background-color: #f2f3f3;
+      border-color: #0073bb;
+    }
+    
+    .option.selected {
+      background-color: #e6f3ff;
+      border-color: #0073bb;
+    }
+    
+    .option input {
+      margin-right: 12px;
+      margin-top: 2px;
+    }
+    
+    .option label {
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1.5;
+      flex: 1;
+    }
+    
+    .quiz-submit {
+      text-align: center;
+      margin: 32px 0;
+    }
+    
     .btn-submit {
-      background-color: #007bff;
+      background-color: #1b660f;
       color: white;
-      padding: 0.75rem 1.5rem;
       border: none;
-      border-radius: 5px;
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: 500;
       cursor: pointer;
-      font-weight: bold;
+      transition: background-color 0.2s ease;
     }
+    
+    .btn-submit:hover {
+      background-color: #0f4d0a;
+    }
+    
+    /* Results styling */
     .result {
-      background-color: #d4edda;
-      border: 1px solid #c3e6cb;
-      padding: 1rem;
-      margin-top: 2rem;
-      border-radius: 5px;
-      color: #155724;
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      padding: 24px;
+      margin-top: 24px;
       display: none;
+      text-align: center;
+    }
+    
+    .result.show {
+      display: block;
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .score-circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background-color: #1b660f;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 auto 16px;
+    }
+    
+    .result-title {
+      font-size: 20px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-bottom: 8px;
+    }
+    
+    .result-subtitle {
+      font-size: 16px;
+      color: #687078;
+      margin-bottom: 20px;
+    }
+    
+    .result-details {
+      text-align: left;
+      margin-top: 24px;
+    }
+    
+    .result-item {
+      margin: 12px 0;
+      padding: 12px;
+      border-radius: 4px;
+      border-left: 4px solid;
+    }
+    
+    .result-item.correct {
+      background-color: #f0f8f0;
+      border-color: #1b660f;
+    }
+    
+    .result-item.incorrect {
+      background-color: #fdf2f2;
+      border-color: #d13212;
+    }
+    
+    .result-item-header {
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    
+    .result-item-explanation {
+      font-size: 14px;
+      color: #687078;
+      line-height: 1.5;
+    }
+    
+    .btn-reset {
+      background-color: #687078;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 16px;
+    }
+    
+    .btn-reset:hover {
+      background-color: #5a6269;
+    }
+    
+    /* Hide the debug text that's showing incorrectly */
+    .front::after,
+    .back::after {
+      content: none;
+    }
+    
+    /* Ensure only the intended content shows */
+    .front > *:not(.card-category):not(.card-title):not(.card-content) {
+      display: none;
+    }
+    
+    .back > *:not(.card-category):not(.card-title):not(.card-content) {
+      display: none;
+    }
+    @media (max-width: 768px) {
+      .container {
+        padding: 16px;
+      }
+      
+      .aws-nav {
+        padding: 0 16px;
+      }
+      
+      .aws-service-name {
+        display: none;
+      }
+      
+      .flashcard {
+        height: 250px;
+      }
+      
+      .controls {
+        flex-direction: column;
+        gap: 12px;
+      }
+      
+      .controls .progress-info {
+        margin: 0;
+      }
+    }
+    
+    /* Additional spacing for readability */
+    p {
+      margin-bottom: 16px;
+    }
+    
+    ul, ol {
+      margin-bottom: 16px;
+      padding-left: 20px;
+    }
+    
+    li {
+      margin-bottom: 8px;
     }
   </style>
 </head>
 <body>
-  <nav>AWS Day 1: Learn & Quiz</nav>
+  <!-- AWS Console-style header -->
+  <div class="aws-header">
+    <div class="aws-nav">
+      <div class="aws-logo">
+        <span>🟠</span> AWS
+      </div>
+      <div class="aws-service-name">Training & Certification</div>
+    </div>
+  </div>
+  
+  <!-- AWS-style breadcrumb -->
+  <div class="aws-breadcrumb">
+    <a href="#" class="breadcrumb-link">AWS Training</a> &gt; 
+    <a href="#" class="breadcrumb-link">Cloud Practitioner</a> &gt; 
+    Day 1: Fundamentals
+  </div>
+  
   <div class="container">
-    <div>
-      <button class="tab-button active" onclick="showTab('learn', this)">📘 Flashcard Learning</button>
-      <button class="tab-button" onclick="showTab('quiz', this)">📝 Quiz Game</button>
+    <!-- Page header -->
+    <div class="page-header">
+      <h1 class="page-title">AWS Cloud Learning</h1>
+      <p class="page-description">
+        Build your foundational understanding of cloud computing and AWS services through interactive flashcards and scenario-based assessments. 
+        
+        Progress through beginner concepts to advanced infrastructure knowledge.
+      </p>
+    </div>
+    
+    <!-- Tabs -->
+    <div class="tab-container">
+      <button class="tab-button active" onclick="showTab('learn', this)">
+        📚 Study Flashcards
+      </button>
+      <button class="tab-button" onclick="showTab('quiz', this)">
+        📝 Practice Quiz
+      </button>
     </div>
 
+    <!-- Flashcards Tab -->
     <div id="learn" class="tab-content active">
-      <h2>Flashcard Learning</h2>
-      <div class="flashcard-container">
-        <div id="flashcard" class="flashcard" onclick="flipCard()">
-          <div class="front" id="frontText"></div>
-          <div class="back" id="backText"></div>
+      <div class="content-header">
+        <h2 class="content-title">Interactive Learning Flashcards</h2>
+        <p class="content-subtitle">
+          Progressive difficulty system with 27 cards covering cloud fundamentals, AWS infrastructure, and core services.
+        </p>
+      </div>
+      
+      <div class="content-body">
+        <div class="difficulty-indicator">
+          <span class="difficulty-label">Difficulty Level:</span>
+          <div class="difficulty-dot" id="diff1"></div>
+          <div class="difficulty-dot" id="diff2"></div>
+          <div class="difficulty-dot" id="diff3"></div>
+          <span class="difficulty-text" id="diffLabel">Foundation</span>
         </div>
+        
+        <div class="flashcard-container">
+          <div id="flashcard" class="flashcard" onclick="flipCard()">
+            <div class="front">
+              <div class="card-category" id="frontCategory"></div>
+              <div class="card-title" id="frontTitle"></div>
+            </div>
+            <div class="back">
+              <div class="card-category">Answer</div>
+              <div class="card-title">Explanation</div>
+              <div class="card-content" id="backText"></div>
+            </div>
+          </div>
+        </div>
+        
         <div class="controls">
-          <button class="btn-nav" onclick="prevCard()">⏮ Prev</button>
-          <span class="progress" id="progressText"></span>
-          <button class="btn-nav" onclick="nextCard()">Next ⏭</button>
+          <button class="btn-aws btn-secondary" onclick="prevCard()" id="prevBtn">
+            ← Previous
+          </button>
+          <div class="progress-info">
+            <div class="progress-text" id="progressText"></div>
+            <div style="font-size: 12px; color: #687078; margin-top: 4px;">
+              Click card to flip • Use arrow keys to navigate
+            </div>
+          </div>
+          <button class="btn-aws" onclick="nextCard()" id="nextBtn">
+            Next →
+          </button>
         </div>
       </div>
     </div>
 
+    <!-- Quiz Tab -->
     <div id="quiz" class="tab-content">
-      <h2>Quiz Game</h2>
-      <form id="quizForm"></form>
-      <button class="btn-submit" onclick="checkAnswers()">Check Answers</button>
-      <div class="result" id="resultBox"></div>
+      <div class="content-header">
+        <h2 class="content-title">AWS Fundamentals Assessment</h2>
+        <p class="content-subtitle">
+          Test your knowledge with real-world scenarios and business use cases. 
+          
+          Mixed question types including single-select and multi-select formats.
+        </p>
+      </div>
+      
+      <div class="content-body">
+        <div id="quizContainer"></div>
+        <div class="quiz-submit">
+          <button class="btn-submit" onclick="checkAnswers()">
+            Submit Assessment
+          </button>
+        </div>
+        <div class="result" id="resultBox"></div>
+      </div>
     </div>
   </div>
 
   <script>
     const flashcards = [
-      { front: "What is Cloud Computing?", back: "Cloud computing provides computing services over the internet like storage, servers, and databases." },
-      { front: "AWS Overview", back: "Amazon Web Services is a cloud platform offering 200+ fully featured services from data centers globally." },
-      { front: "Benefits of Cloud", back: "Scalability, Pay-as-you-go, Flexibility, High availability, Global reach" },
-      { front: "IaaS Example", back: "EC2 - You manage OS, storage, apps. AWS provides infrastructure." },
-      { front: "PaaS Example", back: "Elastic Beanstalk - You deploy code, AWS manages OS, runtime." },
-      { front: "SaaS Example", back: "WorkDocs or Gmail - Fully managed software apps." },
-      { front: "Elasticity in AWS", back: "Ability to automatically scale resources based on demand." },
-      { front: "Cloud Design Principle: Loose Coupling", back: "Design systems where components function independently." },
-      { front: "Availability Zone", back: "A physical data center in a region with redundant power, networking." },
-      { front: "Use of IAM", back: "IAM lets you control who can access what in AWS." }
+      // Level 1: Foundation Concepts (What is Cloud?)
+      {
+        level: 1,
+        front: "What is Cloud Computing?",
+        back: "Cloud computing is the delivery of computing services—including servers, storage, databases, networking, software, analytics, and intelligence—over the Internet ('the cloud') to offer faster innovation, flexible resources, and economies of scale.\n\nInstead of owning and maintaining physical data centers and servers, you can access technology services on an as-needed basis from a cloud provider.",
+        category: "Cloud Fundamentals"
+      },
+      {
+        level: 1,
+        front: "Traditional IT vs Cloud Computing",
+        back: "Traditional IT: Buy servers, set up data centers, hire IT staff, manage everything yourself. High upfront costs and long procurement cycles.\n\nCloud Computing: Rent computing resources on-demand, pay only for what you use, someone else manages the infrastructure. No upfront costs and instant access to resources.",
+        category: "Cloud Fundamentals"
+      },
+      {
+        level: 1,
+        front: "Real-World Cloud Examples",
+        back: "• Netflix streaming (uses AWS for global content delivery)\n• Gmail email service (Google's cloud infrastructure)\n• Dropbox file storage (cloud-based file synchronization)\n• Zoom video conferencing (cloud-based communication)\n• Spotify music streaming (cloud-based media delivery)\n• Instagram photo sharing (cloud-based social platform)",
+        category: "Cloud Examples"
+      },
+      {
+        level: 1,
+        front: "Key Benefits of Cloud Computing",
+        back: "1. Cost Savings (no upfront hardware costs, pay-as-you-go pricing)\n\n2. Speed & Agility (deploy resources in minutes, not weeks)\n\n3. Global Scale (worldwide reach with multiple data centers)\n\n4. Reliability (backup & disaster recovery built-in)\n\n5. Security (enterprise-grade protection and compliance)\n\n6. Flexibility (scale up/down as needed automatically)",
+        category: "Cloud Benefits"
+      },
+      
+      // Level 1: Service Models Foundation
+      {
+        level: 1,
+        front: "What is IaaS (Infrastructure as a Service)?",
+        back: "IaaS provides basic computing infrastructure over the internet: virtual machines, storage, networks, and operating systems.\n\nYou manage: Operating System, Runtime, Data, Applications\nProvider manages: Virtualization, Servers, Storage, Networking\n\nExample: Renting a virtual computer in the cloud (like Amazon EC2)",
+        category: "Service Models"
+      },
+      {
+        level: 1,
+        front: "What is PaaS (Platform as a Service)?",
+        back: "PaaS provides a platform for developing and deploying applications without managing underlying infrastructure.\n\nYou manage: Data, Applications\nProvider manages: Runtime, Middleware, Operating System, Infrastructure\n\nExample: Google App Engine, where you just upload code and it runs automatically",
+        category: "Service Models"
+      },
+      {
+        level: 1,
+        front: "What is SaaS (Software as a Service)?",
+        back: "SaaS provides complete software applications over the internet, ready to use.\n\nYou manage: Just your data and usage\nProvider manages: Everything else (application, platform, infrastructure)\n\nExamples: Gmail, Salesforce, Microsoft Office 365, Zoom, Dropbox",
+        category: "Service Models"
+      },
+      {
+        level: 1,
+        front: "IaaS vs PaaS vs SaaS - Simple Analogy",
+        back: "Pizza Delivery Analogy:\n\n• IaaS: You get oven & ingredients, make pizza yourself (most control, most work)\n\n• PaaS: You get prepared dough, add your own toppings (moderate control)\n\n• SaaS: You get delivered pizza, just eat it (least control, least work)\n\nResponsibility and management complexity decreases from IaaS → PaaS → SaaS",
+        category: "Service Models"
+      },
+      
+      // Level 2: Introduction to AWS and Cloud Resources
+      {
+        level: 2,
+        front: "What is Amazon Web Services (AWS)?",
+        back: "AWS is Amazon's cloud computing platform launched in 2006. It offers 200+ services including computing power, database storage, and content delivery.\n\nKey Facts:\n• World's largest cloud provider (32% market share)\n• Used by millions of customers worldwide\n• Operates in 26+ geographic regions\n• Powers companies like Netflix, Airbnb, and NASA",
+        category: "AWS Introduction"
+      },
+      {
+        level: 2,
+        front: "Types of Cloud Resources - Compute",
+        back: "Compute = Processing Power for running applications\n\n• Virtual Machines (like Amazon EC2)\n• Serverless Functions (like AWS Lambda)\n• Containers (like Amazon ECS/EKS)\n• Batch Processing (for large-scale data processing)\n• High Performance Computing (for scientific workloads)\n\nCompute resources can scale automatically based on demand.",
+        category: "Cloud Resources"
+      },
+      {
+        level: 2,
+        front: "Types of Cloud Resources - Storage",
+        back: "Storage = Data Storage solutions for different needs\n\n• Object Storage (like files in folders - Amazon S3)\n• Block Storage (like hard drives - Amazon EBS)\n• File Storage (like shared network drives - Amazon EFS)\n• Archive Storage (long-term backup - Amazon Glacier)\n• Database Storage (structured data - Amazon RDS)\n\nEach type optimized for specific use cases and access patterns.",
+        category: "Cloud Resources"
+      },
+      {
+        level: 2,
+        front: "Types of Cloud Resources - Networking",
+        back: "Networking = Connectivity and communication services\n\n• Virtual Networks (private cloud networks - Amazon VPC)\n• Load Balancers (distribute traffic - Elastic Load Balancer)\n• Content Delivery (faster downloads - CloudFront)\n• DNS Services (website addresses - Route 53)\n• VPN Connections (secure connections - AWS VPN)\n\nNetworking ensures secure and efficient data transfer.",
+        category: "Cloud Resources"
+      },
+      {
+        level: 2,
+        front: "Types of Cloud Resources - Databases",
+        back: "Databases = Data Management and storage solutions\n\n• Relational Databases (like MySQL - Amazon RDS)\n• NoSQL Databases (flexible data - Amazon DynamoDB)\n• Data Warehouses (analytics - Amazon Redshift)\n• In-Memory Databases (super fast - Amazon ElastiCache)\n• Graph Databases (relationships - Amazon Neptune)\n\nEach database type optimized for specific data patterns and use cases.",
+        category: "Cloud Resources"
+      },
+      
+      // Level 2: Physical Infrastructure Understanding
+      {
+        level: 2,
+        front: "What is a Data Center?",
+        back: "A data center is a physical facility that houses computer systems and associated components.\n\nKey Components:\n• Thousands of servers running 24/7\n• Redundant power systems (UPS, generators)\n• Advanced cooling systems\n• High-speed networking equipment\n• Physical security (biometric access, cameras)\n• Fire suppression systems\n\nThink of it as a huge warehouse full of computers providing cloud services.",
+        category: "Physical Infrastructure"
+      },
+      {
+        level: 2,
+        front: "Why Multiple Data Centers?",
+        back: "Multiple data centers provide critical benefits:\n\n• Redundancy (if one fails, others continue working)\n• Performance (serve users from nearby locations for faster response)\n• Disaster Recovery (protection against natural disasters)\n• Compliance (meet data residency requirements)\n• Load Distribution (spread traffic across multiple locations)\n\nThis ensures high availability and reliability for cloud services.",
+        category: "Physical Infrastructure"
+      },
+      {
+        level: 2,
+        front: "Data Center Components",
+        back: "Essential infrastructure components:\n\n• Servers (the computers running applications)\n• Power Systems (UPS batteries, diesel generators for backup)\n• Cooling Systems (air conditioning to prevent overheating)\n• Network Equipment (routers, switches for connectivity)\n• Security Systems (biometric access, surveillance cameras)\n• Fire Suppression (special systems that won't damage equipment)\n\nAll designed for 99.99%+ uptime reliability.",
+        category: "Physical Infrastructure"
+      },
+      
+      // Level 3: AWS Global Infrastructure
+      {
+        level: 3,
+        front: "What are AWS Edge Locations?",
+        back: "Edge Locations are data centers used by CloudFront (AWS's Content Delivery Network) to cache content closer to users for faster delivery.\n\nKey Facts:\n• 400+ Edge Locations worldwide (more than Regions and AZs combined)\n• Cache popular content like images, videos, and web pages\n• Reduce latency by serving content from nearby locations\n• Automatically updated from origin servers\n• Make websites and applications load faster globally\n\nExample: A user in Tokyo gets content from Tokyo Edge Location instead of a server in Virginia.",
+        category: "AWS Infrastructure"
+      },
+      {
+        level: 3,
+        front: "Real AWS Region Examples",
+        back: "Popular AWS Regions with their use cases:\n\n• us-east-1 (N. Virginia) - Oldest region, most services available first\n• us-west-2 (Oregon) - Popular for West Coast US companies\n• eu-west-1 (Ireland) - Popular in Europe for GDPR compliance\n• ap-southeast-1 (Singapore) - Popular in Asia-Pacific region\n• sa-east-1 (São Paulo) - Only region in South America\n\nEach region serves specific geographic areas and compliance requirements.",
+        category: "AWS Infrastructure"
+      },
+      
+      // Level 3: Core AWS Services
+      {
+        level: 3,
+        front: "Amazon EC2 - Virtual Computers",
+        back: "Elastic Compute Cloud (EC2) provides resizable virtual servers in the cloud.\n\nKey Features:\n• Choose operating system (Windows, Linux, macOS)\n• Select CPU, memory, storage, and network performance\n• Launch instances in minutes\n• Pay only for running time\n• Auto-scaling based on demand\n• Multiple instance types for different workloads\n\nExample: Launch a web server that automatically scales during traffic spikes.",
+        category: "AWS Core Services"
+      },
+      {
+        level: 3,
+        front: "Amazon S3 - Object Storage",
+        back: "Simple Storage Service (S3) stores files (called 'objects') in containers (called 'buckets').\n\nKey Features:\n• Virtually unlimited storage capacity\n• 99.999999999% (11 9's) durability\n• Multiple storage classes for different needs\n• Web-based access from anywhere\n• Integration with other AWS services\n• Versioning and lifecycle management\n\nPerfect for: Website files, backups, data lakes, content distribution, mobile app data.",
+        category: "AWS Core Services"
+      },
+      {
+        level: 3,
+        front: "AWS Lambda - Serverless Computing",
+        back: "Lambda runs your code without provisioning or managing servers.\n\nKey Benefits:\n• No server management required\n• Automatic scaling (0 to thousands of requests)\n• Pay only for execution time (per millisecond)\n• Supports multiple programming languages\n• Event-driven execution\n• Built-in fault tolerance\n\nPerfect for: Processing file uploads, real-time data processing, API backends, scheduled tasks.",
+        category: "AWS Core Services"
+      },
+      {
+        level: 3,
+        front: "Amazon RDS - Managed Databases",
+        back: "Relational Database Service (RDS) provides managed database hosting.\n\nSupported Database Engines:\n• MySQL, PostgreSQL, MariaDB\n• Oracle Database, SQL Server\n• Amazon Aurora (cloud-native)\n\nAWS Manages:\n• Automated backups and point-in-time recovery\n• Software patching and updates\n• Performance monitoring\n• Multi-AZ deployments for high availability\n\nYou focus on your application, AWS handles database administration.",
+        category: "AWS Core Services"
+      }
+    ];
+
+    const questions = [
+      {
+        question: "Your company needs to deploy applications across multiple data centers in the same geographic area for high availability. What AWS infrastructure should you use?",
+        type: "radio",
+        scenario: "High Availability Design",
+        options: [
+          "Multiple Regions in different countries",
+          "Multiple Availability Zones within a single Region",
+          "Multiple Edge Locations",
+          "Single data center with backup power"
+        ],
+        correct: ["Multiple Availability Zones within a single Region"],
+        explanation: "Availability Zones within a Region provide high availability while maintaining low latency between zones. This is the standard approach for high availability within the same geographic area."
+      },
+      {
+        question: "Which AWS services provide compute capabilities?",
+        type: "checkbox",
+        scenario: "Service Categories",
+        options: [
+          "Amazon EC2 (Virtual Servers)",
+          "AWS Lambda (Serverless Functions)",
+          "Amazon S3 (Object Storage)",
+          "Amazon ECS (Container Service)",
+          "Amazon RDS (Database Service)"
+        ],
+        correct: ["Amazon EC2 (Virtual Servers)", "AWS Lambda (Serverless Functions)", "Amazon ECS (Container Service)"],
+        explanation: "EC2, Lambda, and ECS all provide different types of compute capabilities. S3 is storage and RDS is a database service, not compute services."
+      },
+      {
+        question: "A global media company wants to deliver video content with minimal latency worldwide. Which AWS infrastructure component is most important?",
+        type: "radio",
+        scenario: "Content Delivery",
+        options: [
+          "AWS Regions only",
+          "Availability Zones",
+          "Edge Locations with CloudFront",
+          "Single data center with high bandwidth"
+        ],
+        correct: ["Edge Locations with CloudFront"],
+        explanation: "Edge Locations cache content closer to users globally, providing the lowest latency for content delivery. CloudFront uses these Edge Locations to deliver content faster than serving from origin servers."
+      },
+      {
+        question: "Which factors should influence your choice of AWS Region for deploying applications?",
+        type: "checkbox",
+        scenario: "Region Selection",
+        options: [
+          "Proximity to your target users",
+          "Data governance and compliance requirements",
+          "Service availability in that Region",
+          "Pricing differences between Regions",
+          "Your personal preference for the location"
+        ],
+        correct: ["Proximity to your target users", "Data governance and compliance requirements", "Service availability in that Region", "Pricing differences between Regions"],
+        explanation: "Region selection should be based on technical and business requirements like latency, compliance, available services, and costs. Personal preferences are not relevant factors."
+      },
+      {
+        question: "Your startup needs different types of storage for various use cases. Which storage services match these needs?",
+        type: "checkbox",
+        scenario: "Storage Solutions",
+        options: [
+          "Amazon S3 - Object storage for websites and backups",
+          "Amazon EBS - Block storage for EC2 instances",
+          "Amazon EFS - Shared file storage for multiple servers",
+          "Amazon Glacier - Long-term archival storage",
+          "Amazon RDS - Database storage solution"
+        ],
+        correct: ["Amazon S3 - Object storage for websites and backups", "Amazon EBS - Block storage for EC2 instances", "Amazon EFS - Shared file storage for multiple servers", "Amazon Glacier - Long-term archival storage"],
+        explanation: "RDS is a database service, not a storage type. S3, EBS, EFS, and Glacier are different storage solutions designed for specific use cases and access patterns."
+      },
+      {
+        question: "A financial services company needs to ensure regulatory compliance and data sovereignty. What should guide their AWS deployment?",
+        type: "radio",
+        scenario: "Compliance Requirements",
+        options: [
+          "Deploy in any Region for cost savings",
+          "Choose Regions based on data residency laws",
+          "Use only Edge Locations",
+          "Avoid cloud entirely for compliance"
+        ],
+        correct: ["Choose Regions based on data residency laws"],
+        explanation: "Financial services must comply with data residency requirements and regulations. Choosing the correct Region ensures compliance with local laws and regulations."
+      },
+      {
+        question: "Which AWS database services would suit different application needs?",
+        type: "checkbox",
+        scenario: "Database Selection",
+        options: [
+          "Amazon RDS - Traditional relational database applications",
+          "Amazon DynamoDB - High-performance NoSQL applications",
+          "Amazon Redshift - Data warehousing and analytics",
+          "Amazon ElastiCache - In-memory caching for performance",
+          "Amazon S3 - Primary database for transactions"
+        ],
+        correct: ["Amazon RDS - Traditional relational database applications", "Amazon DynamoDB - High-performance NoSQL applications", "Amazon Redshift - Data warehousing and analytics", "Amazon ElastiCache - In-memory caching for performance"],
+        explanation: "S3 is object storage, not a database service. RDS, DynamoDB, Redshift, and ElastiCache are purpose-built database and caching services for different use cases."
+      },
+      {
+        question: "Your application experiences unpredictable traffic patterns. Which compute service automatically scales without server management?",
+        type: "radio",
+        scenario: "Auto-scaling Needs",
+        options: [
+          "Amazon EC2 with manual scaling",
+          "AWS Lambda (Serverless)",
+          "Physical servers in your office",
+          "Amazon RDS database"
+        ],
+        correct: ["AWS Lambda (Serverless)"],
+        explanation: "Lambda automatically scales based on demand without any server management, making it perfect for unpredictable workloads. You only pay for actual execution time."
+      },
+      {
+        question: "Which AWS services help with application integration and communication between microservices?",
+        type: "checkbox",
+        scenario: "Microservices Architecture",
+        options: [
+          "Amazon SQS - Message queuing service",
+          "Amazon SNS - Pub/sub messaging service",
+          "AWS Step Functions - Workflow orchestration",
+          "Amazon API Gateway - API management",
+          "Amazon EC2 - Virtual servers"
+        ],
+        correct: ["Amazon SQS - Message queuing service", "Amazon SNS - Pub/sub messaging service", "AWS Step Functions - Workflow orchestration", "Amazon API Gateway - API management"],
+        explanation: "EC2 provides compute capacity but doesn't specifically help with application integration. SQS, SNS, Step Functions, and API Gateway are designed for connecting and coordinating microservices."
+      },
+      {
+        question: "A data science team needs to process large datasets and build machine learning models. Which AWS services would help?",
+        type: "checkbox",
+        scenario: "Data Science Workload",
+        options: [
+          "Amazon SageMaker - ML platform for model building",
+          "Amazon S3 - Data lake storage",
+          "Amazon Athena - Query data without servers",
+          "AWS Glue - ETL data preparation service",
+          "Amazon WorkDocs - Document collaboration"
+        ],
+        correct: ["Amazon SageMaker - ML platform for model building", "Amazon S3 - Data lake storage", "Amazon Athena - Query data without servers", "AWS Glue - ETL data preparation service"],
+        explanation: "WorkDocs is for document collaboration, not data science. SageMaker, S3, Athena, and Glue form a complete data science and analytics pipeline for ML workloads."
+      },
+      {
+        question: "Your company operates in multiple countries and needs disaster recovery capabilities. How should you design your AWS architecture?",
+        type: "radio",
+        scenario: "Disaster Recovery",
+        options: [
+          "Deploy everything in a single Availability Zone",
+          "Use multiple Regions with automated failover",
+          "Rely only on local backups",
+          "Use multiple Edge Locations as primary infrastructure"
+        ],
+        correct: ["Use multiple Regions with automated failover"],
+        explanation: "Multi-Region deployment provides the highest level of disaster recovery and business continuity. It protects against regional disasters and ensures global availability."
+      },
+      {
+        question: "Which networking services help build secure and scalable application architectures in AWS?",
+        type: "checkbox",
+        scenario: "Network Architecture",
+        options: [
+          "Amazon VPC - Virtual private cloud networking",
+          "AWS WAF - Web application firewall",
+          "Amazon CloudFront - Content delivery network",
+          "Elastic Load Balancer - Distribute incoming traffic",
+          "Amazon Glacier - Cold storage service"
+        ],
+        correct: ["Amazon VPC - Virtual private cloud networking", "AWS WAF - Web application firewall", "Amazon CloudFront - Content delivery network", "Elastic Load Balancer - Distribute incoming traffic"],
+        explanation: "Glacier is a storage service, not a networking service. VPC, WAF, CloudFront, and ELB provide essential networking capabilities for secure and scalable architectures."
+      }
     ];
 
     let currentCard = 0;
     let isFlipped = false;
+    let userAnswers = {};
 
     function updateCard() {
-      document.getElementById("frontText").innerText = flashcards[currentCard].front;
-      document.getElementById("backText").innerText = flashcards[currentCard].back;
+      const card = flashcards[currentCard];
+      const difficultyLevels = {1: 'Foundation', 2: 'Intermediate', 3: 'Advanced'};
+      
+      // Update front of card
+      document.getElementById("frontCategory").textContent = card.category;
+      document.getElementById("frontTitle").textContent = card.front;
+      
+      // Update back of card with proper formatting
+      document.getElementById("backText").textContent = card.back;
+      
+      // Reset flip state
       document.getElementById("flashcard").classList.remove("flip");
       isFlipped = false;
-      document.getElementById("progressText").innerText = `Card ${currentCard + 1} of ${flashcards.length}`;
+      
+      // Update progress
+      document.getElementById("progressText").innerHTML = `Card ${currentCard + 1} of ${flashcards.length}`;
+      
+      // Update difficulty indicator
+      const diffLabel = document.getElementById("diffLabel");
+      diffLabel.textContent = difficultyLevels[card.level];
+      
+      // Reset difficulty dots
+      for (let i = 1; i <= 3; i++) {
+        const dot = document.getElementById(`diff${i}`);
+        dot.classList.remove('active', 'medium', 'hard');
+        if (i <= card.level) {
+          if (card.level === 1) dot.classList.add('active');
+          else if (card.level === 2) dot.classList.add('medium');
+          else dot.classList.add('hard');
+        }
+      }
+      
+      // Update navigation buttons
+      document.getElementById("prevBtn").disabled = currentCard === 0;
+      document.getElementById("nextBtn").disabled = currentCard === flashcards.length - 1;
     }
 
     function flipCard() {
@@ -212,111 +1081,273 @@
       document.getElementById(id).classList.add('active');
     }
 
-    // Quiz Section
-    const questions = [
-      {
-        q: "Which of these are benefits of cloud computing?",
-        type: "checkbox",
-        options: ["Scalability", "Global Reach", "High CapEx"],
-        correct: ["Scalability", "Global Reach"]
-      },
-      {
-        q: "What AWS service is a PaaS?",
-        type: "radio",
-        options: ["EC2", "Elastic Beanstalk", "WorkDocs"],
-        correct: "Elastic Beanstalk"
-      },
-      {
-        q: "You are a startup needing a ready-to-use CRM. What’s best?",
-        type: "radio",
-        options: ["SaaS", "PaaS", "IaaS"],
-        correct: "SaaS"
-      },
-      {
-        q: "Choose examples of SaaS.",
-        type: "checkbox",
-        options: ["Gmail", "Salesforce", "EC2"],
-        correct: ["Gmail", "Salesforce"]
-      },
-      {
-        q: "Which are IaaS services?",
-        type: "checkbox",
-        options: ["EC2", "S3", "Lambda"],
-        correct: ["EC2"]
-      },
-      {
-        q: "Scenario: Your app needs automatic scaling. What do you use?",
-        type: "radio",
-        options: ["Elastic Load Balancer", "EC2 Auto Scaling", "Snapshot"],
-        correct: "EC2 Auto Scaling"
-      },
-      {
-        q: "Cloud Design Best Practices include:",
-        type: "checkbox",
-        options: ["Automation", "Monoliths", "Loose Coupling"],
-        correct: ["Automation", "Loose Coupling"]
-      },
-      {
-        q: "What helps users securely access AWS services?",
-        type: "radio",
-        options: ["IAM", "S3", "Route53"],
-        correct: "IAM"
-      },
-      {
-        q: "What AWS offering allows serverless code execution?",
-        type: "radio",
-        options: ["Lambda", "EC2", "RDS"],
-        correct: "Lambda"
-      },
-      {
-        q: "Which of these are AWS Global Infrastructure components?",
-        type: "checkbox",
-        options: ["Regions", "Edge Locations", "Load Balancers"],
-        correct: ["Regions", "Edge Locations"]
-      }
-    ];
-
     function loadQuiz() {
-      const form = document.getElementById("quizForm");
-      form.innerHTML = '';
+      const container = document.getElementById("quizContainer");
+      container.innerHTML = '';
+      
       questions.forEach((q, idx) => {
-        const qDiv = document.createElement("div");
-        qDiv.className = "question";
-        qDiv.innerHTML = `<p>${idx + 1}. ${q.q}</p>`;
-        q.options.forEach(opt => {
-          const input = document.createElement("input");
-          input.type = q.type;
-          input.name = "q" + idx;
-          input.value = opt;
-          qDiv.appendChild(input);
-          qDiv.append(opt + "<br>");
+        const questionDiv = document.createElement("div");
+        questionDiv.className = "question-container";
+        
+        const scenarioTag = q.scenario ? `<div class="scenario-tag">${q.scenario}</div>` : '';
+        
+        questionDiv.innerHTML = `
+          <div class="question-header">
+            ${scenarioTag}
+            <div class="question-title">${idx + 1}. ${q.question}</div>
+          </div>
+          <div class="question-body">
+            <div class="option-group" id="options-${idx}"></div>
+          </div>
+        `;
+        
+        const optionsContainer = questionDiv.querySelector(`#options-${idx}`);
+        
+        q.options.forEach((option, optIdx) => {
+          const optionDiv = document.createElement("div");
+          optionDiv.className = "option";
+          
+          optionDiv.innerHTML = `
+            <input type="${q.type}" name="q${idx}" value="${option}" id="q${idx}_${optIdx}">
+            <label for="q${idx}_${optIdx}">${option}</label>
+          `;
+          
+          optionDiv.addEventListener('click', function(e) {
+            if (e.target.tagName !== 'INPUT') {
+              const input = this.querySelector('input');
+              if (input.type === 'radio') {
+                // Clear other selections in the same group
+                document.querySelectorAll(`input[name="${input.name}"]`).forEach(radio => {
+                  radio.closest('.option').classList.remove('selected');
+                });
+              }
+              
+              input.checked = !input.checked;
+              this.classList.toggle('selected', input.checked);
+            }
+          });
+          
+          optionsContainer.appendChild(optionDiv);
         });
-        form.appendChild(qDiv);
+        
+        container.appendChild(questionDiv);
       });
     }
 
     function checkAnswers() {
       let score = 0;
+      let results = [];
+      
       questions.forEach((q, idx) => {
-        const answers = Array.from(document.querySelectorAll(`input[name='q${idx}']:checked`)).map(e => e.value);
+        const selectedInputs = document.querySelectorAll(`input[name='q${idx}']:checked`);
+        const selectedAnswers = Array.from(selectedInputs).map(input => input.value);
+        
+        let isCorrect = false;
+        
         if (q.type === "radio") {
-          if (answers[0] === q.correct) score++;
+          isCorrect = selectedAnswers.length === 1 && selectedAnswers[0] === q.correct[0];
         } else {
           const correctSet = new Set(q.correct);
-          const answerSet = new Set(answers);
-          if (q.correct.length === answers.length && q.correct.every(a => answerSet.has(a))) {
-            score++;
-          }
+          const selectedSet = new Set(selectedAnswers);
+          isCorrect = correctSet.size === selectedSet.size && 
+                     Array.from(correctSet).every(answer => selectedSet.has(answer));
         }
+        
+        if (isCorrect) {
+          score++;
+        }
+        
+        results.push({
+          question: q.question,
+          correct: isCorrect,
+          explanation: q.explanation,
+          userAnswers: selectedAnswers,
+          correctAnswers: q.correct
+        });
       });
-      document.getElementById("resultBox").innerHTML = `<strong>You scored ${score}/${questions.length}</strong>`;
-      document.getElementById("resultBox").style.display = "block";
+      
+      displayResults(score, results);
     }
 
-    window.onload = () => {
+    function displayResults(score, results) {
+      const percentage = Math.round((score / questions.length) * 100);
+      let performanceMessage = "";
+      let scoreColor = "";
+      
+      if (percentage >= 90) {
+        performanceMessage = "🏆 Outstanding! You're ready for the next level!";
+        scoreColor = "#1b660f";
+      } else if (percentage >= 70) {
+        performanceMessage = "🎉 Great job! Review the missed topics and you'll be ready.";
+        scoreColor = "#1b660f";
+      } else if (percentage >= 50) {
+        performanceMessage = "📚 Good foundation! Study the flashcards for better understanding.";
+        scoreColor = "#ff9900";
+      } else {
+        performanceMessage = "💪 Keep learning! Review the fundamentals and try again.";
+        scoreColor = "#d13212";
+      }
+      
+      let detailedResults = results.map((result, idx) => {
+        const statusClass = result.correct ? 'correct' : 'incorrect';
+        const icon = result.correct ? "✅" : "❌";
+        return `
+          <div class="result-item ${statusClass}">
+            <div class="result-item-header">${icon} Question ${idx + 1}</div>
+            <div class="result-item-explanation">${result.explanation}</div>
+          </div>
+        `;
+      }).join('');
+      
+      const resultBox = document.getElementById("resultBox");
+      resultBox.innerHTML = `
+        <div class="score-circle" style="background-color: ${scoreColor};">
+          ${score}/${questions.length}
+        </div>
+        <div class="result-title">${performanceMessage}</div>
+        <div class="result-subtitle">Your Score: ${percentage}%</div>
+        <div class="result-details">
+          <h4 style="margin-bottom: 16px; color: #232f3e;">📊 Detailed Results:</h4>
+          ${detailedResults}
+        </div>
+        <button class="btn-reset" onclick="resetQuiz()">🔄 Retake Assessment</button>
+      `;
+      
+      resultBox.classList.add("show");
+      resultBox.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function resetQuiz() {
+      // Clear all selected answers
+      document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
+        input.checked = false;
+      });
+      
+      // Remove selected styling
+      document.querySelectorAll('.option').forEach(option => {
+        option.classList.remove('selected');
+      });
+      
+      // Hide results
+      document.getElementById("resultBox").classList.remove("show");
+      
+      // Scroll to top of quiz
+      document.getElementById("quiz").scrollIntoView({ behavior: 'smooth' });
+      
+      userAnswers = {};
+    }
+
+    // Keyboard navigation for flashcards
+    document.addEventListener('keydown', function(event) {
+      if (document.getElementById('learn').classList.contains('active')) {
+        switch(event.key) {
+          case 'ArrowLeft':
+            event.preventDefault();
+            prevCard();
+            break;
+          case 'ArrowRight':
+            event.preventDefault();
+            nextCard();
+            break;
+          case ' ':
+          case 'Enter':
+            event.preventDefault();
+            flipCard();
+            break;
+        }
+      }
+    });
+
+    // Cleanup function to remove debug text
+    function cleanupDebugText() {
+      // Find and hide any text nodes that contain debug information
+      const walker = document.createTreeWalker(
+        document.body,
+        NodeFilter.SHOW_TEXT,
+        {
+          acceptNode: function(node) {
+            if (node.textContent.includes('front:') || 
+                node.textContent.includes('back:') || 
+                node.textContent.includes('level:') ||
+                node.textContent.includes('category:')) {
+              return NodeFilter.FILTER_ACCEPT;
+            }
+            return NodeFilter.FILTER_REJECT;
+          }
+        }
+      );
+
+      const textNodes = [];
+      let node;
+      while (node = walker.nextNode()) {
+        textNodes.push(node);
+      }
+
+      textNodes.forEach(textNode => {
+        if (textNode.parentNode && !textNode.parentNode.classList.contains('card-content')) {
+          textNode.textContent = '';
+        }
+      });
+    }
+
+    // Initialize the application
+    window.addEventListener('load', function() {
       updateCard();
       loadQuiz();
-    };
+      
+      // Clean up any debug text
+      cleanupDebugText();
+      
+      // Set up periodic cleanup
+      setInterval(cleanupDebugText, 1000);
+      
+      // Clean console output - fix the console.clear error
+      if (typeof console.clear === 'function') {
+        console.clear();
+      }
+      console.log('🚀 AWS Cloud Learning Platform');
+      console.log('');
+      console.log('📚 Features loaded:');
+      console.log('   • ' + flashcards.length + ' progressive flashcards');
+      console.log('   • ' + questions.length + ' scenario-based quiz questions');
+      console.log('   • AWS Console-inspired design');
+      console.log('');
+      console.log('⌨️ Navigation:');
+      console.log('   • Arrow keys: Navigate flashcards');
+      console.log('   • Spacebar: Flip cards');
+      console.log('');
+      console.log('Ready for learning! 🎯');
+    });
   </script>
 </body>
-</html>
+</html>,
+        front: "What is an AWS Region?",
+        back: "An AWS Region is a physical geographical area (like 'US East' or 'Europe') that contains multiple data centers.\n\nKey Characteristics:\n• Each Region is completely independent and isolated\n• Contains multiple Availability Zones (typically 3-6)\n• Provides fault tolerance and stability\n• Some services are region-specific\n• Data doesn't leave a region unless you explicitly move it\n\nExample: us-east-1 (Northern Virginia), eu-west-1 (Ireland)",
+        category: "AWS Infrastructure"
+      },
+      {
+        level: 3,
+        front: "How to Choose an AWS Region?",
+        back: "Consider these critical factors:\n\n1. Compliance (legal data residency requirements)\n2. Proximity (closer = faster response times for users)\n3. Available Services (not all services available in all regions)\n4. Pricing (costs vary by region)\n5. Disaster Recovery (geographic separation for backup)\n\nExample: EU companies often choose eu-west-1 (Ireland) for GDPR compliance and proximity to European users.",
+        category: "AWS Infrastructure"
+      },
+      {
+        level: 3,
+        front: "What is an Availability Zone (AZ)?",
+        back: "An Availability Zone is one or more discrete data centers within a Region, each with redundant power, networking, and connectivity.\n\nKey Features:\n• Physically separated (miles apart) within a Region\n• Connected by high-speed, low-latency networking\n• Isolated from failures in other AZs\n• Each AZ has independent power and cooling\n• Enables high availability architecture\n\nExample: us-east-1a, us-east-1b, us-east-1c are different AZs in the same region.",
+        category: "AWS Infrastructure"
+      },
+      {
+        level: 3,
+        front: "Why Multiple Availability Zones?",
+        back: "Multiple AZs provide essential benefits:\n\n• High Availability (if one AZ fails, others continue operating)\n• Fault Tolerance (isolated failures don't affect other AZs)\n• Load Distribution (spread application traffic)\n• Disaster Recovery (within the same geographic region)\n• Network Resilience (multiple network paths)\n\nBest Practice: Deploy applications across multiple AZs for maximum reliability.",
+        category: "AWS Infrastructure"
+      },
+      {
+        level: 3,
+        front: "AWS Global Infrastructure Hierarchy",
+        back: "The complete hierarchy from largest to smallest:\n\n1. Regions (26+ worldwide geographic areas)\n2. Availability Zones (84+ isolated data center groups)\n3. Data Centers (100+ physical buildings)\n4. Edge Locations (400+ CDN cache points)\n5. Regional Edge Caches (13+ larger cache locations)\n\nThis hierarchy enables global reach with local performance and reliability.",
+        category: "AWS Infrastructure"
+      },
+      {
+        level: 3
