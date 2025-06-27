@@ -6,7 +6,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <title>AWS Cloud Learning Platform</title>
+  <title>AWS Day 1: Cloud Fundamentals</title>
   <style>
     * {
       box-sizing: border-box;
@@ -19,6 +19,7 @@
       background-color: #f2f3f3;
       color: #232f3e;
       line-height: 1.6;
+      overflow-x: hidden;
     }
     
     /* AWS-style header */
@@ -203,7 +204,7 @@
     
     .flashcard {
       width: 100%;
-      height: 380px;
+      height: 450px;
       background: white;
       border: 1px solid #d5dbdb;
       border-radius: 8px;
@@ -231,7 +232,7 @@
       border-radius: 8px;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
       align-items: center;
       text-align: center;
       padding: 20px;
@@ -284,6 +285,7 @@
     
     .card-content strong {
       font-weight: 600;
+      color: #0073bb;
     }
     
     /* AWS-style controls */
@@ -540,6 +542,116 @@
       background-color: #5a6269;
     }
     
+    /* Timer styling */
+    .quiz-timer {
+      position: sticky;
+      top: 0;
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      z-index: 10;
+    }
+    
+    .timer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    
+    .timer-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: #232f3e;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .timer-display {
+      font-size: 18px;
+      font-weight: 600;
+      color: #0073bb;
+      font-family: 'Courier New', monospace;
+    }
+    
+    .timer-display.warning {
+      color: #ff9900;
+      animation: pulse 1s infinite;
+    }
+    
+    .timer-display.critical {
+      color: #d13212;
+      animation: pulse 0.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+    
+    .timer-progress {
+      width: 100%;
+      height: 8px;
+      background-color: #f2f3f3;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    
+    .timer-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #1b660f 0%, #ff9900 70%, #d13212 100%);
+      border-radius: 4px;
+      transition: width 1s ease;
+    }
+    
+    .timer-controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    
+    .timer-btn {
+      background: none;
+      border: 1px solid #d5dbdb;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      color: #687078;
+      transition: all 0.2s ease;
+    }
+    
+    .timer-btn:hover {
+      background-color: #f2f3f3;
+      border-color: #0073bb;
+      color: #0073bb;
+    }
+    
+    .quiz-expired {
+      background-color: #fdf2f2;
+      border: 2px solid #d13212;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .quiz-expired h3 {
+      color: #d13212;
+      margin-bottom: 8px;
+      font-size: 18px;
+    }
+    
+    .quiz-expired p {
+      color: #687078;
+      margin-bottom: 16px;
+    }
+    
     /* Mobile Responsiveness */
     @media (max-width: 768px) {
       .container {
@@ -559,68 +671,18 @@
         display: none;
       }
       
-      .aws-breadcrumb {
-        padding: 8px 12px;
-        font-size: 12px;
-      }
-      
-      .page-title {
-        font-size: 22px;
-        margin-bottom: 6px;
-      }
-      
-      .page-description {
-        font-size: 13px;
-      }
-      
-      .tab-button {
-        padding: 12px 16px;
-        font-size: 13px;
-      }
-      
-      .tab-container {
-        flex-direction: column;
-        gap: 0;
-        align-items: stretch;
-      }
-      
-      .content-body {
-        padding: 16px;
-      }
-      
       .flashcard {
-        height: 320px;
-      }
-      
-      .front, .back {
-        padding: 16px;
-      }
-      
-      .card-title {
-        font-size: 16px;
-        margin-bottom: 12px;
-      }
-      
-      .card-content {
-        font-size: 14px;
-        line-height: 1.5;
+        height: 400px;
       }
       
       .controls {
         flex-direction: column;
         gap: 12px;
-        padding: 12px;
       }
       
       .progress-info {
         margin: 0;
         order: 1;
-      }
-      
-      .btn-aws {
-        padding: 10px 16px;
-        font-size: 14px;
-        justify-content: center;
       }
       
       #prevBtn {
@@ -629,41 +691,6 @@
       
       #nextBtn {
         order: 3;
-      }
-    }
-    
-    @media (max-width: 480px) {
-      .container {
-        padding: 8px;
-      }
-      
-      .page-title {
-        font-size: 20px;
-      }
-      
-      .flashcard {
-        height: 280px;
-      }
-      
-      .card-title {
-        font-size: 15px;
-      }
-      
-      .card-content {
-        font-size: 13px;
-      }
-      
-      .front, .back {
-        padding: 12px;
-      }
-      
-      .content-body {
-        padding: 12px;
-      }
-      
-      .tab-button {
-        padding: 10px 12px;
-        font-size: 12px;
       }
     }
   </style>
@@ -675,21 +702,20 @@
       <div class="aws-logo">
         <span>🟠</span> AWS
       </div>
-      <div class="aws-service-name">Training & Certification</div>
+      <div class="aws-service-name">Cloud Fundamentals Training</div>
     </div>
   </div>
   
   <!-- AWS-style breadcrumb -->
   <div class="aws-breadcrumb">
-    <a href="#" class="breadcrumb-link">AWS Training</a> &gt; 
-    <a href="#" class="breadcrumb-link">Cloud Basics</a> &gt; 
-    Day 1: Fundamentals
+    <a href="https://codewrapr.github.io/AWS-Cloud-Challenge/index.html" class="breadcrumb-link">AWS Training</a> &gt; 
+    Day 1: Cloud Fundamentals
   </div>
   
   <div class="container">
     <!-- Page header -->
     <div class="page-header">
-      <h1 class="page-title">AWS Cloud Learning</h1>
+      <h1 class="page-title">AWS Cloud Fundamentals</h1>
       <p class="page-description">
         Build your foundational understanding of cloud computing and AWS services through interactive flashcards and scenario-based assessments. 
         Progress through beginner concepts to advanced infrastructure knowledge.
@@ -699,10 +725,10 @@
     <!-- Tabs -->
     <div class="tab-container">
       <button class="tab-button active" onclick="showTab('learn', this)">
-        📚 Study Flashcards
+        ☁️ Cloud Concepts
       </button>
       <button class="tab-button" onclick="showTab('quiz', this)">
-        📝 Practice Quiz
+        📝 Assessment
       </button>
     </div>
 
@@ -731,8 +757,8 @@
               <div class="card-title" id="frontTitle"></div>
             </div>
             <div class="back">
-              <div class="card-category">Answer</div>
-              <div class="card-title">Explanation</div>
+              <div class="card-category">Explanation</div>
+              <div class="card-title">Detailed Answer</div>
               <div class="card-content" id="backText"></div>
             </div>
           </div>
@@ -766,10 +792,30 @@
       </div>
       
       <div class="content-body">
+        <!-- Quiz Timer -->
+        <div class="quiz-timer" id="quizTimer" style="display: none;">
+          <div class="timer-header">
+            <div class="timer-title">
+              ⏰ Assessment Timer
+            </div>
+            <div class="timer-controls">
+              <button class="timer-btn" onclick="pauseTimer()" id="pauseBtn">⏸ Pause</button>
+              <button class="timer-btn" onclick="resetTimer()" id="resetTimerBtn">🔄 Reset</button>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 14px; color: #687078;">Time Remaining:</span>
+            <div class="timer-display" id="timerDisplay">30:00</div>
+          </div>
+          <div class="timer-progress">
+            <div class="timer-progress-bar" id="timerProgressBar" style="width: 100%;"></div>
+          </div>
+        </div>
+        
         <div id="quizContainer"></div>
         <div class="quiz-submit">
           <button class="btn-submit" onclick="checkAnswers()">
-            Submit Assessment
+            🚀 Submit Assessment
           </button>
         </div>
         <div class="result" id="resultBox"></div>
@@ -789,19 +835,19 @@
       {
         level: 1,
         front: "Traditional IT vs Cloud Computing",
-        back: "Traditional IT: Buy servers, set up data centers, hire IT staff, manage everything yourself. High upfront costs and long procurement cycles.\n\nCloud Computing: Rent computing resources on-demand, pay only for what you use, someone else manages the infrastructure. No upfront costs and instant access to resources.",
+        back: "<strong>Traditional IT:</strong> Buy servers, set up data centers, hire IT staff, manage everything yourself. High upfront costs and long procurement cycles.\n\n<strong>Cloud Computing:</strong> Rent computing resources on-demand, pay only for what you use, someone else manages the infrastructure. No upfront costs and instant access to resources.",
         category: "Cloud Fundamentals"
       },
       {
         level: 1,
         front: "Real-World Cloud Examples",
-        back: "• Netflix streaming (uses AWS for global content delivery)\n• Gmail email service (Google's cloud infrastructure)\n• Dropbox file storage (cloud-based file synchronization)\n• Zoom video conferencing (cloud-based communication)\n• Spotify music streaming (cloud-based media delivery)\n• Instagram photo sharing (cloud-based social platform)",
+        back: "• <strong>Netflix streaming</strong> (uses AWS for global content delivery)\n• <strong>Gmail email service</strong> (Google's cloud infrastructure)\n• <strong>Dropbox file storage</strong> (cloud-based file synchronization)\n• <strong>Zoom video conferencing</strong> (cloud-based communication)\n• <strong>Spotify music streaming</strong> (cloud-based media delivery)\n• <strong>Instagram photo sharing</strong> (cloud-based social platform)",
         category: "Cloud Examples"
       },
       {
         level: 1,
         front: "Key Benefits of Cloud Computing",
-        back: "1. Cost Savings (no upfront hardware costs, pay-as-you-go pricing)\n\n2. Speed & Agility (deploy resources in minutes, not weeks)\n\n3. Global Scale (worldwide reach with multiple data centers)\n\n4. Reliability (backup & disaster recovery built-in)\n\n5. Security (enterprise-grade protection and compliance)\n\n6. Flexibility (scale up/down as needed automatically)",
+        back: "<strong>1. Cost Savings</strong> (no upfront hardware costs, pay-as-you-go pricing)\n\n<strong>2. Speed & Agility</strong> (deploy resources in minutes, not weeks)\n\n<strong>3. Global Scale</strong> (worldwide reach with multiple data centers)\n\n<strong>4. Reliability</strong> (backup & disaster recovery built-in)\n\n<strong>5. Security</strong> (enterprise-grade protection and compliance)\n\n<strong>6. Flexibility</strong> (scale up/down as needed automatically)",
         category: "Cloud Benefits"
       },
       
@@ -809,25 +855,25 @@
       {
         level: 1,
         front: "What is IaaS (Infrastructure as a Service)?",
-        back: "IaaS provides basic computing infrastructure over the internet: virtual machines, storage, networks, and operating systems.\n\nYou manage: Operating System, Runtime, Data, Applications\nProvider manages: Virtualization, Servers, Storage, Networking\n\nExample: Renting a virtual computer in the cloud (like Amazon EC2)",
+        back: "IaaS provides basic computing infrastructure over the internet: virtual machines, storage, networks, and operating systems.\n\n<strong>You manage:</strong> Operating System, Runtime, Data, Applications\n<strong>Provider manages:</strong> Virtualization, Servers, Storage, Networking\n\n<strong>Example:</strong> Renting a virtual computer in the cloud (like Amazon EC2)",
         category: "Service Models"
       },
       {
         level: 1,
         front: "What is PaaS (Platform as a Service)?",
-        back: "PaaS provides a platform for developing and deploying applications without managing underlying infrastructure.\n\nYou manage: Data, Applications\nProvider manages: Runtime, Middleware, Operating System, Infrastructure\n\nExample: Google App Engine, where you just upload code and it runs automatically",
+        back: "PaaS provides a platform for developing and deploying applications without managing underlying infrastructure.\n\n<strong>You manage:</strong> Data, Applications\n<strong>Provider manages:</strong> Runtime, Middleware, Operating System, Infrastructure\n\n<strong>Example:</strong> Google App Engine, where you just upload code and it runs automatically",
         category: "Service Models"
       },
       {
         level: 1,
         front: "What is SaaS (Software as a Service)?",
-        back: "SaaS provides complete software applications over the internet, ready to use.\n\nYou manage: Just your data and usage\nProvider manages: Everything else (application, platform, infrastructure)\n\nExamples: Gmail, Salesforce, Microsoft Office 365, Zoom, Dropbox",
+        back: "SaaS provides complete software applications over the internet, ready to use.\n\n<strong>You manage:</strong> Just your data and usage\n<strong>Provider manages:</strong> Everything else (application, platform, infrastructure)\n\n<strong>Examples:</strong> Gmail, Salesforce, Microsoft Office 365, Zoom, Dropbox",
         category: "Service Models"
       },
       {
         level: 1,
         front: "IaaS vs PaaS vs SaaS - Simple Analogy",
-        back: "Pizza Delivery Analogy:\n\n• IaaS: You get oven & ingredients, make pizza yourself (most control, most work)\n\n• PaaS: You get prepared dough, add your own toppings (moderate control)\n\n• SaaS: You get delivered pizza, just eat it (least control, least work)\n\nResponsibility and management complexity decreases from IaaS → PaaS → SaaS",
+        back: "<strong>Pizza Delivery Analogy:</strong>\n\n• <strong>IaaS:</strong> You get oven & ingredients, make pizza yourself (most control, most work)\n\n• <strong>PaaS:</strong> You get prepared dough, add your own toppings (moderate control)\n\n• <strong>SaaS:</strong> You get delivered pizza, just eat it (least control, least work)\n\nResponsibility and management complexity decreases from IaaS → PaaS → SaaS",
         category: "Service Models"
       },
       
@@ -835,31 +881,31 @@
       {
         level: 2,
         front: "What is Amazon Web Services (AWS)?",
-        back: "AWS is Amazon's cloud computing platform launched in 2006. It offers 200+ services including computing power, database storage, and content delivery.\n\nKey Facts:\n• World's largest cloud provider (32% market share)\n• Used by millions of customers worldwide\n• Operates in 26+ geographic regions\n• Powers companies like Netflix, Airbnb, and NASA",
+        back: "AWS is Amazon's cloud computing platform launched in 2006. It offers 200+ services including computing power, database storage, and content delivery.\n\n<strong>Key Facts:</strong>\n• World's largest cloud provider (32% market share)\n• Used by millions of customers worldwide\n• Operates in 26+ geographic regions\n• Powers companies like Netflix, Airbnb, and NASA",
         category: "AWS Introduction"
       },
       {
         level: 2,
         front: "Types of Cloud Resources - Compute",
-        back: "Compute = Processing Power for running applications\n\n• Virtual Machines (like Amazon EC2)\n• Serverless Functions (like AWS Lambda)\n• Containers (like Amazon ECS/EKS)\n• Batch Processing (for large-scale data processing)\n• High Performance Computing (for scientific workloads)\n\nCompute resources can scale automatically based on demand.",
+        back: "<strong>Compute = Processing Power</strong> for running applications\n\n• <strong>Virtual Machines</strong> (like Amazon EC2)\n• <strong>Serverless Functions</strong> (like AWS Lambda)\n• <strong>Containers</strong> (like Amazon ECS/EKS)\n• <strong>Batch Processing</strong> (for large-scale data processing)\n• <strong>High Performance Computing</strong> (for scientific workloads)\n\nCompute resources can scale automatically based on demand.",
         category: "Cloud Resources"
       },
       {
         level: 2,
         front: "Types of Cloud Resources - Storage",
-        back: "Storage = Data Storage solutions for different needs\n\n• Object Storage (like files in folders - Amazon S3)\n• Block Storage (like hard drives - Amazon EBS)\n• File Storage (like shared network drives - Amazon EFS)\n• Archive Storage (long-term backup - Amazon Glacier)\n• Database Storage (structured data - Amazon RDS)\n\nEach type optimized for specific use cases and access patterns.",
+        back: "<strong>Storage = Data Storage</strong> solutions for different needs\n\n• <strong>Object Storage</strong> (like files in folders - Amazon S3)\n• <strong>Block Storage</strong> (like hard drives - Amazon EBS)\n• <strong>File Storage</strong> (like shared network drives - Amazon EFS)\n• <strong>Archive Storage</strong> (long-term backup - Amazon Glacier)\n• <strong>Database Storage</strong> (structured data - Amazon RDS)\n\nEach type optimized for specific use cases and access patterns.",
         category: "Cloud Resources"
       },
       {
         level: 2,
         front: "Types of Cloud Resources - Networking",
-        back: "Networking = Connectivity and communication services\n\n• Virtual Networks (private cloud networks - Amazon VPC)\n• Load Balancers (distribute traffic - Elastic Load Balancer)\n• Content Delivery (faster downloads - CloudFront)\n• DNS Services (website addresses - Route 53)\n• VPN Connections (secure connections - AWS VPN)\n\nNetworking ensures secure and efficient data transfer.",
+        back: "<strong>Networking = Connectivity</strong> and communication services\n\n• <strong>Virtual Networks</strong> (private cloud networks - Amazon VPC)\n• <strong>Load Balancers</strong> (distribute traffic - Elastic Load Balancer)\n• <strong>Content Delivery</strong> (faster downloads - CloudFront)\n• <strong>DNS Services</strong> (website addresses - Route 53)\n• <strong>VPN Connections</strong> (secure connections - AWS VPN)\n\nNetworking ensures secure and efficient data transfer.",
         category: "Cloud Resources"
       },
       {
         level: 2,
         front: "Types of Cloud Resources - Databases",
-        back: "Databases = Data Management and storage solutions\n\n• Relational Databases (like MySQL - Amazon RDS)\n• NoSQL Databases (flexible data - Amazon DynamoDB)\n• Data Warehouses (analytics - Amazon Redshift)\n• In-Memory Databases (super fast - Amazon ElastiCache)\n• Graph Databases (relationships - Amazon Neptune)\n\nEach database type optimized for specific data patterns and use cases.",
+        back: "<strong>Databases = Data Management</strong> and storage solutions\n\n• <strong>Relational Databases</strong> (like MySQL - Amazon RDS)\n• <strong>NoSQL Databases</strong> (flexible data - Amazon DynamoDB)\n• <strong>Data Warehouses</strong> (analytics - Amazon Redshift)\n• <strong>In-Memory Databases</strong> (super fast - Amazon ElastiCache)\n• <strong>Graph Databases</strong> (relationships - Amazon Neptune)\n\nEach database type optimized for specific data patterns and use cases.",
         category: "Cloud Resources"
       },
       
@@ -867,19 +913,19 @@
       {
         level: 2,
         front: "What is a Data Center?",
-        back: "A data center is a physical facility that houses computer systems and associated components.\n\nKey Components:\n• Thousands of servers running 24/7\n• Redundant power systems (UPS, generators)\n• Advanced cooling systems\n• High-speed networking equipment\n• Physical security (biometric access, cameras)\n• Fire suppression systems\n\nThink of it as a huge warehouse full of computers providing cloud services.",
+        back: "A data center is a physical facility that houses computer systems and associated components.\n\n<strong>Key Components:</strong>\n• Thousands of servers running 24/7\n• Redundant power systems (UPS, generators)\n• Advanced cooling systems\n• High-speed networking equipment\n• Physical security (biometric access, cameras)\n• Fire suppression systems\n\nThink of it as a huge warehouse full of computers providing cloud services.",
         category: "Physical Infrastructure"
       },
       {
         level: 2,
         front: "Why Multiple Data Centers?",
-        back: "Multiple data centers provide critical benefits:\n\n• Redundancy (if one fails, others continue working)\n• Performance (serve users from nearby locations for faster response)\n• Disaster Recovery (protection against natural disasters)\n• Compliance (meet data residency requirements)\n• Load Distribution (spread traffic across multiple locations)\n\nThis ensures high availability and reliability for cloud services.",
+        back: "Multiple data centers provide critical benefits:\n\n• <strong>Redundancy</strong> (if one fails, others continue working)\n• <strong>Performance</strong> (serve users from nearby locations for faster response)\n• <strong>Disaster Recovery</strong> (protection against natural disasters)\n• <strong>Compliance</strong> (meet data residency requirements)\n• <strong>Load Distribution</strong> (spread traffic across multiple locations)\n\nThis ensures high availability and reliability for cloud services.",
         category: "Physical Infrastructure"
       },
       {
         level: 2,
         front: "Data Center Components",
-        back: "Essential infrastructure components:\n\n• Servers (the computers running applications)\n• Power Systems (UPS batteries, diesel generators for backup)\n• Cooling Systems (air conditioning to prevent overheating)\n• Network Equipment (routers, switches for connectivity)\n• Security Systems (biometric access, surveillance cameras)\n• Fire Suppression (special systems that won't damage equipment)\n\nAll designed for 99.99%+ uptime reliability.",
+        back: "Essential infrastructure components:\n\n• <strong>Servers</strong> (the computers running applications)\n• <strong>Power Systems</strong> (UPS batteries, diesel generators for backup)\n• <strong>Cooling Systems</strong> (air conditioning to prevent overheating)\n• <strong>Network Equipment</strong> (routers, switches for connectivity)\n• <strong>Security Systems</strong> (biometric access, surveillance cameras)\n• <strong>Fire Suppression</strong> (special systems that won't damage equipment)\n\nAll designed for 99.99%+ uptime reliability.",
         category: "Physical Infrastructure"
       },
       
@@ -887,43 +933,43 @@
       {
         level: 3,
         front: "What is an AWS Region?",
-        back: "An AWS Region is a physical geographical area (like 'US East' or 'Europe') that contains multiple data centers.\n\nKey Characteristics:\n• Each Region is completely independent and isolated\n• Contains multiple Availability Zones (typically 3-6)\n• Provides fault tolerance and stability\n• Some services are region-specific\n• Data doesn't leave a region unless you explicitly move it\n\nExample: us-east-1 (Northern Virginia), eu-west-1 (Ireland)",
+        back: "An AWS Region is a physical geographical area (like 'US East' or 'Europe') that contains multiple data centers.\n\n<strong>Key Characteristics:</strong>\n• Each Region is completely independent and isolated\n• Contains multiple Availability Zones (typically 3-6)\n• Provides fault tolerance and stability\n• Some services are region-specific\n• Data doesn't leave a region unless you explicitly move it\n\n<strong>Example:</strong> us-east-1 (Northern Virginia), eu-west-1 (Ireland)",
         category: "AWS Infrastructure"
       },
       {
         level: 3,
         front: "How to Choose an AWS Region?",
-        back: "Consider these critical factors:\n\n1. Compliance (legal data residency requirements)\n2. Proximity (closer = faster response times for users)\n3. Available Services (not all services available in all regions)\n4. Pricing (costs vary by region)\n5. Disaster Recovery (geographic separation for backup)\n\nExample: EU companies often choose eu-west-1 (Ireland) for GDPR compliance and proximity to European users.",
+        back: "Consider these critical factors:\n\n<strong>1. Compliance</strong> (legal data residency requirements)\n<strong>2. Proximity</strong> (closer = faster response times for users)\n<strong>3. Available Services</strong> (not all services available in all regions)\n<strong>4. Pricing</strong> (costs vary by region)\n<strong>5. Disaster Recovery</strong> (geographic separation for backup)\n\n<strong>Example:</strong> EU companies often choose eu-west-1 (Ireland) for GDPR compliance and proximity to European users.",
         category: "AWS Infrastructure"
       },
       {
         level: 3,
         front: "What is an Availability Zone (AZ)?",
-        back: "An Availability Zone is one or more discrete data centers within a Region, each with redundant power, networking, and connectivity.\n\nKey Features:\n• Physically separated (miles apart) within a Region\n• Connected by high-speed, low-latency networking\n• Isolated from failures in other AZs\n• Each AZ has independent power and cooling\n• Enables high availability architecture\n\nExample: us-east-1a, us-east-1b, us-east-1c are different AZs in the same region.",
+        back: "An Availability Zone is one or more discrete data centers within a Region, each with redundant power, networking, and connectivity.\n\n<strong>Key Features:</strong>\n• Physically separated (miles apart) within a Region\n• Connected by high-speed, low-latency networking\n• Isolated from failures in other AZs\n• Each AZ has independent power and cooling\n• Enables high availability architecture\n\n<strong>Example:</strong> us-east-1a, us-east-1b, us-east-1c are different AZs in the same region.",
         category: "AWS Infrastructure"
       },
       {
         level: 3,
         front: "Why Multiple Availability Zones?",
-        back: "Multiple AZs provide essential benefits:\n\n• High Availability (if one AZ fails, others continue operating)\n• Fault Tolerance (isolated failures don't affect other AZs)\n• Load Distribution (spread application traffic)\n• Disaster Recovery (within the same geographic region)\n• Network Resilience (multiple network paths)\n\nBest Practice: Deploy applications across multiple AZs for maximum reliability.",
+        back: "Multiple AZs provide essential benefits:\n\n• <strong>High Availability</strong> (if one AZ fails, others continue operating)\n• <strong>Fault Tolerance</strong> (isolated failures don't affect other AZs)\n• <strong>Load Distribution</strong> (spread application traffic)\n• <strong>Disaster Recovery</strong> (within the same geographic region)\n• <strong>Network Resilience</strong> (multiple network paths)\n\n<strong>Best Practice:</strong> Deploy applications across multiple AZs for maximum reliability.",
         category: "AWS Infrastructure"
       },
       {
         level: 3,
         front: "AWS Global Infrastructure Hierarchy",
-        back: "The complete hierarchy from largest to smallest:\n\n1. Regions (26+ worldwide geographic areas)\n2. Availability Zones (84+ isolated data center groups)\n3. Data Centers (100+ physical buildings)\n4. Edge Locations (400+ CDN cache points)\n5. Regional Edge Caches (13+ larger cache locations)\n\nThis hierarchy enables global reach with local performance and reliability.",
+        back: "The complete hierarchy from largest to smallest:\n\n<strong>1. Regions</strong> (26+ worldwide geographic areas)\n<strong>2. Availability Zones</strong> (84+ isolated data center groups)\n<strong>3. Data Centers</strong> (100+ physical buildings)\n<strong>4. Edge Locations</strong> (400+ CDN cache points)\n<strong>5. Regional Edge Caches</strong> (13+ larger cache locations)\n\nThis hierarchy enables global reach with local performance and reliability.",
         category: "AWS Infrastructure"
       },
       {
         level: 3,
         front: "What are AWS Edge Locations?",
-        back: "Edge Locations are data centers used by CloudFront (AWS's Content Delivery Network) to cache content closer to users for faster delivery.\n\nKey Facts:\n• 400+ Edge Locations worldwide (more than Regions and AZs combined)\n• Cache popular content like images, videos, and web pages\n• Reduce latency by serving content from nearby locations\n• Automatically updated from origin servers\n• Make websites and applications load faster globally\n\nExample: A user in Tokyo gets content from Tokyo Edge Location instead of a server in Virginia.",
+        back: "Edge Locations are data centers used by CloudFront (AWS's Content Delivery Network) to cache content closer to users for faster delivery.\n\n<strong>Key Facts:</strong>\n• 400+ Edge Locations worldwide (more than Regions and AZs combined)\n• Cache popular content like images, videos, and web pages\n• Reduce latency by serving content from nearby locations\n• Automatically updated from origin servers\n• Make websites and applications load faster globally\n\n<strong>Example:</strong> A user in Tokyo gets content from Tokyo Edge Location instead of a server in Virginia.",
         category: "AWS Infrastructure"
       },
       {
         level: 3,
         front: "Real AWS Region Examples",
-        back: "Popular AWS Regions with their use cases:\n\n• us-east-1 (N. Virginia) - Oldest region, most services available first\n• us-west-2 (Oregon) - Popular for West Coast US companies\n• eu-west-1 (Ireland) - Popular in Europe for GDPR compliance\n• ap-southeast-1 (Singapore) - Popular in Asia-Pacific region\n• sa-east-1 (São Paulo) - Only region in South America\n\nEach region serves specific geographic areas and compliance requirements.",
+        back: "Popular AWS Regions with their use cases:\n\n• <strong>us-east-1</strong> (N. Virginia) - Oldest region, most services available first\n• <strong>us-west-2</strong> (Oregon) - Popular for West Coast US companies\n• <strong>eu-west-1</strong> (Ireland) - Popular in Europe for GDPR compliance\n• <strong>ap-southeast-1</strong> (Singapore) - Popular in Asia-Pacific region\n• <strong>sa-east-1</strong> (São Paulo) - Only region in South America\n\nEach region serves specific geographic areas and compliance requirements.",
         category: "AWS Infrastructure"
       },
       
@@ -931,25 +977,25 @@
       {
         level: 3,
         front: "Amazon EC2 - Virtual Computers",
-        back: "Elastic Compute Cloud (EC2) provides resizable virtual servers in the cloud.\n\nKey Features:\n• Choose operating system (Windows, Linux, macOS)\n• Select CPU, memory, storage, and network performance\n• Launch instances in minutes\n• Pay only for running time\n• Auto-scaling based on demand\n• Multiple instance types for different workloads\n\nExample: Launch a web server that automatically scales during traffic spikes.",
+        back: "Elastic Compute Cloud (EC2) provides resizable virtual servers in the cloud.\n\n<strong>Key Features:</strong>\n• Choose operating system (Windows, Linux, macOS)\n• Select CPU, memory, storage, and network performance\n• Launch instances in minutes\n• Pay only for running time\n• Auto-scaling based on demand\n• Multiple instance types for different workloads\n\n<strong>Example:</strong> Launch a web server that automatically scales during traffic spikes.",
         category: "AWS Core Services"
       },
       {
         level: 3,
         front: "Amazon S3 - Object Storage",
-        back: "Simple Storage Service (S3) stores files (called 'objects') in containers (called 'buckets').\n\nKey Features:\n• Virtually unlimited storage capacity\n• 99.999999999% (11 9's) durability\n• Multiple storage classes for different needs\n• Web-based access from anywhere\n• Integration with other AWS services\n• Versioning and lifecycle management\n\nPerfect for: Website files, backups, data lakes, content distribution, mobile app data.",
+        back: "Simple Storage Service (S3) stores files (called 'objects') in containers (called 'buckets').\n\n<strong>Key Features:</strong>\n• Virtually unlimited storage capacity\n• 99.999999999% (11 9's) durability\n• Multiple storage classes for different needs\n• Web-based access from anywhere\n• Integration with other AWS services\n• Versioning and lifecycle management\n\n<strong>Perfect for:</strong> Website files, backups, data lakes, content distribution, mobile app data.",
         category: "AWS Core Services"
       },
       {
         level: 3,
         front: "AWS Lambda - Serverless Computing",
-        back: "Lambda runs your code without provisioning or managing servers.\n\nKey Benefits:\n• No server management required\n• Automatic scaling (0 to thousands of requests)\n• Pay only for execution time (per millisecond)\n• Supports multiple programming languages\n• Event-driven execution\n• Built-in fault tolerance\n\nPerfect for: Processing file uploads, real-time data processing, API backends, scheduled tasks.",
+        back: "Lambda runs your code without provisioning or managing servers.\n\n<strong>Key Benefits:</strong>\n• No server management required\n• Automatic scaling (0 to thousands of requests)\n• Pay only for execution time (per millisecond)\n• Supports multiple programming languages\n• Event-driven execution\n• Built-in fault tolerance\n\n<strong>Perfect for:</strong> Processing file uploads, real-time data processing, API backends, scheduled tasks.",
         category: "AWS Core Services"
       },
       {
         level: 3,
         front: "Amazon RDS - Managed Databases",
-        back: "Relational Database Service (RDS) provides managed database hosting.\n\nSupported Database Engines:\n• MySQL, PostgreSQL, MariaDB\n• Oracle Database, SQL Server\n• Amazon Aurora (cloud-native)\n\nAWS Manages:\n• Automated backups and point-in-time recovery\n• Software patching and updates\n• Performance monitoring\n• Multi-AZ deployments for high availability\n\nYou focus on your application, AWS handles database administration.",
+        back: "Relational Database Service (RDS) provides managed database hosting.\n\n<strong>Supported Database Engines:</strong>\n• MySQL, PostgreSQL, MariaDB\n• Oracle Database, SQL Server\n• Amazon Aurora (cloud-native)\n\n<strong>AWS Manages:</strong>\n• Automated backups and point-in-time recovery\n• Software patching and updates\n• Performance monitoring\n• Multi-AZ deployments for high availability\n\nYou focus on your application, AWS handles database administration.",
         category: "AWS Core Services"
       }
     ];
@@ -1120,134 +1166,306 @@
       }
     ];
 
+    // Application state
     let currentCard = 0;
     let isFlipped = false;
     let userAnswers = {};
+    
+    // Timer state
+    let quizTimer = null;
+    let timeRemaining = 30 * 60; // 30 minutes in seconds
+    let totalTime = 30 * 60;
+    let isPaused = false;
+    let isQuizActive = false;
 
-    function updateCard() {
-      const card = flashcards[currentCard];
-      const difficultyLevels = {1: 'Foundation', 2: 'Intermediate', 3: 'Advanced'};
+    // Initialize the application
+    function init() {
+      loadCard(currentCard);
+      generateQuiz();
       
-      // Update front of card
-      document.getElementById("frontCategory").textContent = card.category;
-      document.getElementById("frontTitle").textContent = card.front;
-      
-      // Update back of card with proper formatting
-      document.getElementById("backText").textContent = card.back;
-      
-      // Reset flip state
-      document.getElementById("flashcard").classList.remove("flip");
-      isFlipped = false;
-      
-      // Update progress
-      document.getElementById("progressText").innerHTML = `Card ${currentCard + 1} of ${flashcards.length}`;
-      
-      // Update difficulty indicator
-      const diffLabel = document.getElementById("diffLabel");
-      diffLabel.textContent = difficultyLevels[card.level];
-      
-      // Reset difficulty dots
-      for (let i = 1; i <= 3; i++) {
-        const dot = document.getElementById(`diff${i}`);
-        dot.classList.remove('active', 'medium', 'hard');
-        if (i <= card.level) {
-          if (card.level === 1) dot.classList.add('active');
-          else if (card.level === 2) dot.classList.add('medium');
-          else dot.classList.add('hard');
-        }
-      }
-      
-      // Update navigation buttons
-      document.getElementById("prevBtn").disabled = currentCard === 0;
-      document.getElementById("nextBtn").disabled = currentCard === flashcards.length - 1;
+      // Add keyboard navigation
+      document.addEventListener('keydown', handleKeyPress);
     }
 
+    // Load a specific flashcard
+    function loadCard(index) {
+      const card = flashcards[index];
+      
+      // Update difficulty indicator
+      updateDifficultyIndicator(card.level);
+      
+      // Update card content
+      document.getElementById('frontCategory').textContent = card.category;
+      document.getElementById('frontTitle').textContent = card.front;
+      document.getElementById('backText').innerHTML = card.back;
+      
+      // Reset scroll position for both sides of the card
+      const frontSide = document.querySelector('.front');
+      const backSide = document.querySelector('.back');
+      if (frontSide) frontSide.scrollTop = 0;
+      if (backSide) backSide.scrollTop = 0;
+      
+      // Update progress
+      document.getElementById('progressText').textContent = `Card ${index + 1} of ${flashcards.length}`;
+      
+      // Update button states
+      document.getElementById('prevBtn').disabled = index === 0;
+      document.getElementById('nextBtn').disabled = index === flashcards.length - 1;
+      
+      // Reset flip state
+      if (isFlipped) {
+        flipCard();
+      }
+    }
+
+    // Update difficulty indicator
+    function updateDifficultyIndicator(level) {
+      const dots = [
+        document.getElementById('diff1'),
+        document.getElementById('diff2'), 
+        document.getElementById('diff3')
+      ];
+      const label = document.getElementById('diffLabel');
+      
+      // Reset all dots
+      dots.forEach(dot => {
+        dot.className = 'difficulty-dot';
+      });
+      
+      // Set active dots based on level
+      for (let i = 0; i < level; i++) {
+        if (i === 0) dots[i].classList.add('active');
+        else if (i === 1) dots[i].classList.add('medium');
+        else dots[i].classList.add('hard');
+      }
+      
+      // Update label
+      const labels = ['Foundation', 'Intermediate', 'Advanced'];
+      label.textContent = labels[level - 1];
+    }
+
+    // Flip card animation
     function flipCard() {
-      const card = document.getElementById("flashcard");
-      card.classList.toggle("flip");
+      const card = document.getElementById('flashcard');
+      card.classList.toggle('flip');
       isFlipped = !isFlipped;
     }
 
+    // Navigation functions
     function nextCard() {
       if (currentCard < flashcards.length - 1) {
         currentCard++;
-        updateCard();
+        loadCard(currentCard);
       }
     }
 
     function prevCard() {
       if (currentCard > 0) {
         currentCard--;
-        updateCard();
+        loadCard(currentCard);
       }
     }
 
-    function showTab(id, btn) {
-      document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById(id).classList.add('active');
+    // Keyboard navigation
+    function handleKeyPress(e) {
+      switch(e.code) {
+        case 'ArrowLeft':
+          e.preventDefault();
+          prevCard();
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          nextCard();
+          break;
+        case 'Space':
+          e.preventDefault();
+          flipCard();
+          break;
+      }
     }
 
-    function loadQuiz() {
-      const container = document.getElementById("quizContainer");
-      container.innerHTML = '';
+    // Tab switching
+    function showTab(tabName, tabButton) {
+      // Hide all tab contents
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
       
-      questions.forEach((q, idx) => {
-        const questionDiv = document.createElement("div");
-        questionDiv.className = "question-container";
-        
-        const scenarioTag = q.scenario ? `<div class="scenario-tag">${q.scenario}</div>` : '';
+      // Remove active class from all tab buttons
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      // Show selected tab and mark button as active
+      document.getElementById(tabName).classList.add('active');
+      tabButton.classList.add('active');
+      
+      // Start timer when switching to quiz tab
+      if (tabName === 'quiz' && !isQuizActive) {
+        startQuizTimer();
+      }
+      
+      // Pause timer when switching away from quiz
+      if (tabName !== 'quiz' && isQuizActive) {
+        pauseTimer();
+      }
+    }
+    
+    // Timer Functions
+    function startQuizTimer() {
+      if (isQuizActive) return; // Prevent multiple timers
+      
+      isQuizActive = true;
+      isPaused = false;
+      document.getElementById('quizTimer').style.display = 'block';
+      
+      quizTimer = setInterval(() => {
+        if (!isPaused && timeRemaining > 0) {
+          timeRemaining--;
+          updateTimerDisplay();
+          
+          // Auto-submit when time runs out
+          if (timeRemaining <= 0) {
+            timeExpired();
+          }
+        }
+      }, 1000);
+      
+      updateTimerDisplay();
+    }
+    
+    function pauseTimer() {
+      isPaused = !isPaused;
+      const pauseBtn = document.getElementById('pauseBtn');
+      
+      if (isPaused) {
+        pauseBtn.innerHTML = '▶ Resume';
+        pauseBtn.style.backgroundColor = '#1b660f';
+        pauseBtn.style.color = 'white';
+      } else {
+        pauseBtn.innerHTML = '⏸ Pause';
+        pauseBtn.style.backgroundColor = '';
+        pauseBtn.style.color = '';
+      }
+    }
+    
+    function resetTimer() {
+      clearInterval(quizTimer);
+      timeRemaining = totalTime;
+      isPaused = false;
+      isQuizActive = false;
+      
+      // Reset UI
+      document.getElementById('pauseBtn').innerHTML = '⏸ Pause';
+      document.getElementById('pauseBtn').style.backgroundColor = '';
+      document.getElementById('pauseBtn').style.color = '';
+      document.getElementById('quizTimer').style.display = 'none';
+      
+      // Clear quiz selections
+      resetQuiz();
+    }
+    
+    function updateTimerDisplay() {
+      const minutes = Math.floor(timeRemaining / 60);
+      const seconds = timeRemaining % 60;
+      const display = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      
+      const timerDisplay = document.getElementById('timerDisplay');
+      const progressBar = document.getElementById('timerProgressBar');
+      
+      timerDisplay.textContent = display;
+      
+      // Update progress bar
+      const progress = (timeRemaining / totalTime) * 100;
+      progressBar.style.width = progress + '%';
+      
+      // Update timer colors based on time remaining
+      timerDisplay.className = 'timer-display';
+      if (timeRemaining <= 120) { // Less than 2 minutes
+        timerDisplay.classList.add('critical');
+      } else if (timeRemaining <= 300) { // Less than 5 minutes
+        timerDisplay.classList.add('warning');
+      }
+    }
+    
+    function timeExpired() {
+      clearInterval(quizTimer);
+      
+      // Show expiration message
+      const quizContainer = document.getElementById('quizContainer');
+      quizContainer.insertAdjacentHTML('afterbegin', `
+        <div class="quiz-expired">
+          <h3>⏰ Time's Up!</h3>
+          <p>The assessment has been automatically submitted. Review your results below.</p>
+        </div>
+      `);
+      
+      // Auto-submit quiz
+      checkAnswers();
+      
+      // Disable further interactions
+      document.querySelectorAll('.option').forEach(option => {
+        option.style.pointerEvents = 'none';
+        option.style.opacity = '0.6';
+      });
+      
+      document.querySelector('.btn-submit').disabled = true;
+      document.querySelector('.btn-submit').textContent = 'Assessment Completed';
+    }
+
+    // Generate quiz HTML
+    function generateQuiz() {
+      const container = document.getElementById('quizContainer');
+      
+      questions.forEach((q, index) => {
+        const questionDiv = document.createElement('div');
+        questionDiv.className = 'question-container';
         
         questionDiv.innerHTML = `
           <div class="question-header">
-            ${scenarioTag}
-            <div class="question-title">${idx + 1}. ${q.question}</div>
+            <div class="scenario-tag">${q.scenario}</div>
+            <div class="question-title">${index + 1}. ${q.question}</div>
           </div>
           <div class="question-body">
-            <div class="option-group" id="options-${idx}"></div>
+            <div class="option-group">
+              ${q.options.map((option, optIndex) => `
+                <div class="option" onclick="selectOption(${index}, ${optIndex}, this)">
+                  <input type="${q.type}" name="q${index}" value="${option}" id="q${index}_${optIndex}">
+                  <label for="q${index}_${optIndex}">${option}</label>
+                </div>
+              `).join('')}
+            </div>
           </div>
         `;
-        
-        const optionsContainer = questionDiv.querySelector(`#options-${idx}`);
-        
-        q.options.forEach((option, optIdx) => {
-          const optionDiv = document.createElement("div");
-          optionDiv.className = "option";
-          
-          optionDiv.innerHTML = `
-            <input type="${q.type}" name="q${idx}" value="${option}" id="q${idx}_${optIdx}">
-            <label for="q${idx}_${optIdx}">${option}</label>
-          `;
-          
-          optionDiv.addEventListener('click', function(e) {
-            if (e.target.tagName !== 'INPUT') {
-              const input = this.querySelector('input');
-              if (input.type === 'radio') {
-                // Clear other selections in the same group
-                document.querySelectorAll(`input[name="${input.name}"]`).forEach(radio => {
-                  radio.closest('.option').classList.remove('selected');
-                });
-              }
-              
-              input.checked = !input.checked;
-              this.classList.toggle('selected', input.checked);
-            }
-          });
-          
-          optionsContainer.appendChild(optionDiv);
-        });
         
         container.appendChild(questionDiv);
       });
     }
 
+    // Handle option selection
+    function selectOption(questionIndex, optionIndex, element) {
+      // Clear previous selections for this question
+      const questionContainer = element.closest('.question-container');
+      const inputType = element.querySelector('input').type;
+      
+      if (inputType === 'radio') {
+        questionContainer.querySelectorAll('.option').forEach(opt => {
+          opt.classList.remove('selected');
+        });
+      }
+      
+      // Mark selected option
+      element.classList.toggle('selected');
+      element.querySelector('input').checked = element.classList.contains('selected');
+    }
+
+    // Check quiz answers
     function checkAnswers() {
       let score = 0;
-      let results = [];
+      const results = [];
       
-      questions.forEach((q, idx) => {
-        const selectedInputs = document.querySelectorAll(`input[name='q${idx}']:checked`);
+      questions.forEach((q, index) => {
+        const selectedInputs = document.querySelectorAll(`input[name='q${index}']:checked`);
         const selectedAnswers = Array.from(selectedInputs).map(input => input.value);
         
         let isCorrect = false;
@@ -1270,13 +1488,15 @@
           correct: isCorrect,
           explanation: q.explanation,
           userAnswers: selectedAnswers,
-          correctAnswers: q.correct
+          correctAnswers: q.correct,
+          scenario: q.scenario
         });
       });
       
       displayResults(score, results);
     }
 
+    // Display quiz results
     function displayResults(score, results) {
       const percentage = Math.round((score / questions.length) * 100);
       let performanceMessage = "";
@@ -1301,7 +1521,7 @@
         const icon = result.correct ? "✅" : "❌";
         return `
           <div class="result-item ${statusClass}">
-            <div class="result-item-header">${icon} Question ${idx + 1}</div>
+            <div class="result-item-header">${icon} ${result.scenario} - Question ${idx + 1}</div>
             <div class="result-item-explanation">${result.explanation}</div>
           </div>
         `;
@@ -1325,74 +1545,45 @@
       resultBox.scrollIntoView({ behavior: 'smooth' });
     }
 
+    // Reset quiz
     function resetQuiz() {
-      // Clear all selected answers
+      // Clear all selections
+      document.querySelectorAll('.option').forEach(opt => {
+        opt.classList.remove('selected');
+        opt.style.pointerEvents = '';
+        opt.style.opacity = '';
+      });
       document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
         input.checked = false;
       });
       
-      // Remove selected styling
-      document.querySelectorAll('.option').forEach(option => {
-        option.classList.remove('selected');
-      });
+      // Remove expiration message if it exists
+      const expiredMsg = document.querySelector('.quiz-expired');
+      if (expiredMsg) {
+        expiredMsg.remove();
+      }
+      
+      // Reset submit button
+      const submitBtn = document.querySelector('.btn-submit');
+      submitBtn.disabled = false;
+      submitBtn.textContent = '🚀 Submit Assessment';
       
       // Hide results
-      document.getElementById("resultBox").classList.remove("show");
+      document.getElementById('resultBox').classList.remove('show');
+      
+      // Reset timer if needed
+      if (isQuizActive) {
+        resetTimer();
+      }
       
       // Scroll to top of quiz
-      document.getElementById("quiz").scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('quiz').scrollIntoView({ behavior: 'smooth' });
       
       userAnswers = {};
     }
 
-    // Enhanced keyboard handling
-    function handleKeydown(event) {
-      if (document.getElementById('learn').classList.contains('active')) {
-        switch(event.key) {
-          case 'ArrowLeft':
-            event.preventDefault();
-            prevCard();
-            break;
-          case 'ArrowRight':
-            event.preventDefault();
-            nextCard();
-            break;
-          case ' ':
-          case 'Enter':
-            event.preventDefault();
-            flipCard();
-            break;
-        }
-      }
-    }
-
-    // Keyboard navigation for flashcards (desktop only)
-    document.addEventListener('keydown', handleKeydown);
-
-    // Initialize the application
-    window.addEventListener('load', function() {
-      updateCard();
-      loadQuiz();
-      
-      // Clean console output
-      if (typeof console.clear === 'function') {
-        console.clear();
-      }
-      console.log('🚀 AWS Cloud Learning Platform');
-      console.log('');
-      console.log('📚 Features loaded:');
-      console.log('   • ' + flashcards.length + ' progressive flashcards');
-      console.log('   • ' + questions.length + ' scenario-based quiz questions');
-      console.log('   • AWS Console-inspired design');
-      console.log('   • Mobile-optimized interface');
-      console.log('');
-      console.log('⌨️ Navigation:');
-      console.log('   • Arrow keys: Navigate flashcards (desktop)');
-      console.log('   • Spacebar: Flip cards (desktop)');
-      console.log('   • Touch: Tap to interact (mobile)');
-      console.log('');
-      console.log('Ready for learning! 🎯');
-    });
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
 </html>
