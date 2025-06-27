@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>AWS Day 2: Security & Identity</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Amazon Ember', 'Helvetica Neue', Roboto, Arial, sans-serif;
+      background-color: #f2f3f3;
+      color: #232f3e;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    
+    /* AWS-style header */
+    .aws-header {
+      background-color: #232f3e;
+      color: white;
+      padding: 0;
+      border-bottom: 1px solid #3c4043;
+    }
+    
+    .aws-nav {
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      height: 60px;
+    }
+    
+    .aws-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 18px;
+      font-weight: 600;
+      color: #ff9900;
+    }
+    
+    .aws-service-name {
+      margin-left: 20px;
+      font-size: 16px;
+      color: white;
+      border-left: 1px solid #666;
+      padding-left: 20px;
+    }
+    
+    /* AWS-style breadcrumb */
+    .aws-breadcrumb {
+      background-color: #f9f9f9;
+      padding: 12px 20px;
+      border-bottom: 1px solid #d5dbdb;
+      font-size: 14px;
+    }
+    
+    .breadcrumb-link {
+      color: #0073bb;
+      text-decoration: none;
+    }
+    
+    .breadcrumb-link:hover {
+      text-decoration: underline;
+    }
+    
+    /* Main content container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    
+    /* AWS-style page header */
+    .page-header {
+      margin-bottom: 32px;
+    }
+    
+    .page-title {
+      font-size: 28px;
+      font-weight: 300;
+      color: #232f3e;
+      margin-bottom: 8px;
+    }
+    
+    .page-description {
+      font-size: 14px;
+      color: #687078;
+      line-height: 1.5;
+    }
+    
+    /* AWS-style tabs */
+    .tab-container {
+      border-bottom: 1px solid #d5dbdb;
+      margin-bottom: 24px;
+      display: flex;
+    }
+    
+    .tab-button {
+      background: none;
+      border: none;
+      padding: 16px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #687078;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s ease;
+    }
+    
+    .tab-button:hover {
+      color: #232f3e;
+      background-color: #fafafa;
+    }
+    
+    .tab-button.active {
+      color: #d13212;
+      border-bottom-color: #d13212;
+      background-color: white;
+    }
+    
+    /* AWS-style content panels */
+    .tab-content {
+      display: none;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .content-header {
+      background-color: #fafafa;
+      padding: 20px 24px;
+      border-bottom: 1px solid #d5dbdb;
+    }
+    
+    .content-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-bottom: 8px;
+    }
+    
+    .content-subtitle {
+      font-size: 14px;
+      color: #687078;
+    }
+    
+    .content-body {
+      padding: 24px;
+    }
+    
+    /* Flashcard styling */
+    .flashcard-container {
+      perspective: 1000px;
+      margin: 24px 0;
+    }
+    
+    .difficulty-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      padding: 12px 16px;
+      background-color: #f9f9f9;
+      border-radius: 4px;
+      border-left: 4px solid #d13212;
+    }
+    
+    .difficulty-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-right: 12px;
+    }
+    
+    .difficulty-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #d5dbdb;
+    }
+    
+    .difficulty-dot.active { background: #1b660f; }
+    .difficulty-dot.medium { background: #ff9900; }
+    .difficulty-dot.hard { background: #d13212; }
+    
+    .difficulty-text {
+      font-size: 14px;
+      color: #687078;
+      margin-left: 8px;
+    }
+    
+    .flashcard {
+      width: 100%;
+      height: 400px;
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+      position: relative;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin: 0 auto;
+    }
+    
+    .flashcard:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .flip {
+      transform: rotateY(180deg);
+    }
+    
+    .front, .back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+    
+    .front {
+      background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+      color: #232f3e;
+    }
+    
+    .back {
+      background: linear-gradient(135deg, #fff4e6 0%, #ffe6cc 100%);
+      color: #232f3e;
+      transform: rotateY(180deg);
+    }
+    
+    .card-category {
+      font-size: 12px;
+      font-weight: 500;
+      color: #d13212;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+      padding: 4px 12px;
+      background-color: rgba(209, 50, 18, 0.1);
+      border-radius: 12px;
+    }
+    
+    .card-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+    
+    .card-content {
+      font-size: 15px;
+      line-height: 1.6;
+      color: #232f3e;
+      white-space: pre-line;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      max-width: 100%;
+      text-align: left;
+      width: 100%;
+    }
+    
+    .card-content strong {
+      font-weight: 600;
+      color: #d13212;
+    }
+    
+    /* AWS-style controls */
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+      padding: 16px;
+      background-color: #fafafa;
+      border-radius: 4px;
+    }
+    
+    .btn-aws {
+      background-color: #d13212;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn-aws:hover {
+      background-color: #b12a1a;
+    }
+    
+    .btn-aws:disabled {
+      background-color: #d5dbdb;
+      color: #687078;
+      cursor: not-allowed;
+    }
+    
+    .btn-secondary {
+      background-color: #fafafa;
+      color: #232f3e;
+      border: 1px solid #d5dbdb;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #f2f3f3;
+    }
+    
+    .progress-info {
+      font-size: 14px;
+      color: #687078;
+      text-align: center;
+      flex: 1;
+      margin: 0 16px;
+    }
+    
+    .progress-text {
+      font-weight: 500;
+      color: #232f3e;
+    }
+    
+    /* Quiz styling */
+    .question-container {
+      margin-bottom: 32px;
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .question-header {
+      background-color: #f9f9f9;
+      padding: 16px 20px;
+      border-bottom: 1px solid #d5dbdb;
+    }
+    
+    .scenario-tag {
+      display: inline-block;
+      background-color: #d13212;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    
+    .question-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: #232f3e;
+      line-height: 1.5;
+    }
+    
+    .question-body {
+      padding: 20px;
+    }
+    
+    .option-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .option {
+      display: flex;
+      align-items: flex-start;
+      padding: 12px 16px;
+      background: #fafafa;
+      border: 1px solid #d5dbdb;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .option:hover {
+      background-color: #f2f3f3;
+      border-color: #d13212;
+    }
+    
+    .option.selected {
+      background-color: #fff4e6;
+      border-color: #d13212;
+    }
+    
+    .option input {
+      margin-right: 12px;
+      margin-top: 2px;
+    }
+    
+    .option label {
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1.5;
+      flex: 1;
+    }
+    
+    .quiz-submit {
+      text-align: center;
+      margin: 32px 0;
+    }
+    
+    .btn-submit {
+      background-color: #d13212;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    
+    .btn-submit:hover {
+      background-color: #b12a1a;
+    }
+    
+    /* Results styling */
+    .result {
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      padding: 24px;
+      margin-top: 24px;
+      display: none;
+      text-align: center;
+    }
+    
+    .result.show {
+      display: block;
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .score-circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background-color: #d13212;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 auto 16px;
+    }
+    
+    .result-title {
+      font-size: 20px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-bottom: 8px;
+    }
+    
+    .result-subtitle {
+      font-size: 16px;
+      color: #687078;
+      margin-bottom: 20px;
+    }
+    
+    .result-details {
+      text-align: left;
+      margin-top: 24px;
+    }
+    
+    .result-item {
+      margin: 12px 0;
+      padding: 12px;
+      border-radius: 4px;
+      border-left: 4px solid;
+    }
+    
+    .result-item.correct {
+      background-color: #f0f8f0;
+      border-color: #1b660f;
+    }
+    
+    .result-item.incorrect {
+      background-color: #fdf2f2;
+      border-color: #d13212;
+    }
+    
+    .result-item-header {
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    
+    .result-item-explanation {
+      font-size: 14px;
+      color: #687078;
+      line-height: 1.5;
+    }
+    
+    .btn-reset {
+      background-color: #687078;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 16px;
+    }
+    
+    .btn-reset:hover {
+      background-color: #5a6269;
+    }
+    
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+      .container {
+        padding: 12px;
+      }
+      
+      .aws-nav {
+        padding: 0 12px;
+        height: 50px;
+      }
+      
+      .aws-logo {
+        font-size: 16px;
+      }
+      
+      .aws-service-name {
+        display: none;
+      }
+      
+      .flashcard {
+        height: 350px;
+      }
+      
+      .controls {
+        flex-direction: column;
+        gap: 12px;
+      }
+      
+      .progress-info {
+        margin: 0;
+        order: 1;
+      }
+      
+      #prevBtn {
+        order: 2;
+      }
+      
+      #nextBtn {
+        order: 3;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- AWS Console-style header -->
+  <div class="aws-header">
+    <div class="aws-nav">
+      <div class="aws-logo">
+        <span>🟠</span> AWS
+      </div>
+      <div class="aws-service-name">Security & Identity Training</div>
+    </div>
+  </div>
+  
+  <!-- AWS-style breadcrumb -->
+  <div class="aws-breadcrumb">
+    <a href="#" class="breadcrumb-link">AWS Training</a> &gt; 
+    <a href="#" class="breadcrumb-link">Cloud Practitioner</a> &gt; 
+    <a href="#" class="breadcrumb-link">Day 1: Fundamentals</a> &gt;
+    Day 2: Security & Identity
+  </div>
+  
+  <div class="container">
+    <!-- Page header -->
+    <div class="page-header">
+      <h1 class="page-title">AWS Security & Identity</h1>
+      <p class="page-description">
+        Master AWS security fundamentals, IAM concepts, and identity management through detailed scenario-based learning. 
+        Build expertise in securing AWS resources and implementing proper access controls.
+      </p>
+    </div>
+    
+    <!-- Tabs -->
+    <div class="tab-container">
+      <button class="tab-button active" onclick="showTab('learn', this)">
+        🔐 Security Concepts
+      </button>
+      <button class="tab-button" onclick="showTab('quiz', this)">
+        🛡️ Security Scenarios
+      </button>
+    </div>
+
+    <!-- Flashcards Tab -->
+    <div id="learn" class="tab-content active">
+      <div class="content-header">
+        <h2 class="content-title">AWS Security & Identity Mastery</h2>
+        <p class="content-subtitle">
+          Comprehensive security training with 15 detailed flashcards covering IAM, security services, compliance, and real-world scenarios.
+        </p>
+      </div>
+      
+      <div class="content-body">
+        <div class="difficulty-indicator">
+          <span class="difficulty-label">Security Level:</span>
+          <div class="difficulty-dot" id="diff1"></div>
+          <div class="difficulty-dot" id="diff2"></div>
+          <div class="difficulty-dot" id="diff3"></div>
+          <span class="difficulty-text" id="diffLabel">Basic</span>
+        </div>
+        
+        <div class="flashcard-container">
+          <div id="flashcard" class="flashcard" onclick="flipCard()">
+            <div class="front">
+              <div class="card-category" id="frontCategory"></div>
+              <div class="card-title" id="frontTitle"></div>
+            </div>
+            <div class="back">
+              <div class="card-category">Security Solution</div>
+              <div class="card-title">Implementation Guide</div>
+              <div class="card-content" id="backText"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="controls">
+          <button class="btn-aws btn-secondary" onclick="prevCard()" id="prevBtn">
+            ← Previous
+          </button>
+          <div class="progress-info">
+            <div class="progress-text" id="progressText"></div>
+            <div style="font-size: 12px; color: #687078; margin-top: 4px;">
+              Click card to flip • Use arrow keys to navigate
+            </div>
+          </div>
+          <button class="btn-aws" onclick="nextCard()" id="nextBtn">
+            Next →
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quiz Tab -->
+    <div id="quiz" class="tab-content">
+      <div class="content-header">
+        <h2 class="content-title">Real-World Security Scenarios</h2>
+        <p class="content-subtitle">
+          Test your security knowledge with 15 comprehensive scenarios covering enterprise security challenges, compliance requirements, and incident response.
+        </p>
+      </div>
+      
+      <div class="content-body">
+        <div id="quizContainer"></div>
+        <div class="quiz-submit">
+          <button class="btn-submit" onclick="checkAnswers()">
+            🔍 Analyze Security Solutions
+          </button>
+        </div>
+        <div class="result" id="resultBox"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Flashcard data - clean and organized
+    const flashcards = [
+      {
+        level: 1,
+        front: "What is AWS IAM (Identity and Access Management)?",
+        back: "AWS IAM is a web service that helps you securely control access to AWS resources. It manages authentication (who can sign in) and authorization (what actions they can perform).\n\nKey Components:\n• Users - Individual people or applications\n• Groups - Collections of users with similar permissions\n• Roles - Temporary access for services or external users\n• Policies - Documents that define permissions\n\nCore Principle: Principle of Least Privilege - grant only the minimum permissions needed.",
+        category: "IAM Fundamentals"
+      },
+      {
+        level: 1,
+        front: "IAM Users vs IAM Roles - When to Use Each?",
+        back: "IAM Users:\n• Long-term credentials for people or applications\n• Used for: Employees, contractors, long-running applications\n• Have permanent access keys and passwords\n\nIAM Roles:\n• Temporary credentials that are assumed\n• Used for: EC2 instances, Lambda functions, cross-account access\n• More secure - credentials rotate automatically\n• No long-term passwords or access keys\n\nBest Practice: Use roles whenever possible, especially for applications and services.",
+        category: "IAM Fundamentals"
+      },
+      {
+        level: 1,
+        front: "What are IAM Policies and How Do They Work?",
+        back: "IAM Policies are JSON documents that define permissions for users, groups, or roles.\n\nPolicy Structure:\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [{\n    \"Effect\": \"Allow\",\n    \"Action\": \"s3:GetObject\",\n    \"Resource\": \"arn:aws:s3:::my-bucket/*\"\n  }]\n}\n\nKey Elements:\n• Effect: Allow or Deny\n• Action: What can be done (s3:GetObject)\n• Resource: What it applies to (specific S3 bucket)\n• Condition: When it applies (optional)",
+        category: "IAM Policies"
+      },
+      {
+        level: 1,
+        front: "AWS Shared Responsibility Model for Security",
+        back: "Security is shared between AWS and the customer:\n\nAWS Responsibilities (Security OF the Cloud):\n• Physical data center security\n• Infrastructure hardware and software\n• Network controls and host operating system patches\n• Hypervisor and underlying compute infrastructure\n\nCustomer Responsibilities (Security IN the Cloud):\n• Operating system updates and security patches\n• Application security and firewall configuration\n• Network traffic protection and IAM\n• Data encryption and network traffic protection\n\nRemember: AWS secures the foundation, you secure what you build on it.",
+        category: "Security Fundamentals"
+      },
+      {
+        level: 2,
+        front: "Multi-Factor Authentication (MFA) Best Practices",
+        back: "Scenario: Protect privileged accounts from password compromise\n\nImplementation Steps:\n\n1. Enable MFA for Root Account:\n   • Use hardware token or virtual MFA app\n   • Store backup codes securely\n\n2. Require MFA for Sensitive Operations:\n   Policy condition: \"aws:MultiFactorAuthPresent\" = \"true\"\n\n3. MFA for Console Access:\n   • Configure in IAM user settings\n   • Users scan QR code with authenticator app\n\nResult: Even if password is compromised, account remains secure",
+        category: "IAM Security"
+      },
+      {
+        level: 2,
+        front: "AWS CloudTrail for Security Auditing",
+        back: "What: CloudTrail records all API calls made in your AWS account\n\nSecurity Use Cases:\n\n1. Compliance Auditing:\n• Track who accessed what resources when\n• Generate reports for SOX, HIPAA, PCI compliance\n\n2. Incident Investigation:\n• Identify unauthorized access attempts\n• Track changes that led to security incidents\n\n3. Real-World Example:\nEvent shows user 'john.doe' deleted S3 bucket from IP 203.0.113.12 at 10:30 AM\n\nBest Practice: Enable CloudTrail in all regions, store logs in secure S3 bucket with encryption",
+        category: "Security Services"
+      },
+      {
+        level: 2,
+        front: "AWS GuardDuty - Threat Detection Service",
+        back: "What: AI-powered threat detection service that monitors for malicious activity\n\nReal-World Scenario:\nProblem: Your company's AWS account shows unusual activity\n\nGuardDuty Detection:\n• Cryptocurrency mining from EC2 instances\n• Unusual API calls from foreign IP addresses\n• Communication with known malicious domains\n• Compromised instances participating in DDoS attacks\n\nResponse Actions:\n1. Automated Response: Lambda function isolates affected instances\n2. Alert Security Team: SNS notification to security personnel\n3. Evidence Collection: CloudTrail logs preserved for investigation\n\nBenefits: 24/7 monitoring, machine learning detection, low false positives",
+        category: "Security Services"
+      },
+      {
+        level: 2,
+        front: "Data Encryption - At Rest and In Transit",
+        back: "Comprehensive Encryption Strategy:\n\nAt Rest Encryption:\n• SSE-S3: AWS manages keys\n• SSE-KMS: You control keys via AWS KMS\n• SSE-C: You provide and manage keys\n• Client-Side: Encrypt before sending to AWS\n\nIn Transit Encryption:\n• HTTPS/TLS: All API calls encrypted\n• VPN: Secure connection to VPC\n• Direct Connect: Private connection with optional encryption\n\nReal Example - Healthcare Data:\nS3 Bucket (Patient Records)\n├── SSE-KMS encryption\n├── Customer-managed KMS key\n├── Key rotation enabled\n└── CloudTrail logging all key usage",
+        category: "Data Protection"
+      },
+      {
+        level: 3,
+        front: "AWS Security Hub - Centralized Security Management",
+        back: "Purpose: Central dashboard for security findings across multiple AWS security services\n\nEnterprise Scenario:\nChallenge: Large organization with multiple AWS accounts and security tools\n\nSecurity Hub Integration:\n\n1. Data Sources:\n• GuardDuty findings (threat detection)\n• Config compliance issues\n• Inspector vulnerability assessments\n• IAM Access Analyzer findings\n• Third-party security tools (Qualys, Rapid7)\n\n2. Security Standards:\n• AWS Foundational Security Standard\n• CIS AWS Foundations Benchmark\n• PCI DSS controls\n• Custom organizational standards\n\n3. Automated Response:\n• High severity findings trigger immediate alerts\n• Custom Lambda functions for automated remediation\n• Integration with ticketing systems (ServiceNow, Jira)",
+        category: "Advanced Security"
+      },
+      {
+        level: 3,
+        front: "AWS WAF (Web Application Firewall) Implementation",
+        back: "Real-World WAF Deployment:\n\nScenario: E-commerce website protecting against attacks\n\nWAF Rule Configuration:\n\n1. Rate Limiting:\nRule: Block IP if > 1000 requests/5min\nAction: Block\n\n2. SQL Injection Protection:\n• Inspect query strings and form data\n• Block common SQL injection patterns\n• Custom rules for application-specific attacks\n\n3. Geographic Restrictions:\n• Block traffic from high-risk countries\n• Allow-list for trusted regions\n\n4. IP Reputation:\n• Integration with threat intelligence feeds\n• Automatic blocking of known malicious IPs\n\nMonitoring:\n• Real-time dashboard showing blocked requests\n• Integration with CloudWatch for alerting",
+        category: "Network Security"
+      },
+      {
+        level: 3,
+        front: "VPC Security Groups vs Network ACLs",
+        back: "Network Security Layers:\n\nSecurity Groups (Instance Level):\n• Stateful: Return traffic automatically allowed\n• Allow rules only: Cannot deny specific traffic\n• Instance-specific: Can be attached to multiple instances\n\nNetwork ACLs (Subnet Level):\n• Stateless: Must explicitly allow return traffic\n• Allow and Deny rules: More granular control\n• Subnet-wide: Applies to all instances in subnet\n\nReal-World Example:\nWeb Application Architecture:\nInternet Gateway\n  ↓\nPublic Subnet (Web Servers)\n├── NACL: Allow HTTP(80), HTTPS(443)\n└── Security Group: Allow 80,443 from anywhere\n  ↓\nPrivate Subnet (Database)\n├── NACL: Allow MySQL(3306) from public subnet only\n└── Security Group: Allow 3306 from web server SG only\n\nBest Practice: Use both layers for defense in depth",
+        category: "Network Security"
+      },
+      {
+        level: 3,
+        front: "AWS Secrets Manager for Credential Management",
+        back: "Secure Credential Management:\n\nBusiness Challenge: Application uses hardcoded database passwords\n\nSecrets Manager Solution:\n\n1. Secret Storage:\nSecretId: \"prod/myapp/database\"\nContains: username, password, host, port\nEncrypted at rest with KMS\n\n2. Automatic Rotation:\n• RDS passwords rotated every 30 days\n• Lambda function handles rotation process\n• Zero downtime rotation with dual credentials\n\n3. Application Integration:\nPython code:\nimport boto3\nclient = boto3.client('secretsmanager')\nresponse = client.get_secret_value(SecretId='prod/myapp/database')\ncredentials = json.loads(response['SecretString'])\n\nBenefits: No hardcoded secrets, automatic rotation, audit trail, encryption at rest",
+        category: "Credential Management"
+      },
+      {
+        level: 3,
+        front: "AWS Organizations Security Implementation",
+        back: "Multi-Account Security Strategy:\n\nEnterprise Scenario: Company with 50+ AWS accounts across departments\n\nOrganizations Security Setup:\n\n1. Account Structure:\nRoot Organization\n├── Security OU (Central security account)\n├── Production OU (Prod workloads
