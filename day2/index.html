@@ -620,7 +620,7 @@
         🔐 Security Concepts
       </button>
       <button class="tab-button" onclick="showTab('quiz', this)">
-        🛡️ Security Scenarios
+        🛡️ Quiz
       </button>
     </div>
 
@@ -676,7 +676,7 @@
     <!-- Quiz Tab -->
     <div id="quiz" class="tab-content">
       <div class="content-header">
-        <h2 class="content-title">Real-World Security Scenarios</h2>
+        <h2 class="content-title">Real-World Security Quiz</h2>
         <p class="content-subtitle">
           Test your security knowledge with 15 comprehensive scenarios covering enterprise security challenges, compliance requirements, and incident response.
         </p>
@@ -695,54 +695,66 @@
   </div>
 
   <script>
-    // Flashcard data - clean and organized
+    // Flashcard data
     const flashcards = [
       {
         level: 1,
         front: "What is AWS IAM (Identity and Access Management)?",
-        back: "AWS IAM is a web service that helps you securely control access to AWS resources. It manages authentication (who can sign in) and authorization (what actions they can perform).\n\nKey Components:\n• Users - Individual people or applications\n• Groups - Collections of users with similar permissions\n• Roles - Temporary access for services or external users\n• Policies - Documents that define permissions\n\nCore Principle: Principle of Least Privilege - grant only the minimum permissions needed.",
+        back: "Definition: AWS IAM is a web service that helps you securely control access to AWS resources. It manages authentication (who can sign in) and authorization (what actions they can perform).\n\nKey Concepts Defined:\n\n• Authentication: The process of verifying identity (\"Who are you?\")\n• Authorization: The process of determining permissions (\"What can you do?\")\n• Principal: An entity that can make requests to AWS (user, role, or service)\n\nCore Components:\n• Users: Long-term credentials for individual people or applications\n• Groups: Collections of users with similar permission requirements\n• Roles: Temporary credentials that can be assumed by trusted entities\n• Policies: JSON documents that explicitly define what actions are allowed or denied\n\nPrinciple of Least Privilege: Security best practice of granting only the minimum permissions needed to perform required tasks.",
         category: "IAM Fundamentals"
       },
       {
         level: 1,
         front: "IAM Users vs IAM Roles - When to Use Each?",
-        back: "IAM Users:\n• Long-term credentials for people or applications\n• Used for: Employees, contractors, long-running applications\n• Have permanent access keys and passwords\n\nIAM Roles:\n• Temporary credentials that are assumed\n• Used for: EC2 instances, Lambda functions, cross-account access\n• More secure - credentials rotate automatically\n• No long-term passwords or access keys\n\nBest Practice: Use roles whenever possible, especially for applications and services.",
+        back: "Key Concept Definitions:\n\nIAM User: A permanent identity with long-term credentials (access keys, passwords)\nIAM Role: A temporary identity that provides short-term credentials through assumption\nAccess Keys: Programmatic credentials consisting of Access Key ID and Secret Access Key\nTemporary Credentials: Short-lived credentials (15 minutes to 12 hours) that automatically expire\n\nIAM Users - Use When:\n• Long-term access needed for people or applications\n• Direct console access required for employees/contractors\n• Legacy applications that cannot use roles\n• Example: Employee needs permanent AWS console access\n\nIAM Roles - Use When:\n• AWS services need to access other AWS services\n• Cross-account access required\n• Applications running on EC2/Lambda\n• Federated users from external identity systems\n• Example: EC2 instance needs to read from S3\n\nSecurity Advantage of Roles: Credentials rotate automatically, reducing risk of credential compromise",
         category: "IAM Fundamentals"
       },
       {
         level: 1,
-        front: "What are IAM Policies and How Do They Work?",
-        back: "IAM Policies are JSON documents that define permissions for users, groups, or roles.\n\nPolicy Structure:\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [{\n    \"Effect\": \"Allow\",\n    \"Action\": \"s3:GetObject\",\n    \"Resource\": \"arn:aws:s3:::my-bucket/*\"\n  }]\n}\n\nKey Elements:\n• Effect: Allow or Deny\n• Action: What can be done (s3:GetObject)\n• Resource: What it applies to (specific S3 bucket)\n• Condition: When it applies (optional)",
+        front: "IAM Policy Anatomy - Understanding the Structure",
+        back: "Definition: IAM Policies are JSON documents that define permissions using a declarative syntax.\n\nKey Concepts:\n• Policy Document: JSON structure containing permission statements\n• Statement: Individual permission rule within a policy\n• ARN (Amazon Resource Name): Unique identifier for AWS resources\n• Principal: The entity that is allowed or denied access (used in resource-based policies)\n• Condition: Optional logic that specifies when the policy applies\n\nComplete Policy Structure:\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [{\n    \"Sid\": \"AllowS3ReadAccess\",\n    \"Effect\": \"Allow\",\n    \"Principal\": \"arn:aws:iam::123456789012:user/john\",\n    \"Action\": [\n      \"s3:GetObject\",\n      \"s3:ListBucket\"\n    ],\n    \"Resource\": [\n      \"arn:aws:s3:::my-bucket\",\n      \"arn:aws:s3:::my-bucket/*\"\n    ],\n    \"Condition\": {\n      \"StringEquals\": {\n        \"s3:x-amz-server-side-encryption\": \"AES256\"\n      }\n    }\n  }]\n}\n\nComponent Definitions:\n• Version: Policy language version (always \"2012-10-17\")\n• Statement: Array of permission statements\n• Sid: Statement ID (optional, for identification)\n• Effect: \"Allow\" or \"Deny\" - determines if access is granted\n• Action: AWS service actions (API calls) that are allowed/denied\n• Resource: Specific AWS resources identified by ARNs\n• Condition: When the policy applies (IP ranges, time, MFA, etc.)",
         category: "IAM Policies"
+      },
+      {
+        level: 2,
+        front: "How to Attach IAM Policies - Step by Step",
+        back: "Key Concept Definitions:\n\nPolicy Attachment: The process of associating permission policies with IAM identities\nAWS Managed Policy: Pre-built policies created and maintained by AWS\nCustomer Managed Policy: Custom policies created by you, reusable across multiple entities\nInline Policy: Policy embedded directly within a single user, group, or role\nPolicy ARN: Amazon Resource Name that uniquely identifies a policy\n\nAttachment Methods:\n\n1. Console Method (Users):\n   IAM → Users → Select User → Permissions tab → Add Permissions → Attach existing policies directly\n\n2. CLI Method:\n   aws iam attach-user-policy --user-name john --policy-arn arn:aws:iam::aws:policy/ReadOnlyAccess\n\n3. Group Attachment:\n   IAM → Groups → Select Group → Permissions tab → Attach Policy\n\n4. Role Attachment:\n   IAM → Roles → Select Role → Permissions tab → Attach policies\n\nPolicy Types Explained:\n• AWS Managed: Ready-to-use, automatically updated by AWS (e.g., ReadOnlyAccess, PowerUserAccess)\n• Customer Managed: Custom policies you create, version-controlled, reusable\n• Inline: One-to-one relationship with identity, deleted when identity is deleted\n\nBest Practices:\n• Use managed policies for reusability and easier management\n• Attach policies to groups, then add users to groups (easier to manage at scale)\n• Use inline policies only for unique, one-off permissions\n• Follow principle of least privilege - grant minimum necessary permissions",
+        category: "Policy Management"
+      },
+      {
+        level: 2,
+        front: "IAM Roles Deep Dive - Creation and Usage",
+        back: "**Key Concept Definitions:**\n\n**IAM Role:** A set of permissions that can be temporarily assumed by trusted entities\n**Trust Policy:** JSON document that defines who can assume the role (\"who can wear this hat\")\n**Permission Policy:** JSON document that defines what the role can do (\"what powers the hat gives you\")\n**AssumeRole:** API action that allows an entity to temporarily take on a role's permissions\n**Instance Profile:** A container for an IAM role that can be attached to EC2 instances\n**Cross-Account Access:** Using roles to grant permissions across different AWS accounts\n**Federation:** Using external identity providers (like Active Directory) to assume AWS roles\n\n**Role Creation Process:**\n\n**Step 1: Define Trust Policy** (Who can assume the role):\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [{\n    \"Effect\": \"Allow\",\n    \"Principal\": {\n      \"Service\": \"ec2.amazonaws.com\"\n    },\n    \"Action\": \"sts:AssumeRole\"\n  }]\n}\n\n**Step 2: Attach Permission Policies** (What the role can do):\n   • S3FullAccess for application data access\n   • CloudWatchLogsFullAccess for logging\n\n**Real-World Usage Examples:**\n\n**EC2 Instance Role:**\n• Create role with EC2 service in trust policy\n• Attach required permissions (S3, CloudWatch)\n• Launch EC2 with instance profile containing the role\n• Applications automatically get rotating temporary credentials\n\n**Cross-Account Access Role:**\n• Role in Account B trusts specific users/roles in Account A\n• Users in Account A assume role to access Account B resources\n• Time-limited access with complete audit trail\n\n**Lambda Execution Role:**\n• Trust policy allows lambda.amazonaws.com service\n• Permissions for CloudWatch Logs, VPC access, other AWS services\n• Lambda service assumes role automatically during function execution",
+        category: "IAM Roles"
       },
       {
         level: 1,
         front: "AWS Shared Responsibility Model for Security",
-        back: "Security is shared between AWS and the customer:\n\nAWS Responsibilities (Security OF the Cloud):\n• Physical data center security\n• Infrastructure hardware and software\n• Network controls and host operating system patches\n• Hypervisor and underlying compute infrastructure\n\nCustomer Responsibilities (Security IN the Cloud):\n• Operating system updates and security patches\n• Application security and firewall configuration\n• Network traffic protection and IAM\n• Data encryption and network traffic protection\n\nRemember: AWS secures the foundation, you secure what you build on it.",
+        back: "**Definition:** The Shared Responsibility Model defines the division of security responsibilities between AWS and the customer.\n\n**Key Concepts:**\n• **Security OF the Cloud:** AWS's responsibility for securing the underlying infrastructure\n• **Security IN the Cloud:** Customer's responsibility for securing their data and applications\n• **Infrastructure as a Service (IaaS):** Customer has more security responsibilities (EC2, VPC)\n• **Platform as a Service (PaaS):** AWS handles more security responsibilities (RDS, Lambda)\n• **Software as a Service (SaaS):** AWS handles most security responsibilities (managed services)\n\n**AWS Responsibilities (Security OF the Cloud):**\n• **Physical Security:** Data center access controls, environmental safeguards\n• **Infrastructure:** Hardware, software, networking, and facilities\n• **Host Operating System:** Patches and updates to hypervisor and host OS\n• **Network Controls:** Firewall and network traffic protection\n• **Hypervisor:** Virtual machine isolation and security\n• **Global Infrastructure:** Regions, Availability Zones, edge locations\n\n**Customer Responsibilities (Security IN the Cloud):**\n• **Guest Operating System:** Updates, patches, and security configuration\n• **Application Security:** Code security, runtime protection, secure development\n• **Identity and Access Management:** User permissions, authentication, authorization\n• **Network Traffic Protection:** Encryption, firewall rules, network ACLs\n• **Data Encryption:** At rest and in transit encryption\n• **Security Group Configuration:** Instance-level firewall rules\n\n**Remember:** AWS secures the foundation, you secure what you build on it. The level of responsibility varies by service type.",
         category: "Security Fundamentals"
       },
       {
         level: 2,
         front: "Multi-Factor Authentication (MFA) Best Practices",
-        back: "Scenario: Protect privileged accounts from password compromise\n\nImplementation Steps:\n\n1. Enable MFA for Root Account:\n   • Use hardware token or virtual MFA app\n   • Store backup codes securely\n\n2. Require MFA for Sensitive Operations:\n   Policy condition: \"aws:MultiFactorAuthPresent\" = \"true\"\n\n3. MFA for Console Access:\n   • Configure in IAM user settings\n   • Users scan QR code with authenticator app\n\nResult: Even if password is compromised, account remains secure",
+        back: "**Key Concept Definitions:**\n\n**Multi-Factor Authentication (MFA):** Security mechanism requiring two or more verification factors to access resources\n**Authentication Factors:** Something you know (password), something you have (token), something you are (biometrics)\n**Virtual MFA Device:** Software-based authenticator app (Google Authenticator, Microsoft Authenticator)\n**Hardware MFA Device:** Physical token that generates authentication codes\n**TOTP (Time-based One-Time Password):** Time-sensitive codes that change every 30-60 seconds\n**Root Account:** Master account with full access to all AWS resources\n\n**Implementation Scenario:** Protect privileged accounts from password compromise\n\n**Implementation Steps:**\n\n**1. Enable MFA for Root Account:**\n   • Use hardware token (YubiKey) or virtual MFA app\n   • Store backup codes in secure location (encrypted password manager)\n   • Test MFA device before completing setup\n\n**2. Require MFA for Sensitive Operations:**\n   Policy condition: \"aws:MultiFactorAuthPresent\" = \"true\"\n   This ensures certain actions require recent MFA authentication\n\n**3. MFA for Console Access:**\n   • Configure in IAM user settings\n   • Users scan QR code with authenticator app\n   • Generate backup codes for device recovery\n\n**4. MFA for Programmatic Access:**\n   • Use STS GetSessionToken with MFA\n   • Temporary credentials valid for specified duration\n\n**Security Benefits:**\n• Even if password is compromised, account remains secure\n• Reduces risk of credential stuffing attacks\n• Provides audit trail of authentication events\n• Required for many compliance frameworks",
         category: "IAM Security"
       },
       {
         level: 2,
         front: "AWS CloudTrail for Security Auditing",
-        back: "What: CloudTrail records all API calls made in your AWS account\n\nSecurity Use Cases:\n\n1. Compliance Auditing:\n• Track who accessed what resources when\n• Generate reports for SOX, HIPAA, PCI compliance\n\n2. Incident Investigation:\n• Identify unauthorized access attempts\n• Track changes that led to security incidents\n\n3. Real-World Example:\nEvent shows user 'john.doe' deleted S3 bucket from IP 203.0.113.12 at 10:30 AM\n\nBest Practice: Enable CloudTrail in all regions, store logs in secure S3 bucket with encryption",
+        back: "**Key Concept Definitions:**\n\n**AWS CloudTrail:** Service that records API calls and events for AWS account activity\n**API Call:** Request made to AWS services (CreateInstance, DeleteBucket, etc.)\n**Event:** Record of an API call containing who, what, when, where information\n**Trail:** Configuration that defines how events are captured and stored\n**Management Events:** Control plane operations (creating/deleting resources)\n**Data Events:** Data plane operations (GetObject, PutObject in S3)\n**Event History:** Default 90-day retention of management events (free)\n**CloudWatch Logs Integration:** Real-time streaming of CloudTrail events for monitoring\n\n**What CloudTrail Records:**\n• Who made the request (user identity, IP address)\n• What was requested (API action, resources affected)\n• When it occurred (timestamp with timezone)\n• Where it came from (source IP, user agent)\n• Whether it succeeded or failed\n\n**Security Use Cases:**\n\n**1. Compliance Auditing:**\n• Track who accessed what resources when\n• Generate reports for SOX, HIPAA, PCI compliance\n• Prove adherence to access control policies\n• Document privileged user activities\n\n**2. Incident Investigation:**\n• Identify unauthorized access attempts\n• Track changes that led to security incidents\n• Correlate suspicious activities across services\n• Establish timeline of events during breaches\n\n**3. Real-World Example:**\nEvent shows user 'john.doe' deleted S3 bucket 'customer-data' from IP 203.0.113.12 at 10:30 AM using AWS CLI\n\n**Best Practices:**\n• Enable CloudTrail in all regions for comprehensive coverage\n• Store logs in secure S3 bucket with encryption (SSE-KMS)\n• Enable log file validation to detect tampering\n• Set up CloudWatch alarms for suspicious activities\n• Use separate AWS account for log storage (security account)",
         category: "Security Services"
       },
       {
         level: 2,
         front: "AWS GuardDuty - Threat Detection Service",
-        back: "What: AI-powered threat detection service that monitors for malicious activity\n\nReal-World Scenario:\nProblem: Your company's AWS account shows unusual activity\n\nGuardDuty Detection:\n• Cryptocurrency mining from EC2 instances\n• Unusual API calls from foreign IP addresses\n• Communication with known malicious domains\n• Compromised instances participating in DDoS attacks\n\nResponse Actions:\n1. Automated Response: Lambda function isolates affected instances\n2. Alert Security Team: SNS notification to security personnel\n3. Evidence Collection: CloudTrail logs preserved for investigation\n\nBenefits: 24/7 monitoring, machine learning detection, low false positives",
+        back: "**Key Concept Definitions:**\n\n**AWS GuardDuty:** Managed threat detection service that uses machine learning to identify malicious activity\n**Threat Intelligence:** Global database of known malicious IPs, domains, and attack patterns\n**Behavioral Analysis:** Machine learning that establishes normal patterns and detects anomalies\n**Finding:** Security alert generated when GuardDuty detects suspicious activity\n**Severity Levels:** Low (informational), Medium (suspicious), High (actionable threat)\n**Data Sources:** VPC Flow Logs, DNS logs, CloudTrail events\n**False Positive:** Alert that incorrectly identifies normal activity as malicious\n**Threat List:** Custom list of known malicious IPs or domains\n\n**How GuardDuty Works:**\n• Analyzes billions of events across multiple data sources\n• Uses AWS security intelligence and threat intelligence feeds\n• Applies machine learning models to detect anomalies\n• Generates findings with detailed context and severity ratings\n\n**Real-World Detection Scenario:**\nProblem: Your company's AWS account shows unusual activity\n\n**GuardDuty Detection Examples:**\n• **Cryptocurrency Mining:** EC2 instances communicating with mining pools\n• **Reconnaissance:** Unusual API calls from foreign IP addresses\n• **Malware Communication:** Instances contacting known command & control servers\n• **DDoS Participation:** Compromised instances participating in distributed attacks\n• **Data Exfiltration:** Unusual data transfer patterns to external destinations\n• **Privilege Escalation:** Abnormal IAM user behavior patterns\n\n**Automated Response Actions:**\n1. **Immediate Containment:** Lambda function isolates affected instances by modifying security groups\n2. **Alert Security Team:** SNS notification to security personnel with finding details\n3. **Evidence Preservation:** CloudTrail logs and snapshots preserved for investigation\n4. **Quarantine:** Move affected instances to isolated subnet for analysis\n\n**Benefits:**\n• 24/7 continuous monitoring without infrastructure overhead\n• Machine learning reduces false positives over time\n• Integration with Security Hub for centralized management\n• Covers multiple attack vectors and threat types",
         category: "Security Services"
       },
       {
         level: 2,
         front: "Data Encryption - At Rest and In Transit",
-        back: "Comprehensive Encryption Strategy:\n\nAt Rest Encryption:\n• SSE-S3: AWS manages keys\n• SSE-KMS: You control keys via AWS KMS\n• SSE-C: You provide and manage keys\n• Client-Side: Encrypt before sending to AWS\n\nIn Transit Encryption:\n• HTTPS/TLS: All API calls encrypted\n• VPN: Secure connection to VPC\n• Direct Connect: Private connection with optional encryption\n\nReal Example - Healthcare Data:\nS3 Bucket (Patient Records)\n├── SSE-KMS encryption\n├── Customer-managed KMS key\n├── Key rotation enabled\n└── CloudTrail logging all key usage",
+        back: "**Key Concept Definitions:**\n\n**Encryption:** Process of encoding data so only authorized parties can access it\n**Encryption at Rest:** Protecting data stored on disks, databases, and storage services\n**Encryption in Transit:** Protecting data while it moves between locations\n**Encryption Key:** Secret value used to encrypt and decrypt data\n**Key Management Service (KMS):** AWS service for creating and managing encryption keys\n**Customer Master Key (CMK):** Top-level key in KMS hierarchy\n**Data Encryption Key (DEK):** Key used to encrypt actual data (envelope encryption)\n**Envelope Encryption:** Technique where data is encrypted with DEK, and DEK is encrypted with CMK\n\n**Comprehensive Encryption Strategy:**\n\n**Encryption at Rest Options:**\n\n• **SSE-S3 (Server-Side Encryption with S3-managed keys):**\n  - AWS manages encryption keys entirely\n  - AES-256 encryption automatically applied\n  - Good for: Basic encryption needs, minimal key management\n\n• **SSE-KMS (Server-Side Encryption with KMS-managed keys):**\n  - You control keys via AWS KMS\n  - Audit trail of key usage in CloudTrail\n  - Key rotation and access policies\n  - Good for: Compliance requirements, audit trails\n\n• **SSE-C (Server-Side Encryption with Customer-provided keys):**\n  - You provide and manage encryption keys\n  - AWS performs encryption but doesn't store keys\n  - Good for: Maximum control over keys\n\n• **Client-Side Encryption:**\n  - Encrypt data before sending to AWS\n  - You manage entire encryption process\n  - Good for: Highly sensitive data, zero-trust architecture\n\n**Encryption in Transit Options:**\n• **HTTPS/TLS:** All AWS API calls encrypted using SSL/TLS\n• **VPN:** Secure IPSec tunnel between on-premises and VPC\n• **Direct Connect:** Private connection with optional encryption layer\n• **Application-Level:** Additional encryption within applications\n\n**Real Example - Healthcare Data Implementation:**\nS3 Bucket (Patient Records)\n├── SSE-KMS encryption with customer-managed key\n├── Key rotation enabled (annual automatic rotation)\n├── CloudTrail logging all key usage for compliance\n├── Key access restricted to specific roles\n└── Cross-region replication with encryption maintained\n\n**Best Practices:**\n• Use encryption by default for all data\n• Implement key rotation policies\n• Separate encryption keys from encrypted data\n• Monitor key usage through CloudTrail\n• Use different keys for different data classification levels",
         category: "Data Protection"
       },
       {
@@ -760,7 +772,7 @@
       {
         level: 3,
         front: "VPC Security Groups vs Network ACLs",
-        back: "Network Security Layers:\n\nSecurity Groups (Instance Level):\n• Stateful: Return traffic automatically allowed\n• Allow rules only: Cannot deny specific traffic\n• Instance-specific: Can be attached to multiple instances\n\nNetwork ACLs (Subnet Level):\n• Stateless: Must explicitly allow return traffic\n• Allow and Deny rules: More granular control\n• Subnet-wide: Applies to all instances in subnet\n\nReal-World Example:\nWeb Application Architecture:\nInternet Gateway\n  ↓\nPublic Subnet (Web Servers)\n├── NACL: Allow HTTP(80), HTTPS(443)\n└── Security Group: Allow 80,443 from anywhere\n  ↓\nPrivate Subnet (Database)\n├── NACL: Allow MySQL(3306) from public subnet only\n└── Security Group: Allow 3306 from web server SG only\n\nBest Practice: Use both layers for defense in depth",
+        back: "**Key Concept Definitions:**\n\n**VPC (Virtual Private Cloud):** Logically isolated network within AWS cloud\n**Security Group:** Virtual firewall that controls inbound and outbound traffic at the instance level\n**Network ACL (Access Control List):** Virtual firewall that controls traffic at the subnet level\n**Stateful Firewall:** Remembers connection state; return traffic automatically allowed\n**Stateless Firewall:** Treats each packet independently; must explicitly allow return traffic\n**Inbound Rules:** Control incoming traffic to resources\n**Outbound Rules:** Control outgoing traffic from resources\n**Rule Priority:** Order in which rules are evaluated (Network ACLs use numbered rules)\n\n**Network Security Layer Comparison:**\n\n**Security Groups (Instance Level - Stateful):**\n• **Scope:** Applied to individual EC2 instances and ENIs\n• **Rule Type:** Allow rules only (cannot explicitly deny)\n• **State:** Stateful - return traffic automatically allowed\n• **Rule Evaluation:** All rules evaluated before decision\n• **Default Behavior:** Deny all inbound, allow all outbound\n• **Use Case:** Fine-grained control per instance\n\n**Network ACLs (Subnet Level - Stateless):**\n• **Scope:** Applied to all instances in a subnet\n• **Rule Type:** Both Allow and Deny rules supported\n• **State:** Stateless - must explicitly allow return traffic\n• **Rule Evaluation:** Rules processed in numerical order\n• **Default Behavior:** Default NACL allows all traffic\n• **Use Case:** Broad subnet-level controls\n\n**Real-World Example - Web Application Architecture:**\n\n```\nInternet Gateway\n  ↓\nPublic Subnet (Web Servers)\n├── NACL Rules:\n│   ├── Rule 100: Allow HTTP (80) from 0.0.0.0/0\n│   ├── Rule 110: Allow HTTPS (443) from 0.0.0.0/0\n│   ├── Rule 120: Allow return traffic (1024-65535)\n│   └── Rule 32767: Deny all (default)\n└── Security Group Rules:\n    ├── Allow HTTP (80) from anywhere (0.0.0.0/0)\n    ├── Allow HTTPS (443) from anywhere (0.0.0.0/0)\n    └── Allow SSH (22) from admin IP only\n  ↓\nPrivate Subnet (Database Servers)\n├── NACL Rules:\n│   ├── Rule 100: Allow MySQL (3306) from public subnet\n│   ├── Rule 110: Allow return traffic (1024-65535)\n│   └── Rule 32767: Deny all\n└── Security Group Rules:\n    └── Allow MySQL (3306) from web server security group only\n```\n\n**Defense in Depth Strategy:**\n• Network ACLs provide subnet-level protection (first line of defense)\n• Security Groups provide instance-level protection (second line of defense)\n• Both layers work together to create comprehensive network security\n• Use NACLs for broad controls, Security Groups for specific access patterns",
         category: "Network Security"
       },
       {
@@ -770,6 +782,630 @@
         category: "Credential Management"
       },
       {
+        level: 1,
+        front: "AWS Config for Compliance Monitoring",
+        back: "What: AWS Config monitors your AWS resources for compliance with configuration rules\n\nCompliance Scenario:\nRequirement: All S3 buckets must have encryption enabled\n\nConfig Implementation:\n1. Enable Config in all regions\n2. Create rule: s3-bucket-server-side-encryption-enabled\n3. Automatic evaluation of all S3 buckets\n4. Non-compliant resources flagged immediately\n\nRemediation Options:\n• Manual: Security team reviews and fixes\n• Automated: Lambda function enables encryption\n• Preventive: IAM policy prevents creation without encryption\n\nBenefits: Continuous compliance monitoring, audit trails, integration with Security Hub",
+        category: "Compliance"
+      },
+      {
+        level: 2,
+        front: "AWS Systems Manager Session Manager",
+        back: "Secure Remote Access Without SSH Keys:\n\nTraditional Challenge:\n• Managing SSH keys across hundreds of EC2 instances\n• Bastion hosts creating security bottlenecks\n• No audit trail of shell commands\n\nSession Manager Solution:\n1. No SSH keys needed - uses IAM permissions\n2. No bastion hosts - direct access through AWS console/CLI\n3. Full session logging to CloudWatch/S3\n4. Session encryption in transit\n\nImplementation:\n• Install SSM Agent on EC2 instances\n• Attach IAM role with SSM permissions\n• Users access through AWS console or CLI\n\nResult: Secure, auditable, keyless access to EC2 instances",
+        category: "Access Management"
+      },
+      {
         level: 3,
-        front: "AWS Organizations Security Implementation",
-        back: "Multi-Account Security Strategy:\n\nEnterprise Scenario: Company with 50+ AWS accounts across departments\n\nOrganizations Security Setup:\n\n1. Account Structure:\nRoot Organization\n├── Security OU (Central security account)\n├── Production OU (Prod workloads
+        front: "Incident Response with AWS Security Services",
+        back: "Complete Incident Response Workflow:\n\nScenario: Suspected data breach in production environment\n\n1. Detection Phase:\n• GuardDuty alerts on suspicious API calls\n• CloudWatch alarms on unusual data transfer\n• Security Hub aggregates all findings\n\n2. Investigation Phase:\n• CloudTrail analysis reveals compromised IAM user\n• VPC Flow Logs show unusual network traffic\n• Config history shows recent security group changes\n\n3. Containment:\n• Automated Lambda isolates affected instances\n• IAM user access revoked immediately\n• Security groups updated to block suspicious IPs\n\n4. Recovery:\n• Clean instances launched from secure AMIs\n• Database restored from encrypted backups\n• Network access gradually restored\n\n5. Lessons Learned:\n• Update IAM policies based on findings\n• Enhance monitoring rules\n• Conduct security training for team",
+        category: "Incident Response"
+      }
+    ];
+
+    // Quiz questions
+    const quizQuestions = [
+      {
+        scenario: "Enterprise Security",
+        question: "Your company has 500 employees across multiple departments. Each department needs different levels of access to AWS resources. What's the most efficient way to manage these permissions?",
+        options: [
+          "Create individual IAM users for each employee with custom policies",
+          "Create IAM groups for each department, assign users to groups, and attach policies to groups",
+          "Use the root account with shared passwords for each department",
+          "Create one IAM user per department with shared credentials"
+        ],
+        correct: 1,
+        explanation: "IAM groups allow you to manage permissions efficiently at scale. Users inherit permissions from their groups, making it easy to manage departmental access patterns while maintaining the principle of least privilege."
+      },
+      {
+        scenario: "Compliance Audit", 
+        question: "Your organization needs to prove compliance with HIPAA regulations. Auditors want to see who accessed patient data in S3 buckets over the past year. Which AWS service provides this information?",
+        options: [
+          "AWS Config",
+          "AWS CloudTrail", 
+          "AWS GuardDuty",
+          "AWS Security Hub"
+        ],
+        correct: 1,
+        explanation: "AWS CloudTrail logs all API calls, including S3 access. It provides detailed audit trails showing who accessed what resources, when, and from where - essential for compliance reporting."
+      },
+      {
+        scenario: "Security Incident",
+        question: "GuardDuty has detected cryptocurrency mining activity on one of your EC2 instances. What should be your immediate response?",
+        options: [
+          "Ignore it as a false positive",
+          "Immediately terminate the instance",
+          "Isolate the instance by modifying security groups and investigate further",
+          "Change the instance password and continue monitoring"
+        ],
+        correct: 2,
+        explanation: "Isolating the compromised instance prevents further damage while preserving evidence for investigation. Modifying security groups to block network access contains the threat while allowing forensic analysis."
+      },
+      {
+        scenario: "Data Protection",
+        question: "Your application stores sensitive customer data in S3. You need encryption at rest with full control over encryption keys, including key rotation. Which option should you choose?",
+        options: [
+          "SSE-S3 (Server-Side Encryption with S3 managed keys)",
+          "SSE-KMS with AWS managed keys",
+          "SSE-KMS with customer managed keys", 
+          "Client-side encryption only"
+        ],
+        correct: 2,
+        explanation: "SSE-KMS with customer managed keys gives you full control over encryption keys, including rotation policies, access policies, and audit trails through CloudTrail."
+      },
+      {
+        scenario: "Access Control",
+        question: "A developer needs temporary access to production RDS databases for troubleshooting. They should never have permanent database credentials. What's the best approach?",
+        options: [
+          "Create a permanent database user for the developer",
+          "Share the master database password",
+          "Use IAM database authentication with temporary credentials",
+          "Create a read-only database user with a complex password"
+        ],
+        correct: 2,
+        explanation: "IAM database authentication allows users to connect to RDS using temporary credentials generated from their IAM permissions, eliminating the need for permanent database passwords."
+      },
+      {
+        scenario: "Network Security",
+        question: "Your web application architecture has web servers in public subnets and databases in private subnets. How should you configure security groups for maximum security?",
+        options: [
+          "Allow all traffic between subnets for simplicity",
+          "Web servers: Allow 80/443 from anywhere; Databases: Allow 3306 only from web server security group",
+          "Use the default security group for all instances",
+          "Web servers: Allow all traffic; Databases: Allow 3306 from anywhere"
+        ],
+        correct: 1,
+        explanation: "This follows the principle of least privilege. Web servers only accept HTTP/HTTPS traffic, and databases only accept connections from the web server security group, creating a secure layered architecture."
+      },
+      {
+        scenario: "Identity Federation",
+        question: "Your company uses Active Directory for employee authentication. Employees need to access AWS resources without creating separate AWS credentials. What's the best solution?",
+        options: [
+          "Create IAM users for each employee with the same passwords as AD",
+          "Use AWS SSO (Single Sign-On) with Active Directory integration", 
+          "Share a single IAM user account among all employees",
+          "Require employees to create personal AWS accounts"
+        ],
+        correct: 1,
+        explanation: "AWS SSO integrates with Active Directory, allowing employees to use their existing AD credentials to access AWS resources. This provides seamless authentication without creating duplicate accounts."
+      },
+      {
+        scenario: "Monitoring & Alerting",
+        question: "You want to be immediately notified when someone creates or deletes IAM users in your AWS account. How can you implement this?",
+        options: [
+          "Check IAM console daily",
+          "Set up CloudWatch alarms based on CloudTrail logs for IAM events",
+          "Use AWS Config to monitor IAM changes",
+          "Enable GuardDuty for IAM monitoring"
+        ],
+        correct: 1,
+        explanation: "CloudTrail logs all IAM API calls. You can create CloudWatch metric filters on these logs and set up alarms to send SNS notifications when IAM users are created or deleted."
+      },
+      {
+        scenario: "Secrets Management",
+        question: "Your application code currently has database passwords hardcoded. This creates security risks and makes password rotation difficult. What's the best solution?",
+        options: [
+          "Move passwords to environment variables",
+          "Store passwords in a configuration file",
+          "Use AWS Secrets Manager to store and automatically rotate passwords",
+          "Encrypt the passwords in the code"
+        ],
+        correct: 2,
+        explanation: "AWS Secrets Manager securely stores secrets, provides automatic rotation, and allows applications to retrieve credentials programmatically. This eliminates hardcoded secrets and enables secure rotation."
+      },
+      {
+        scenario: "Multi-Account Strategy",
+        question: "Your organization has separate AWS accounts for development, staging, and production. Developers need occasional access to production for troubleshooting. What's the most secure approach?",
+        options: [
+          "Give developers permanent IAM users in the production account",
+          "Use cross-account roles that developers can assume for temporary access",
+          "Share production account credentials with senior developers",
+          "Create a single account for all environments"
+        ],
+        correct: 1,
+        explanation: "Cross-account roles allow developers to temporarily assume permissions in production when needed. This provides audit trails, time-limited access, and follows the principle of least privilege."
+      },
+      {
+        scenario: "Vulnerability Management",
+        question: "You need to identify security vulnerabilities in your EC2 instances' operating systems and applications. Which AWS service should you use?",
+        options: [
+          "AWS GuardDuty",
+          "AWS Inspector",
+          "AWS Config",
+          "AWS CloudTrail"
+        ],
+        correct: 1,
+        explanation: "AWS Inspector performs security assessments of EC2 instances and container images, identifying software vulnerabilities and unintended network exposure."
+      },
+      {
+        scenario: "DDoS Protection",
+        question: "Your web application is experiencing a large DDoS attack. Traffic is overwhelming your servers and affecting legitimate users. What AWS service provides automatic DDoS protection?",
+        options: [
+          "AWS WAF",
+          "AWS Shield",
+          "AWS GuardDuty", 
+          "AWS CloudFront"
+        ],
+        correct: 1,
+        explanation: "AWS Shield provides DDoS protection. Shield Standard is automatically enabled for all AWS customers, while Shield Advanced provides enhanced protection and DDoS response team support."
+      },
+      {
+        scenario: "Key Management",
+        question: "Your application uses encryption keys stored in AWS KMS. For compliance reasons, you need to ensure keys are rotated annually and track all key usage. What should you configure?",
+        options: [
+          "Manual key rotation and CloudWatch monitoring",
+          "Automatic key rotation and CloudTrail logging",
+          "Key rotation via Lambda function and Config monitoring",
+          "Manual key management with periodic access reviews"
+        ],
+        correct: 1,
+        explanation: "KMS supports automatic annual key rotation for customer-managed keys. CloudTrail logs all KMS API calls, providing complete audit trails of key usage for compliance requirements."
+      },
+      {
+        scenario: "Privileged Access",
+        question: "Your security policy requires that any changes to production infrastructure must be approved and auditable. Administrators need temporary elevated access for emergency changes. What's the best approach?",
+        options: [
+          "Give administrators permanent elevated privileges",
+          "Use IAM roles with time-limited sessions and require approval workflow",
+          "Share administrative credentials during emergencies",
+          "Disable all administrative access to prevent changes"
+        ],
+        correct: 1,
+        explanation: "Time-limited IAM roles with approval workflows provide auditable, temporary elevated access. This ensures emergency access while maintaining security controls and audit requirements."
+      },
+      {
+        scenario: "Policy Creation",
+        question: "You need to create a policy that allows users to read objects from a specific S3 bucket 'company-reports' but only allows uploads to the 'uploads/' folder within that bucket. What should the policy look like?",
+        options: [
+          `{
+    "Version": "2012-10-17",
+    "Statement": [{
+        "Effect": "Allow",
+        "Action": ["s3:GetObject", "s3:PutObject"],
+        "Resource": "arn:aws:s3:::company-reports/*"
+    }]
+}`,
+          `{
+    "Version": "2012-10-17", 
+    "Statement": [{
+        "Effect": "Allow",
+        "Action": "s3:GetObject",
+        "Resource": "arn:aws:s3:::company-reports/*"
+    }, {
+        "Effect": "Allow",
+        "Action": "s3:PutObject", 
+        "Resource": "arn:aws:s3:::company-reports/uploads/*"
+    }]
+}`,
+          `{
+    "Version": "2012-10-17",
+    "Statement": [{
+        "Effect": "Allow",
+        "Action": "s3:*",
+        "Resource": "arn:aws:s3:::company-reports"
+    }]
+}`,
+          `{
+    "Version": "2012-10-17",
+    "Statement": [{
+        "Effect": "Allow", 
+        "Action": ["s3:GetObject", "s3:PutObject"],
+        "Resource": "arn:aws:s3:::company-reports/uploads/*"
+    }]
+}`
+        ],
+        correct: 1,
+        explanation: "The correct policy has two statements: one allowing GetObject on all objects in the bucket (read access), and another allowing PutObject only in the uploads/ folder. This follows the principle of least privilege while meeting the specific requirements."
+      },
+      {
+        scenario: "Policy Creation",
+        question: "Your development team needs a policy that allows them to manage EC2 instances but prevents them from terminating instances tagged with 'Environment=Production'. Which policy accomplishes this?",
+        options: [
+          "A policy with ec2:* action and no conditions",
+          "A policy with ec2:* action and a Deny statement for ec2:TerminateInstances when Environment=Production", 
+          "A policy with only ec2:StartInstances and ec2:StopInstances actions",
+          "A policy with ec2:* action excluding ec2:TerminateInstances"
+        ],
+        correct: 1,
+        explanation: "The correct approach uses an explicit Deny statement with a condition. Deny statements always override Allow statements, so even if users have broad EC2 permissions, they cannot terminate production instances due to the conditional Deny."
+      },
+      {
+        scenario: "Policy Creation", 
+        question: "You want to create a policy that allows users to assume a specific role 'DataAnalyst' but only during business hours (9 AM to 5 PM UTC). What condition should you add?",
+        options: [
+          `"Condition": {
+  "DateGreaterThan": {"aws:CurrentTime": "09:00:00Z"},
+  "DateLessThan": {"aws:CurrentTime": "17:00:00Z"}
+}`,
+          `"Condition": {
+  "StringEquals": {"aws:userid": "DataAnalyst"}
+}`,
+          `"Condition": {
+  "StringLike": {"aws:username": "*analyst*"}
+}`,
+          `"Condition": {
+  "NumericBetween": {"aws:TokenIssueTime": ["09", "17"]}
+}`
+        ],
+        correct: 0,
+        explanation: "The DateGreaterThan and DateLessThan conditions with aws:CurrentTime allow you to restrict access to specific time windows. This ensures users can only assume the role during business hours."
+      },
+      {
+        scenario: "Policy Creation",
+        question: "You need a policy that allows Lambda functions to write logs to CloudWatch but only to log groups that start with '/aws/lambda/'. What's the correct Resource specification?",
+        options: [
+          `"Resource": "arn:aws:logs:*:*:log-group:/aws/lambda/*"`,
+          `"Resource": "arn:aws:logs:*:*:log-group:/aws/lambda/*:*"`,
+          `"Resource": ["arn:aws:logs:*:*:log-group:/aws/lambda/*", "arn:aws:logs:*:*:log-group:/aws/lambda/*:*"]`,
+          `"Resource": "arn:aws:logs:*:*:log-group:*"`
+        ],
+        correct: 2,
+        explanation: "CloudWatch Logs requires permissions on both the log group and log streams. The correct answer includes both ARN patterns: one for the log group itself and another for log streams within those groups (indicated by the additional :* at the end)."
+      },
+      {
+        scenario: "Policy Creation",
+        question: "Your application needs to read from DynamoDB table 'UserData' and write to S3 bucket 'app-backups'. Which policy provides the minimum required permissions?",
+        options: [
+          `{
+    "Version": "2012-10-17",
+    "Statement": [{
+        "Effect": "Allow",
+        "Action": ["dynamodb:*", "s3:*"],
+        "Resource": "*"
+    }]
+}`,
+          `{
+    "Version": "2012-10-17", 
+    "Statement": [{
+        "Effect": "Allow",
+        "Action": ["dynamodb:GetItem", "dynamodb:Query", "dynamodb:Scan"],
+        "Resource": "arn:aws:dynamodb:*:*:table/UserData"
+    }, {
+        "Effect": "Allow",
+        "Action": ["s3:PutObject", "s3:PutObjectAcl"],
+        "Resource": "arn:aws:s3:::app-backups/*"
+    }]
+}`,
+          `{
+    "Version": "2012-10-17",
+    "Statement": [{
+        "Effect": "Allow", 
+        "Action": "dynamodb:GetItem",
+        "Resource": "arn:aws:dynamodb:*:*:table/UserData"
+    }]
+}`,
+          `{
+    "Version": "2012-10-17",
+    "Statement": [{
+        "Effect": "Allow",
+        "Action": "s3:PutObject", 
+        "Resource": "arn:aws:s3:::app-backups/*"
+    }]
+}`
+        ],
+        correct: 1,
+        explanation: "This policy follows the principle of least privilege by granting only the specific permissions needed: DynamoDB read operations (GetItem, Query, Scan) on the specific table, and S3 write operations (PutObject, PutObjectAcl) on the specific bucket."
+      },
+      {
+        scenario: "Policy Creation",
+        question: "You want to create a policy that allows users to manage their own IAM access keys but prevents them from creating new IAM users. Which actions should be included?",
+        options: [
+          `["iam:*"]`,
+          `["iam:CreateAccessKey", "iam:DeleteAccessKey", "iam:ListAccessKeys", "iam:UpdateAccessKey"]`,
+          `["iam:GetUser", "iam:CreateAccessKey", "iam:DeleteAccessKey", "iam:ListAccessKeys", "iam:UpdateAccessKey"]`,
+          `["iam:CreateUser", "iam:DeleteUser", "iam:CreateAccessKey", "iam:DeleteAccessKey"]`
+        ],
+        correct: 2,
+        explanation: "The policy should include GetUser (to view their own user details) and the access key management actions (Create, Delete, List, Update). This allows users to manage their own credentials without the ability to create new users."
+      },
+      {
+        scenario: "Security Incident Response",
+        question: "SITUATION: Your company's AWS account shows unusual activity at 3 AM: someone created 50 new IAM users and launched 100 EC2 instances in regions you don't normally use. GuardDuty has flagged cryptocurrency mining activity. What should be your immediate response sequence?",
+        options: [
+          "1. Delete all new users 2. Terminate all instances 3. Change root password 4. Investigate later",
+          "1. Isolate affected resources 2. Preserve evidence 3. Revoke compromised credentials 4. Assess damage 5. Implement recovery",
+          "1. Call AWS Support 2. Wait for instructions 3. Continue normal operations 4. Monitor for more activity", 
+          "1. Ignore GuardDuty alerts 2. Investigate during business hours 3. Document everything 4. Report to management"
+        ],
+        correct: 1,
+        explanation: "Follow the incident response framework: First isolate the threat to prevent further damage, preserve evidence for forensic analysis, revoke compromised credentials, assess the full scope of the breach, then implement recovery procedures. This systematic approach minimizes damage while maintaining forensic integrity."
+      },
+      {
+        scenario: "Compliance Audit",
+        question: "SITUATION: Your healthcare company is undergoing a HIPAA compliance audit. The auditor asks to see proof that only authorized personnel accessed patient data stored in S3 over the past 12 months, including what data was accessed and when. They also want to verify that all access was from approved locations. What evidence should you provide?",
+        options: [
+          "S3 access logs showing bucket access patterns",
+          "CloudTrail logs filtered for S3 API calls, VPC Flow Logs for network traffic, and GuardDuty findings for anomalous access",
+          "IAM user list and their attached policies",
+          "EC2 instance logs and application access logs"
+        ],
+        correct: 1,
+        explanation: "For comprehensive HIPAA compliance evidence, you need: CloudTrail logs (showing who accessed what S3 objects and when), VPC Flow Logs (showing network source locations), and GuardDuty findings (identifying any suspicious access patterns). This combination provides complete audit trail of data access with location verification."
+      },
+      {
+        scenario: "Multi-Account Security",
+        question: "SITUATION: Your organization has 20 AWS accounts across different departments. The security team in the central account needs to monitor and manage security across all accounts, but each department wants to maintain autonomy over their resources. A recent security incident in the marketing account went undetected for weeks. How should you restructure your security architecture?",
+        options: [
+          "Give security team full admin access to all accounts and centralize everything",
+          "Implement AWS Organizations with Security Hub and GuardDuty enabled in all accounts, with findings aggregated to the security account. Use cross-account roles for incident response",
+          "Require each department to hire their own security personnel", 
+          "Merge all accounts into a single account for better security control"
+        ],
+        correct: 1,
+        explanation: "The optimal solution uses AWS Organizations for centralized management while preserving departmental autonomy. Security Hub aggregates findings from all accounts, GuardDuty provides threat detection across the organization, and cross-account roles allow the security team to respond to incidents without permanent access to departmental resources."
+      },
+    ];
+
+    // Application state
+    let currentCard = 0;
+    let isFlipped = false;
+
+    // Initialize the application
+    function init() {
+      loadCard(currentCard);
+      generateQuiz();
+      
+      // Add keyboard navigation
+      document.addEventListener('keydown', handleKeyPress);
+    }
+
+    // Load a specific flashcard
+    function loadCard(index) {
+      const card = flashcards[index];
+      
+      // Update difficulty indicator
+      updateDifficultyIndicator(card.level);
+      
+      // Update card content
+      document.getElementById('frontCategory').textContent = card.category;
+      document.getElementById('frontTitle').textContent = card.front;
+      document.getElementById('backText').textContent = card.back;
+      
+      // Update progress
+      document.getElementById('progressText').textContent = `Card ${index + 1} of ${flashcards.length}`;
+      
+      // Update button states
+      document.getElementById('prevBtn').disabled = index === 0;
+      document.getElementById('nextBtn').disabled = index === flashcards.length - 1;
+      
+      // Reset flip state
+      if (isFlipped) {
+        flipCard();
+      }
+    }
+
+    // Update difficulty indicator
+    function updateDifficultyIndicator(level) {
+      const dots = [
+        document.getElementById('diff1'),
+        document.getElementById('diff2'), 
+        document.getElementById('diff3')
+      ];
+      const label = document.getElementById('diffLabel');
+      
+      // Reset all dots
+      dots.forEach(dot => {
+        dot.className = 'difficulty-dot';
+      });
+      
+      // Set active dots based on level
+      for (let i = 0; i < level; i++) {
+        if (i === 0) dots[i].classList.add('active');
+        else if (i === 1) dots[i].classList.add('medium');
+        else dots[i].classList.add('hard');
+      }
+      
+      // Update label
+      const labels = ['Basic', 'Intermediate', 'Advanced'];
+      label.textContent = labels[level - 1];
+    }
+
+    // Flip card animation
+    function flipCard() {
+      const card = document.getElementById('flashcard');
+      card.classList.toggle('flip');
+      isFlipped = !isFlipped;
+    }
+
+    // Navigation functions
+    function nextCard() {
+      if (currentCard < flashcards.length - 1) {
+        currentCard++;
+        loadCard(currentCard);
+      }
+    }
+
+    function prevCard() {
+      if (currentCard > 0) {
+        currentCard--;
+        loadCard(currentCard);
+      }
+    }
+
+    // Keyboard navigation
+    function handleKeyPress(e) {
+      switch(e.code) {
+        case 'ArrowLeft':
+          e.preventDefault();
+          prevCard();
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          nextCard();
+          break;
+        case 'Space':
+          e.preventDefault();
+          flipCard();
+          break;
+      }
+    }
+
+    // Tab switching
+    function showTab(tabName, tabButton) {
+      // Hide all tab contents
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // Remove active class from all tab buttons
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      // Show selected tab and mark button as active
+      document.getElementById(tabName).classList.add('active');
+      tabButton.classList.add('active');
+    }
+
+    // Generate quiz HTML
+    function generateQuiz() {
+      const container = document.getElementById('quizContainer');
+      
+      quizQuestions.forEach((q, index) => {
+        const questionDiv = document.createElement('div');
+        questionDiv.className = 'question-container';
+        
+        questionDiv.innerHTML = `
+          <div class="question-header">
+            <div class="scenario-tag">${q.scenario}</div>
+            <div class="question-title">${q.question}</div>
+          </div>
+          <div class="question-body">
+            <div class="option-group">
+              ${q.options.map((option, optIndex) => `
+                <div class="option" onclick="selectOption(${index}, ${optIndex}, this)">
+                  <input type="radio" name="q${index}" value="${optIndex}" id="q${index}_${optIndex}">
+                  <label for="q${index}_${optIndex}">${option}</label>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+        
+        container.appendChild(questionDiv);
+      });
+    }
+
+    // Handle option selection
+    function selectOption(questionIndex, optionIndex, element) {
+      // Clear previous selections for this question
+      const questionContainer = element.closest('.question-container');
+      questionContainer.querySelectorAll('.option').forEach(opt => {
+        opt.classList.remove('selected');
+      });
+      
+      // Mark selected option
+      element.classList.add('selected');
+      element.querySelector('input').checked = true;
+    }
+
+    // Check quiz answers
+    function checkAnswers() {
+      let score = 0;
+      const results = [];
+      
+      quizQuestions.forEach((q, index) => {
+        const selectedOption = document.querySelector(`input[name="q${index}"]:checked`);
+        const selectedValue = selectedOption ? parseInt(selectedOption.value) : -1;
+        const isCorrect = selectedValue === q.correct;
+        
+        if (isCorrect) score++;
+        
+        results.push({
+          question: q.question,
+          selected: selectedValue,
+          correct: q.correct,
+          isCorrect: isCorrect,
+          explanation: q.explanation,
+          scenario: q.scenario
+        });
+      });
+      
+      displayResults(score, results);
+    }
+
+    // Display quiz results
+    function displayResults(score, results) {
+      const resultBox = document.getElementById('resultBox');
+      const percentage = Math.round((score / quizQuestions.length) * 100);
+      
+      let resultHTML = `
+        <div class="score-circle">${percentage}%</div>
+        <div class="result-title">Security Assessment Complete</div>
+        <div class="result-subtitle">You scored ${score} out of ${quizQuestions.length} questions correctly</div>
+      `;
+      
+      if (percentage >= 80) {
+        resultHTML += '<p style="color: #1b660f; font-weight: 500;">🛡️ Excellent! You have strong AWS security knowledge.</p>';
+      } else if (percentage >= 60) {
+        resultHTML += '<p style="color: #ff9900; font-weight: 500;">⚠️ Good foundation, but consider reviewing some security concepts.</p>';
+      } else {
+        resultHTML += '<p style="color: #d13212; font-weight: 500;">🚨 Consider additional security training before working with production systems.</p>';
+      }
+      
+      resultHTML += '<div class="result-details">';
+      
+      results.forEach((result, index) => {
+        const statusClass = result.isCorrect ? 'correct' : 'incorrect';
+        const statusIcon = result.isCorrect ? '✅' : '❌';
+        
+        resultHTML += `
+          <div class="result-item ${statusClass}">
+            <div class="result-item-header">
+              ${statusIcon} ${result.scenario} - Question ${index + 1}
+            </div>
+            <div class="result-item-explanation">${result.explanation}</div>
+          </div>
+        `;
+      });
+      
+      resultHTML += '</div>';
+      resultHTML += '<button class="btn-reset" onclick="resetQuiz()">🔄 Retake Assessment</button>';
+      
+      resultBox.innerHTML = resultHTML;
+      resultBox.classList.add('show');
+      
+      // Scroll to results
+      resultBox.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Reset quiz
+    function resetQuiz() {
+      // Clear all selections
+      document.querySelectorAll('.option').forEach(opt => {
+        opt.classList.remove('selected');
+      });
+      document.querySelectorAll('input[type="radio"]').forEach(input => {
+        input.checked = false;
+      });
+      
+      // Hide results
+      document.getElementById('resultBox').classList.remove('show');
+      
+      // Scroll to top of quiz
+      document.getElementById('quiz').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
