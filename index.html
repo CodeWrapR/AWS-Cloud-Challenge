@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>AWS Training Hub</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Amazon Ember', 'Helvetica Neue', Roboto, Arial, sans-serif;
+      background-color: #f2f3f3;
+      color: #232f3e;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    
+    /* AWS-style header */
+    .aws-header {
+      background-color: #232f3e;
+      color: white;
+      padding: 0;
+      border-bottom: 1px solid #3c4043;
+    }
+    
+    .aws-nav {
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      height: 60px;
+    }
+    
+    .aws-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 18px;
+      font-weight: 600;
+      color: #ff9900;
+    }
+    
+    .aws-service-name {
+      margin-left: 20px;
+      font-size: 16px;
+      color: white;
+      border-left: 1px solid #666;
+      padding-left: 20px;
+    }
+    
+    /* AWS-style breadcrumb */
+    .aws-breadcrumb {
+      background-color: #f9f9f9;
+      padding: 12px 20px;
+      border-bottom: 1px solid #d5dbdb;
+      font-size: 14px;
+    }
+    
+    .breadcrumb-link {
+      color: #0073bb;
+      text-decoration: none;
+    }
+    
+    .breadcrumb-link:hover {
+      text-decoration: underline;
+    }
+    
+    /* Main content container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+    
+    /* Hero section */
+    .hero-section {
+      text-align: center;
+      margin-bottom: 48px;
+      padding: 48px 24px;
+      background: linear-gradient(135deg, #232f3e 0%, #3c4043 100%);
+      color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+    
+    .hero-title {
+      font-size: 36px;
+      font-weight: 300;
+      margin-bottom: 16px;
+      color: #ff9900;
+    }
+    
+    .hero-subtitle {
+      font-size: 18px;
+      margin-bottom: 24px;
+      opacity: 0.9;
+      line-height: 1.5;
+    }
+    
+    .hero-description {
+      font-size: 16px;
+      opacity: 0.8;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    /* Training path cards */
+    .training-path {
+      margin-bottom: 48px;
+    }
+    
+    .path-header {
+      margin-bottom: 32px;
+      text-align: center;
+    }
+    
+    .path-title {
+      font-size: 28px;
+      font-weight: 300;
+      color: #232f3e;
+      margin-bottom: 8px;
+    }
+    
+    .path-description {
+      font-size: 16px;
+      color: #687078;
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    
+    .training-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 24px;
+    }
+    
+    .training-card {
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .training-card:hover {
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      transform: translateY(-2px);
+      border-color: #ff9900;
+    }
+    
+    .card-header {
+      background: linear-gradient(135deg, #ff9900 0%, #ffb84d 100%);
+      color: white;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .card-header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      transform: rotate(45deg);
+    }
+    
+    .card-day {
+      font-size: 14px;
+      font-weight: 500;
+      opacity: 0.9;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .card-title {
+      font-size: 24px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .card-subtitle {
+      font-size: 16px;
+      opacity: 0.9;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .card-body {
+      padding: 24px;
+    }
+    
+    .card-description {
+      font-size: 14px;
+      color: #687078;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    
+    .card-topics {
+      margin-bottom: 24px;
+    }
+    
+    .topics-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-bottom: 12px;
+    }
+    
+    .topic-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    
+    .topic-tag {
+      background-color: #f0f8ff;
+      color: #0073bb;
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 500;
+      border: 1px solid #e1f0ff;
+    }
+    
+    .card-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      background-color: #fafafa;
+      border-top: 1px solid #d5dbdb;
+      font-size: 14px;
+      color: #687078;
+    }
+    
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .stat-icon {
+      font-size: 16px;
+    }
+    
+    .difficulty-badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .difficulty-beginner {
+      background-color: #e8f5e8;
+      color: #1b660f;
+    }
+    
+    .difficulty-intermediate {
+      background-color: #fff4e6;
+      color: #cc6600;
+    }
+    
+    .difficulty-advanced {
+      background-color: #fdf2f2;
+      color: #d13212;
+    }
+    
+    .cta-section {
+      text-align: center;
+      background: white;
+      padding: 48px 24px;
+      border-radius: 8px;
+      border: 1px solid #d5dbdb;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .cta-title {
+      font-size: 24px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-bottom: 16px;
+    }
+    
+    .cta-description {
+      font-size: 16px;
+      color: #687078;
+      margin-bottom: 32px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .cta-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    .btn-primary {
+      background-color: #ff9900;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn-primary:hover {
+      background-color: #e88900;
+    }
+    
+    .btn-secondary {
+      background-color: #fafafa;
+      color: #232f3e;
+      border: 1px solid #d5dbdb;
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #f2f3f3;
+      border-color: #ff9900;
+    }
+    
+    .progress-section {
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 32px;
+    }
+    
+    .progress-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-bottom: 16px;
+    }
+    
+    .progress-bar-container {
+      background-color: #f0f0f0;
+      border-radius: 8px;
+      height: 8px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #ff9900 0%, #ffb84d 100%);
+      width: 0%;
+      transition: width 0.3s ease;
+      border-radius: 8px;
+    }
+    
+    .progress-text {
+      font-size: 14px;
+      color: #687078;
+      text-align: center;
+    }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+      .container {
+        padding: 16px 12px;
+      }
+      
+      .aws-nav {
+        padding: 0 12px;
+        height: 50px;
+      }
+      
+      .aws-logo {
+        font-size: 16px;
+      }
+      
+      .aws-service-name {
+        display: none;
+      }
+      
+      .hero-section {
+        padding: 32px 16px;
+        margin-bottom: 32px;
+      }
+      
+      .hero-title {
+        font-size: 28px;
+      }
+      
+      .hero-subtitle {
+        font-size: 16px;
+      }
+      
+      .training-cards {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      
+      .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .btn-primary, .btn-secondary {
+        width: 100%;
+        max-width: 280px;
+        justify-content: center;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .training-cards {
+        grid-template-columns: 1fr;
+      }
+      
+      .card-header {
+        padding: 20px;
+      }
+      
+      .card-body {
+        padding: 20px;
+      }
+      
+      .topic-list {
+        gap: 6px;
+      }
+      
+      .topic-tag {
+        font-size: 11px;
+        padding: 3px 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- AWS Console-style header -->
+  <div class="aws-header">
+    <div class="aws-nav">
+      <div class="aws-logo">
+        <span>🟠</span> AWS
+      </div>
+      <div class="aws-service-name">Training Center</div>
+    </div>
+  </div>
+  
+  <!-- AWS-style breadcrumb -->
+  <div class="aws-breadcrumb">
+    <a href="#" class="breadcrumb-link">AWS Training</a> &gt; 
+    Learning Path
+  </div>
+  
+  <div class="container">
+    <!-- Hero Section -->
+    <div class="hero-section">
+      <h1 class="hero-title">AWS Cloud Topics</h1>
+      <p class="hero-subtitle">Master the essentials of Amazon Web Services</p>
+      <p class="hero-description">
+        Build your cloud expertise with our comprehensive training program. Learn core AWS services, 
+        security best practices, and hands-on skills through interactive lessons and scenario-based learning.
+      </p>
+    </div>
+
+    <!-- Progress Section -->
+    <div class="progress-section">
+      <h2 class="progress-title">Your Learning Progress</h2>
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <p class="progress-text" id="progressText">Ready to begin your AWS journey</p>
+    </div>
+
+    <!-- Training Path -->
+    <div class="training-path">
+      <div class="path-header">
+        <h2 class="path-title">Foundation Learning Path</h2>
+        <p class="path-description">
+          Start your AWS journey with these carefully designed modules that build upon each other. 
+          Each day focuses on core concepts with hands-on exercises and real-world scenarios.
+        </p>
+      </div>
+      
+      <div class="training-cards">
+        <!-- Day 1 Card -->
+        <div class="training-card" onclick="navigateToDay1()">
+          <div class="card-header">
+            <div class="card-day">Day 1</div>
+            <h3 class="card-title">Cloud Fundamentals</h3>
+            <p class="card-subtitle">Introduction to AWS Core Services</p>
+          </div>
+          <div class="card-body">
+            <p class="card-description">
+              Learn the fundamental concepts of cloud computing and AWS. Explore core services including 
+              EC2, S3, and VPC. Understand AWS pricing models, global infrastructure, and the shared responsibility model.
+            </p>
+            <div class="card-topics">
+              <h4 class="topics-title">Key Topics</h4>
+              <div class="topic-list">
+                <span class="topic-tag">EC2 Instances</span>
+                <span class="topic-tag">S3 Storage</span>
+                <span class="topic-tag">VPC Networking</span>
+                <span class="topic-tag">Cloud Concepts</span>
+                <span class="topic-tag">AWS Regions</span>
+                <span class="topic-tag">Pricing Models</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-stats">
+            <div class="stat-item">
+              <span class="stat-icon">📚</span>
+              <span>12 Flashcards</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-icon">❓</span>
+              <span>10 Questions</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-icon">⏱️</span>
+              <span>45 min</span>
+            </div>
+            <div class="difficulty-badge difficulty-beginner">Beginner</div>
+          </div>
+        </div>
+
+        <!-- Day 2 Card -->
+        <div class="training-card" onclick="navigateToDay2()">
+          <div class="card-header">
+            <div class="card-day">Day 2</div>
+            <h3 class="card-title">Security & Identity</h3>
+            <p class="card-subtitle">IAM, Security Services & Best Practices</p>
+          </div>
+          <div class="card-body">
+            <p class="card-description">
+              Master AWS security fundamentals with deep dives into IAM, security services, and compliance. 
+              Learn through real-world scenarios including incident response and enterprise security architecture.
+            </p>
+            <div class="card-topics">
+              <h4 class="topics-title">Key Topics</h4>
+              <div class="topic-list">
+                <span class="topic-tag">IAM Users & Roles</span>
+                <span class="topic-tag">Security Policies</span>
+                <span class="topic-tag">CloudTrail</span>
+                <span class="topic-tag">GuardDuty</span>
+                <span class="topic-tag">Encryption</span>
+                <span class="topic-tag">Compliance</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-stats">
+            <div class="stat-item">
+              <span class="stat-icon">📚</span>
+              <span>15 Flashcards</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-icon">❓</span>
+              <span>18 Questions</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-icon">⏱️</span>
+              <span>60 min</span>
+            </div>
+            <div class="difficulty-badge difficulty-intermediate">Intermediate</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="cta-section" style="display: none;">
+      <h2 class="cta-title">Ready to Start Your AWS Journey?</h2>
+      <p class="cta-description">
+        Choose your starting point based on your current knowledge level. We recommend starting with Day 1 
+        if you're new to AWS, or jump directly to Day 2 if you're familiar with basic cloud concepts.
+      </p>
+      <div class="cta-buttons">
+        <a href="#" class="btn-primary" onclick="navigateToDay1()">
+          🚀 Start with Fundamentals
+        </a>
+        <a href="#" class="btn-secondary" onclick="navigateToDay2()">
+          🔐 Jump to Security
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Simulate progress tracking
+    function updateProgress() {
+      const day1Completed = localStorage.getItem('day1_completed') === 'true';
+      const day2Completed = localStorage.getItem('day2_completed') === 'true';
+      
+      let progress = 0;
+      let progressText = 'Ready to begin your AWS journey';
+      
+      if (day1Completed && day2Completed) {
+        progress = 100;
+        progressText = 'Congratulations! You\'ve completed both AWS topics! 🎉';
+      } else if (day1Completed) {
+        progress = 50;
+        progressText = 'Great progress! Day 1 complete. Ready for Day 2 Security?';
+      } else if (day2Completed) {
+        progress = 50;
+        progressText = 'Day 2 complete! Consider reviewing Day 1 fundamentals.';
+      }
+      
+      document.getElementById('progressBar').style.width = progress + '%';
+      document.getElementById('progressText').textContent = progressText;
+    }
+
+    // Navigation functions
+    function navigateToDay1() {
+      window.open('https://codewrapr.github.io/AWS-Cloud-Challenge/day1/', '_blank');
+    }
+
+    function navigateToDay2() {
+      window.open('https://codewrapr.github.io/AWS-Cloud-Challenge/day2', '_blank');
+    }
+
+    // Add some interactive animations
+    function animateCards() {
+      const cards = document.querySelectorAll('.training-card');
+      cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+          card.style.transition = 'all 0.6s ease';
+          card.style.opacity = '1';
+          card.style.transform = 'translateY(0)';
+        }, index * 200);
+      });
+    }
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+      updateProgress();
+      setTimeout(animateCards, 300);
+      
+      // Add click handlers for better UX
+      document.querySelectorAll('.training-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+          this.style.transform = 'translateY(-4px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+          this.style.transform = 'translateY(-2px)';
+        });
+      });
+    });
+  </script>
+</body>
+</html>
