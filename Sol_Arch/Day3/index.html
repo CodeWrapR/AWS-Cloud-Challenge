@@ -24,7 +24,7 @@
     
     /* AWS-style header */
     .aws-header {
-      background-color: #232f3e;
+      background-color: #000000 !important;
       color: white;
       padding: 0;
       border-bottom: 1px solid #3c4043;
@@ -33,6 +33,7 @@
     .aws-nav {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       padding: 0 20px;
       height: 60px;
     }
@@ -52,6 +53,25 @@
       color: white;
       border-left: 1px solid #666;
       padding-left: 20px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .linkedin-link {
+      color: #ff9900;
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.3s ease;
+      display: flex;
+      align-items: center;
+    }
+
+    .linkedin-link:hover {
+      color: #ffb84d;
     }
     
     /* AWS-style breadcrumb */
@@ -121,8 +141,8 @@
     }
     
     .tab-button.active {
-      color: #ff9900;
-      border-bottom-color: #ff9900;
+      color: #d13212;
+      border-bottom-color: #d13212;
       background-color: white;
     }
     
@@ -175,7 +195,7 @@
       padding: 12px 16px;
       background-color: #f9f9f9;
       border-radius: 4px;
-      border-left: 4px solid #ff9900;
+      border-left: 4px solid #d13212;
     }
     
     .difficulty-label {
@@ -246,7 +266,7 @@
     }
     
     .back {
-      background: linear-gradient(135deg, #fff8e6 0%, #ffe6cc 100%);
+      background: linear-gradient(135deg, #fff4e6 0%, #ffe6cc 100%);
       color: #232f3e;
       transform: rotateY(180deg);
     }
@@ -254,12 +274,12 @@
     .card-category {
       font-size: 12px;
       font-weight: 500;
-      color: #ff9900;
+      color: #d13212;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       margin-bottom: 16px;
       padding: 4px 12px;
-      background-color: rgba(255, 153, 0, 0.1);
+      background-color: rgba(209, 50, 18, 0.1);
       border-radius: 12px;
     }
     
@@ -285,7 +305,7 @@
     
     .card-content strong {
       font-weight: 600;
-      color: #ff9900;
+      color: #d13212;
     }
     
     /* AWS-style controls */
@@ -300,7 +320,7 @@
     }
     
     .btn-aws {
-      background-color: #ff9900;
+      background-color: #d13212;
       color: white;
       border: none;
       padding: 8px 16px;
@@ -315,7 +335,7 @@
     }
     
     .btn-aws:hover {
-      background-color: #e6890a;
+      background-color: #b12a1a;
     }
     
     .btn-aws:disabled {
@@ -348,12 +368,32 @@
     }
     
     /* Quiz styling */
+    .quiz-container-wrapper {
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    .quiz-questions-scroll {
+      display: flex;
+      transition: transform 0.5s ease-in-out;
+      width: calc(100% * var(--total-questions, 20));
+      height: auto;
+    }
+
     .question-container {
-      margin-bottom: 32px;
+      width: calc(100% / var(--total-questions, 20));
+      flex-shrink: 0;
+      margin-bottom: 0;
       background: white;
       border: 1px solid #d5dbdb;
       border-radius: 8px;
       overflow: hidden;
+      scroll-snap-align: start;
+      box-sizing: border-box;
+      padding: 0;
     }
     
     .question-header {
@@ -364,7 +404,7 @@
     
     .scenario-tag {
       display: inline-block;
-      background-color: #ff9900;
+      background-color: #d13212;
       color: white;
       padding: 4px 8px;
       border-radius: 4px;
@@ -405,12 +445,12 @@
     
     .option:hover {
       background-color: #f2f3f3;
-      border-color: #ff9900;
+      border-color: #d13212;
     }
     
     .option.selected {
-      background-color: #fff8e6;
-      border-color: #ff9900;
+      background-color: #fff4e6;
+      border-color: #d13212;
     }
     
     .option input {
@@ -424,6 +464,72 @@
       line-height: 1.5;
       flex: 1;
     }
+
+    .quiz-navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 24px 0;
+      padding: 16px;
+      background-color: #fafafa;
+      border-radius: 8px;
+      border: 1px solid #d5dbdb;
+    }
+
+    .quiz-nav-btn {
+      background-color: #d13212;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .quiz-nav-btn:hover {
+      background-color: #b12a1a;
+    }
+
+    .quiz-nav-btn:disabled {
+      background-color: #d5dbdb;
+      color: #687078;
+      cursor: not-allowed;
+    }
+
+    .quiz-progress-info {
+      font-size: 14px;
+      color: #687078;
+      text-align: center;
+      flex: 1;
+      margin: 0 16px;
+    }
+
+    .quiz-progress-text {
+      font-weight: 500;
+      color: #232f3e;
+      margin-bottom: 4px;
+    }
+
+    .quiz-progress-bar {
+      width: 100%;
+      height: 6px;
+      background-color: #f2f3f3;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .quiz-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #d13212 0%, #ff9900 100%);
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
     
     .quiz-submit {
       text-align: center;
@@ -431,7 +537,7 @@
     }
     
     .btn-submit {
-      background-color: #1b660f;
+      background-color: #d13212;
       color: white;
       border: none;
       padding: 12px 24px;
@@ -443,7 +549,7 @@
     }
     
     .btn-submit:hover {
-      background-color: #0f4d0a;
+      background-color: #b12a1a;
     }
     
     /* Results styling */
@@ -471,7 +577,7 @@
       width: 80px;
       height: 80px;
       border-radius: 50%;
-      background-color: #1b660f;
+      background-color: #d13212;
       color: white;
       display: flex;
       align-items: center;
@@ -538,10 +644,6 @@
       margin-top: 16px;
     }
     
-    .btn-reset:hover {
-      background-color: #5a6269;
-    }
-    
     /* Timer styling */
     .quiz-timer {
       position: sticky;
@@ -574,7 +676,7 @@
     .timer-display {
       font-size: 18px;
       font-weight: 600;
-      color: #ff9900;
+      color: #d13212;
       font-family: 'Courier New', monospace;
     }
     
@@ -628,8 +730,8 @@
     
     .timer-btn:hover {
       background-color: #f2f3f3;
-      border-color: #ff9900;
-      color: #ff9900;
+      border-color: #d13212;
+      color: #d13212;
     }
     
     .quiz-expired {
@@ -647,45 +749,9 @@
       font-size: 18px;
     }
     
-    /* Quiz Navigation */
-    .quiz-navigation {
-      margin: 24px 0;
-      padding: 16px;
-      background-color: #fafafa;
-      border-radius: 4px;
-      border: 1px solid #d5dbdb;
-    }
-    
-    .quiz-controls {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .quiz-progress {
-      text-align: center;
-      flex: 1;
-      margin: 0 16px;
-    }
-    
-    .quiz-progress-text {
-      font-weight: 500;
-      color: #232f3e;
-      font-size: 14px;
-    }
-    
-    .question-container.hidden {
-      display: none;
-    }
-    
-    .question-container.active {
-      display: block;
-      animation: slideInQuestion 0.3s ease;
-    }
-    
-    @keyframes slideInQuestion {
-      from { opacity: 0; transform: translateX(20px); }
-      to { opacity: 1; transform: translateX(0); }
+    .quiz-expired p {
+      color: #687078;
+      margin-bottom: 16px;
     }
     
     /* Mobile Responsiveness */
@@ -697,14 +763,31 @@
       .aws-nav {
         padding: 0 12px;
         height: 50px;
+        flex-wrap: nowrap;
       }
       
       .aws-logo {
         font-size: 16px;
+        gap: 8px;
       }
       
       .aws-service-name {
         display: none;
+      }
+
+      .nav-links {
+        gap: 8px;
+      }
+
+      .linkedin-link {
+        font-size: 11px;
+        gap: 2px;
+      }
+
+      .linkedin-link svg {
+        width: 12px;
+        height: 12px;
+        margin-right: 2px;
       }
       
       .flashcard {
@@ -728,17 +811,67 @@
       #nextBtn {
         order: 3;
       }
+
+      .quiz-navigation {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .quiz-progress-info {
+        margin: 0;
+        order: 1;
+      }
+
+      #prevQuestionBtn {
+        order: 2;
+      }
+
+      #nextQuestionBtn {
+        order: 3;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .aws-nav {
+        padding: 0 8px;
+        height: 45px;
+      }
+
+      .aws-logo {
+        font-size: 12px;
+        gap: 6px;
+      }
+
+      .linkedin-link {
+        font-size: 10px;
+      }
+
+      .linkedin-link svg {
+        width: 10px;
+        height: 10px;
+        margin-right: 1px;
+      }
     }
   </style>
 </head>
 <body>
   <!-- AWS Console-style header -->
-  <div class="aws-header">
-    <div class="aws-nav">
-      <div class="aws-logo">
-        <span>🟠</span> AWS
+  <div class="aws-header" style="background-color: #000000 !important;">
+    <div class="aws-nav" style="background-color: #000000 !important;">
+      <div style="display: flex; align-items: center;">
+        <div class="aws-logo">
+          <span>🟠</span> AWS
+        </div>
+        <div class="aws-service-name">Compute & Storage Training</div>
       </div>
-      <div class="aws-service-name">Compute & Storage Training</div>
+      <div class="nav-links">
+        <a href="https://www.linkedin.com/in/vamshi-majhi-a59727102/" target="_blank" rel="noopener noreferrer" class="linkedin-link">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 4px;">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+          </svg>
+          LinkedIn
+        </a>
+      </div>
     </div>
   </div>
   
@@ -764,16 +897,16 @@
         💻 Compute & Storage
       </button>
       <button class="tab-button" onclick="showTab('quiz', this)">
-        📝 Assessment
+        🚀 Assessment
       </button>
     </div>
 
     <!-- Flashcards Tab -->
     <div id="learn" class="tab-content active">
       <div class="content-header">
-        <h2 class="content-title">Interactive Compute & Storage Learning</h2>
+        <h2 class="content-title">Interactive Compute & Storage Mastery</h2>
         <p class="content-subtitle">
-          Comprehensive training with 24 detailed flashcards covering EC2, IP addressing, EBS, EFS, and storage optimization strategies.
+          Comprehensive training with 24 detailed flashcards covering EC2, IP addressing, EBS, EFS, and storage optimization strategies for real-world scenarios.
         </p>
       </div>
       
@@ -793,8 +926,8 @@
               <div class="card-title" id="frontTitle"></div>
             </div>
             <div class="back">
-              <div class="card-category">Technical Details</div>
-              <div class="card-title">Comprehensive Guide</div>
+              <div class="card-category">Explanation</div>
+              <div class="card-title">Detailed Solution</div>
               <div class="card-content" id="backText"></div>
             </div>
           </div>
@@ -820,9 +953,9 @@
     <!-- Quiz Tab -->
     <div id="quiz" class="tab-content">
       <div class="content-header">
-        <h2 class="content-title">Compute & Storage Assessment</h2>
+        <h2 class="content-title">Real-World Compute & Storage Assessment</h2>
         <p class="content-subtitle">
-          Test your knowledge with 20 comprehensive scenarios covering EC2 optimization, storage selection, and cost management strategies.
+          Test your expertise with 20 comprehensive scenarios covering EC2 optimization, storage selection, cost management, and architectural best practices.
         </p>
       </div>
       
@@ -847,29 +980,31 @@
           </div>
         </div>
         
-        <div id="quizContainer"></div>
-        
-        <!-- Quiz Navigation -->
-        <div class="quiz-navigation" id="quizNavigation" style="display: none;">
-          <div class="quiz-controls">
-            <button class="btn-aws btn-secondary" onclick="prevQuestion()" id="prevQuestionBtn">
-              ← Previous Question
-            </button>
-            <div class="quiz-progress">
-              <div class="quiz-progress-text" id="quizProgressText"></div>
-              <div style="font-size: 12px; color: #687078; margin-top: 4px;">
-                Select your answer(s) and navigate through questions
-              </div>
-            </div>
-            <button class="btn-aws" onclick="nextQuestion()" id="nextQuestionBtn">
-              Next Question →
-            </button>
-          </div>
+        <div class="quiz-container-wrapper">
+          <div class="quiz-questions-scroll" id="quizQuestionsContainer"></div>
         </div>
         
+        <!-- Quiz Navigation -->
+        <div class="quiz-navigation">
+          <button class="quiz-nav-btn" onclick="prevQuestion()" id="prevQuestionBtn">
+            ← Previous
+          </button>
+          <div class="quiz-progress-info">
+            <div class="quiz-progress-text" id="quizProgressText">Question 1 of 20</div>
+            <div style="font-size: 12px; color: #687078;">Navigate through questions</div>
+            <div class="quiz-progress-bar">
+              <div class="quiz-progress-fill" id="quizProgressFill" style="width: 5%;"></div>
+            </div>
+          </div>
+          <button class="quiz-nav-btn" onclick="nextQuestion()" id="nextQuestionBtn">
+            Next →
+          </button>
+        </div>
+        
+        <div id="quizContainer"></div>
         <div class="quiz-submit">
-          <button class="btn-submit" onclick="checkAnswers()" id="submitBtn" style="display: none;">
-            🚀 Submit Assessment
+          <button class="btn-submit" onclick="checkAnswers()">
+            🚀 Analyze Infrastructure Solutions
           </button>
         </div>
         <div class="result" id="resultBox"></div>
@@ -1304,11 +1439,7 @@
     // Application state
     let currentCard = 0;
     let isFlipped = false;
-    let userAnswers = {};
-    
-    // Quiz state
-    let currentQuestion = 0;
-    let quizAnswers = {};
+    let currentQuestionIndex = 0;
     
     // Timer state
     let quizTimer = null;
@@ -1531,7 +1662,7 @@
       clearInterval(quizTimer);
       
       // Show expiration message
-      const quizContainer = document.getElementById('quizContainer');
+      const quizContainer = document.getElementById('quizQuestionsContainer');
       quizContainer.insertAdjacentHTML('afterbegin', `
         <div class="quiz-expired">
           <h3>⏰ Time's Up!</h3>
@@ -1542,8 +1673,7 @@
       // Auto-submit quiz
       checkAnswers();
       
-      // Hide navigation and disable interactions
-      document.getElementById('quizNavigation').style.display = 'none';
+      // Disable further interactions
       document.querySelectorAll('.option').forEach(option => {
         option.style.pointerEvents = 'none';
         option.style.opacity = '0.6';
@@ -1555,12 +1685,14 @@
 
     // Generate quiz HTML
     function generateQuiz() {
-      const container = document.getElementById('quizContainer');
+      const container = document.getElementById('quizQuestionsContainer');
+      
+      // Set CSS custom property for total questions
+      container.style.setProperty('--total-questions', questions.length);
       
       questions.forEach((q, index) => {
         const questionDiv = document.createElement('div');
-        questionDiv.className = index === 0 ? 'question-container active' : 'question-container hidden';
-        questionDiv.id = `question-${index}`;
+        questionDiv.className = 'question-container';
         
         questionDiv.innerHTML = `
           <div class="question-header">
@@ -1570,7 +1702,7 @@
           <div class="question-body">
             <div class="option-group">
               ${q.options.map((option, optIndex) => `
-                <div class="option" onclick="selectQuizOption(${index}, ${optIndex}, this)">
+                <div class="option" onclick="selectOption(${index}, ${optIndex}, this)">
                   <input type="${q.type}" name="q${index}" value="${option}" id="q${index}_${optIndex}">
                   <label for="q${index}_${optIndex}">${option}</label>
                 </div>
@@ -1582,13 +1714,51 @@
         container.appendChild(questionDiv);
       });
       
-      // Show navigation and update progress
-      document.getElementById('quizNavigation').style.display = 'block';
-      updateQuizProgress();
+      // Initialize quiz navigation
+      updateQuizNavigation();
     }
 
-    // Handle quiz option selection
-    function selectQuizOption(questionIndex, optionIndex, element) {
+    // Quiz navigation functions
+    function nextQuestion() {
+      if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        scrollToQuestion(currentQuestionIndex);
+        updateQuizNavigation();
+      }
+    }
+
+    function prevQuestion() {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        scrollToQuestion(currentQuestionIndex);
+        updateQuizNavigation();
+      }
+    }
+
+    function scrollToQuestion(index) {
+      const container = document.getElementById('quizQuestionsContainer');
+      const wrapper = container.parentElement;
+      const questionWidth = wrapper.offsetWidth;
+      const scrollAmount = index * questionWidth;
+      container.style.transform = `translateX(-${scrollAmount}px)`;
+    }
+
+    function updateQuizNavigation() {
+      // Update progress text
+      document.getElementById('quizProgressText').textContent = 
+        `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+      
+      // Update progress bar
+      const progressPercentage = ((currentQuestionIndex + 1) / questions.length) * 100;
+      document.getElementById('quizProgressFill').style.width = `${progressPercentage}%`;
+      
+      // Update button states
+      document.getElementById('prevQuestionBtn').disabled = currentQuestionIndex === 0;
+      document.getElementById('nextQuestionBtn').disabled = currentQuestionIndex === questions.length - 1;
+    }
+
+    // Handle option selection
+    function selectOption(questionIndex, optionIndex, element) {
       const question = questions[questionIndex];
       const questionContainer = element.closest('.question-container');
       const inputType = element.querySelector('input').type;
@@ -1600,82 +1770,11 @@
         });
         element.classList.add('selected');
         element.querySelector('input').checked = true;
-        
-        // Store single answer for radio
-        quizAnswers[questionIndex] = [element.querySelector('input').value];
       } else {
         // Handle checkbox selections
         element.classList.toggle('selected');
         const input = element.querySelector('input');
         input.checked = element.classList.contains('selected');
-        
-        // Store multiple answers for checkbox
-        if (!quizAnswers[questionIndex]) {
-          quizAnswers[questionIndex] = [];
-        }
-        
-        if (input.checked) {
-          quizAnswers[questionIndex].push(input.value);
-        } else {
-          quizAnswers[questionIndex] = quizAnswers[questionIndex].filter(answer => answer !== input.value);
-        }
-      }
-    }
-
-    // Navigate to next question
-    function nextQuestion() {
-      if (currentQuestion < questions.length - 1) {
-        // Hide current question
-        document.getElementById(`question-${currentQuestion}`).className = 'question-container hidden';
-        
-        // Show next question
-        currentQuestion++;
-        document.getElementById(`question-${currentQuestion}`).className = 'question-container active';
-        
-        updateQuizProgress();
-        updateQuizNavigation();
-      }
-    }
-
-    // Navigate to previous question
-    function prevQuestion() {
-      if (currentQuestion > 0) {
-        // Hide current question
-        document.getElementById(`question-${currentQuestion}`).className = 'question-container hidden';
-        
-        // Show previous question
-        currentQuestion--;
-        document.getElementById(`question-${currentQuestion}`).className = 'question-container active';
-        
-        updateQuizProgress();
-        updateQuizNavigation();
-      }
-    }
-
-    // Update quiz progress display
-    function updateQuizProgress() {
-      const progressText = document.getElementById('quizProgressText');
-      const answeredCount = Object.keys(quizAnswers).length;
-      progressText.textContent = `Question ${currentQuestion + 1} of ${questions.length} (${answeredCount} answered)`;
-    }
-
-    // Update navigation button states
-    function updateQuizNavigation() {
-      const prevBtn = document.getElementById('prevQuestionBtn');
-      const nextBtn = document.getElementById('nextQuestionBtn');
-      const submitBtn = document.getElementById('submitBtn');
-      
-      // Update previous button
-      prevBtn.disabled = currentQuestion === 0;
-      
-      // Update next button and show submit on last question
-      if (currentQuestion === questions.length - 1) {
-        nextBtn.style.display = 'none';
-        submitBtn.style.display = 'inline-block';
-      } else {
-        nextBtn.style.display = 'inline-flex';
-        submitBtn.style.display = 'none';
-        nextBtn.disabled = false;
       }
     }
 
@@ -1685,29 +1784,28 @@
       const results = [];
       
       questions.forEach((q, index) => {
-        const userAnswers = quizAnswers[index] || [];
+        const questionContainer = document.getElementById('quizQuestionsContainer').children[index];
+        const selectedOptions = Array.from(questionContainer.querySelectorAll('input:checked')).map(input => input.value);
         
         let isCorrect = false;
         
         if (q.type === "radio") {
-          isCorrect = userAnswers.length === 1 && userAnswers[0] === q.correct[0];
+          isCorrect = selectedOptions.length === 1 && selectedOptions[0] === q.correct[0];
         } else {
           const correctSet = new Set(q.correct);
-          const selectedSet = new Set(userAnswers);
+          const selectedSet = new Set(selectedOptions);
           isCorrect = correctSet.size === selectedSet.size && 
                      Array.from(correctSet).every(answer => selectedSet.has(answer));
         }
         
-        if (isCorrect) {
-          score++;
-        }
+        if (isCorrect) score++;
         
         results.push({
           question: q.question,
-          correct: isCorrect,
+          selected: selectedOptions,
+          correct: q.correct,
+          isCorrect: isCorrect,
           explanation: q.explanation,
-          userAnswers: userAnswers,
-          correctAnswers: q.correct,
           scenario: q.scenario
         });
       });
@@ -1717,59 +1815,51 @@
 
     // Display quiz results
     function displayResults(score, results) {
+      const resultBox = document.getElementById('resultBox');
       const percentage = Math.round((score / questions.length) * 100);
-      let performanceMessage = "";
-      let scoreColor = "";
       
-      if (percentage >= 90) {
-        performanceMessage = "🚀 Outstanding! You've mastered compute and storage fundamentals!";
-        scoreColor = "#1b660f";
-      } else if (percentage >= 70) {
-        performanceMessage = "💻 Great job! You have solid understanding of AWS compute and storage.";
-        scoreColor = "#1b660f";
-      } else if (percentage >= 50) {
-        performanceMessage = "📚 Good foundation! Review the flashcards for deeper understanding.";
-        scoreColor = "#ff9900";
+      let resultHTML = `
+        <div class="score-circle">${percentage}%</div>
+        <div class="result-title">Compute & Storage Assessment Complete</div>
+        <div class="result-subtitle">You scored ${score} out of ${questions.length} questions correctly</div>
+      `;
+      
+      if (percentage >= 80) {
+        resultHTML += '<p style="color: #1b660f; font-weight: 500;">🚀 Outstanding! You have excellent AWS compute and storage expertise.</p>';
+      } else if (percentage >= 60) {
+        resultHTML += '<p style="color: #ff9900; font-weight: 500;">💻 Good foundation! Review flashcards for advanced concepts.</p>';
       } else {
-        performanceMessage = "🔄 Keep learning! Focus on EC2 and storage fundamentals.";
-        scoreColor = "#d13212";
+        resultHTML += '<p style="color: #d13212; font-weight: 500;">📚 Keep studying! Focus on compute and storage fundamentals.</p>';
       }
       
-      let detailedResults = results.map((result, idx) => {
-        const statusClass = result.correct ? 'correct' : 'incorrect';
-        const icon = result.correct ? "✅" : "❌";
-        return `
+      resultHTML += '<div class="result-details">';
+      
+      results.forEach((result, index) => {
+        const statusClass = result.isCorrect ? 'correct' : 'incorrect';
+        const statusIcon = result.isCorrect ? '✅' : '❌';
+        
+        resultHTML += `
           <div class="result-item ${statusClass}">
-            <div class="result-item-header">${icon} ${result.scenario} - Question ${idx + 1}</div>
+            <div class="result-item-header">
+              ${statusIcon} ${result.scenario} - Question ${index + 1}
+            </div>
             <div class="result-item-explanation">${result.explanation}</div>
           </div>
         `;
-      }).join('');
+      });
       
-      const resultBox = document.getElementById("resultBox");
-      resultBox.innerHTML = `
-        <div class="score-circle" style="background-color: ${scoreColor};">
-          ${score}/${questions.length}
-        </div>
-        <div class="result-title">${performanceMessage}</div>
-        <div class="result-subtitle">Your Score: ${percentage}%</div>
-        <div class="result-details">
-          <h4 style="margin-bottom: 16px; color: #232f3e;">📊 Detailed Results:</h4>
-          ${detailedResults}
-        </div>
-        <button class="btn-reset" onclick="resetQuiz()">🔄 Retake Assessment</button>
-      `;
+      resultHTML += '</div>';
+      resultHTML += '<button class="btn-reset" onclick="resetQuiz()">🔄 Retake Assessment</button>';
       
-      resultBox.classList.add("show");
+      resultBox.innerHTML = resultHTML;
+      resultBox.classList.add('show');
+      
+      // Scroll to results
       resultBox.scrollIntoView({ behavior: 'smooth' });
     }
 
     // Reset quiz
     function resetQuiz() {
-      // Reset quiz state
-      currentQuestion = 0;
-      quizAnswers = {};
-      
       // Clear all selections
       document.querySelectorAll('.option').forEach(opt => {
         opt.classList.remove('selected');
@@ -1780,33 +1870,16 @@
         input.checked = false;
       });
       
-      // Show first question, hide others
-      questions.forEach((_, index) => {
-        const questionEl = document.getElementById(`question-${index}`);
-        if (questionEl) {
-          questionEl.className = index === 0 ? 'question-container active' : 'question-container hidden';
-        }
-      });
-      
       // Remove expiration message if it exists
       const expiredMsg = document.querySelector('.quiz-expired');
       if (expiredMsg) {
         expiredMsg.remove();
       }
       
-      // Reset submit button and navigation
+      // Reset submit button
       const submitBtn = document.querySelector('.btn-submit');
       submitBtn.disabled = false;
-      submitBtn.textContent = '🚀 Submit Assessment';
-      submitBtn.style.display = 'none';
-      
-      // Show navigation
-      document.getElementById('quizNavigation').style.display = 'block';
-      document.getElementById('nextQuestionBtn').style.display = 'inline-flex';
-      
-      // Update progress and navigation
-      updateQuizProgress();
-      updateQuizNavigation();
+      submitBtn.textContent = '🚀 Analyze Infrastructure Solutions';
       
       // Hide results
       document.getElementById('resultBox').classList.remove('show');
@@ -1816,21 +1889,17 @@
         resetTimer();
       }
       
+      // Reset quiz navigation
+      currentQuestionIndex = 0;
+      scrollToQuestion(0);
+      updateQuizNavigation();
+      
       // Scroll to top of quiz
       document.getElementById('quiz').scrollIntoView({ behavior: 'smooth' });
-      
-      userAnswers = {};
     }
 
-      // Initialize when page loads
+    // Initialize when page loads
     document.addEventListener('DOMContentLoaded', init);
-    
-    // Make sure navigation is updated on load
-    window.addEventListener('load', function() {
-      if (document.getElementById('quizNavigation').style.display === 'block') {
-        updateQuizNavigation();
-      }
-    });
   </script>
 </body>
 </html>
