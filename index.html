@@ -318,32 +318,50 @@
     
     .card-stats {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      flex-direction: column;
+      gap: 8px;
       padding: 12px 16px;
       background-color: #fafafa;
       border-top: 1px solid #d5dbdb;
-      font-size: 11px;
+      font-size: 12px;
       color: #687078;
+    }
+
+    .stats-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .badge-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
     
     .stat-item {
       display: flex;
       align-items: center;
       gap: 4px;
+      margin-right: 12px;
+    }
+    
+    .stat-item:last-child {
+      margin-right: 0;
     }
     
     .stat-icon {
-      font-size: 12px;
+      font-size: 13px;
     }
     
     .difficulty-badge {
-      padding: 3px 6px;
-      border-radius: 3px;
-      font-size: 9px;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 12px;
       font-weight: 500;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
     }
     
     .difficulty-beginner {
@@ -633,19 +651,23 @@
             </div>
           </div>
           <div class="card-stats">
-            <div class="stat-item">
-              <span class="stat-icon">📚</span>
-              <span>27 Flashcards</span>
+            <div class="stats-row">
+              <div class="stat-item">
+                <span class="stat-icon">📚</span>
+                <span>27 Flashcards</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-icon">❓</span>
+                <span>10 Questions</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-icon">⏱️</span>
+                <span>30 min</span>
+              </div>
             </div>
-            <div class="stat-item">
-              <span class="stat-icon">❓</span>
-              <span>10 Questions</span>
+            <div class="badge-row">
+              <div class="difficulty-badge difficulty-beginner">Beginner</div>
             </div>
-            <div class="stat-item">
-              <span class="stat-icon">⏱️</span>
-              <span>30 min</span>
-            </div>
-            <div class="difficulty-badge difficulty-beginner">Beginner</div>
           </div>
         </div>
 
@@ -674,19 +696,23 @@
             </div>
           </div>
           <div class="card-stats">
-            <div class="stat-item">
-              <span class="stat-icon">📚</span>
-              <span>17 Flashcards</span>
+            <div class="stats-row">
+              <div class="stat-item">
+                <span class="stat-icon">📚</span>
+                <span>17 Flashcards</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-icon">❓</span>
+                <span>18 Questions</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-icon">⏱️</span>
+                <span>30 min</span>
+              </div>
             </div>
-            <div class="stat-item">
-              <span class="stat-icon">❓</span>
-              <span>18 Questions</span>
+            <div class="badge-row">
+              <div class="difficulty-badge difficulty-intermediate">Intermediate</div>
             </div>
-            <div class="stat-item">
-              <span class="stat-icon">⏱️</span>
-              <span>30 min</span>
-            </div>
-            <div class="difficulty-badge difficulty-intermediate">Intermediate</div>
           </div>
         </div>
 
@@ -694,40 +720,44 @@
         <div class="training-card" onclick="openDay3()">
           <div class="card-header day3">
             <div class="card-day">Day 3</div>
-            <h3 class="card-title">Storage & Databases</h3>
-            <p class="card-subtitle">AWS Storage Solutions & Database Services</p>
+            <h3 class="card-title">AWS Compute and Storage</h3>
+            <p class="card-subtitle">Advanced Computing & Storage Solutions</p>
           </div>
           <div class="card-body">
             <p class="card-description">
-              Dive deep into AWS storage and database services. Learn about different storage classes, database types, 
-              and when to use each service. Understand backup strategies, performance optimization, and cost management.
+              Explore advanced AWS compute and storage services. Learn about different compute options, storage types, 
+              and optimization strategies. Understand performance tuning, cost management, and best practices for scalable architectures.
             </p>
             <div class="card-topics">
               <h4 class="topics-title">Key Topics</h4>
               <div class="topic-list">
-                <span class="topic-tag">S3 Storage Classes</span>
-                <span class="topic-tag">EBS Volumes</span>
-                <span class="topic-tag">RDS Databases</span>
-                <span class="topic-tag">DynamoDB</span>
-                <span class="topic-tag">Backup Strategies</span>
-                <span class="topic-tag">Performance Tuning</span>
+                <span class="topic-tag">EC2 Advanced</span>
+                <span class="topic-tag">Lambda Functions</span>
+                <span class="topic-tag">S3 Advanced</span>
+                <span class="topic-tag">EBS & EFS</span>
+                <span class="topic-tag">Auto Scaling</span>
+                <span class="topic-tag">Cost Optimization</span>
               </div>
             </div>
           </div>
           <div class="card-stats">
-            <div class="stat-item">
-              <span class="stat-icon">📚</span>
-              <span>17 Flashcards</span>
+            <div class="stats-row">
+              <div class="stat-item">
+                <span class="stat-icon">📚</span>
+                <span>17 Flashcards</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-icon">❓</span>
+                <span>20 Questions</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-icon">⏱️</span>
+                <span>30 min</span>
+              </div>
             </div>
-            <div class="stat-item">
-              <span class="stat-icon">❓</span>
-              <span>20 Questions</span>
+            <div class="badge-row">
+              <div class="difficulty-badge difficulty-intermediate">Intermediate</div>
             </div>
-            <div class="stat-item">
-              <span class="stat-icon">⏱️</span>
-              <span>30 min</span>
-            </div>
-            <div class="difficulty-badge difficulty-intermediate">Intermediate</div>
           </div>
         </div>
       </div>
