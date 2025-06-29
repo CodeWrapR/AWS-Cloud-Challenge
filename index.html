@@ -416,7 +416,138 @@
       text-align: center;
     }
     
-    /* Mobile responsiveness */
+    /* Welcome modal styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .welcome-modal {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: #232f3e;
+      margin-bottom: 16px;
+    }
+
+    .modal-subtitle {
+      font-size: 16px;
+      color: #687078;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .name-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #d5dbdb;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-bottom: 20px;
+      transition: border-color 0.3s ease;
+    }
+
+    .name-input:focus {
+      outline: none;
+      border-color: #ff9900;
+    }
+
+    .modal-btn {
+      background: #ff9900;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      width: 100%;
+    }
+
+    .modal-btn:hover {
+      background: #e88900;
+    }
+
+    .modal-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    /* Progress enhancements */
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .user-greeting {
+      font-size: 16px;
+      color: #ff9900;
+      font-weight: 500;
+    }
+
+    .progress-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .progress-btn {
+      background: #f0f8ff;
+      color: #0073bb;
+      border: 1px solid #0073bb;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .progress-btn:hover {
+      background: #0073bb;
+      color: white;
+    }
+
+    .progress-details {
+      margin-top: 12px;
+      padding: 12px;
+      background: #f9f9f9;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #687078;
+    }
+
+    .completion-date {
+      color: #1b660f;
+      font-weight: 500;
+    }
+
+    .streak-info {
+      color: #ff9900;
+      font-weight: 500;
+    }
+
+    .hidden {
+      display: none;
+    }
     @media (max-width: 768px) {
       .container {
         padding: 16px 12px;
@@ -564,7 +695,17 @@
   </style>
 </head>
 <body>
-  <!-- AWS Console-style header -->
+    <!-- Welcome Modal -->
+    <div id="welcomeModal" class="modal-overlay hidden">
+      <div class="welcome-modal">
+        <h2 class="modal-title">Welcome to AWS Training! 🚀</h2>
+        <p class="modal-subtitle">Let's personalize your learning journey. What should we call you?</p>
+        <input type="text" id="userName" class="name-input" placeholder="Enter your name" maxlength="30">
+        <button id="startJourney" class="modal-btn" disabled>Start My AWS Journey</button>
+      </div>
+    </div>
+
+    <!-- AWS Console-style header -->
   <div class="aws-header">
     <div class="aws-nav">
       <div style="display: flex; align-items: center;">
@@ -608,11 +749,20 @@
 
     <!-- Progress Section -->
     <div class="progress-section">
-      <h2 class="progress-title">Your Learning Progress</h2>
+      <div class="progress-header">
+        <h2 class="progress-title">Your Learning Progress</h2>
+        <div class="progress-actions">
+          <button class="progress-btn" onclick="showProgressHistory()">View History</button>
+          <button class="progress-btn" onclick="exportProgress()">Export</button>
+          <button class="progress-btn" onclick="resetProgress()">Reset</button>
+        </div>
+      </div>
+      <div id="userGreeting" class="user-greeting"></div>
       <div class="progress-bar-container">
         <div class="progress-bar" id="progressBar"></div>
       </div>
       <p class="progress-text" id="progressText">Ready to begin your AWS journey</p>
+      <div id="progressDetails" class="progress-details hidden"></div>
     </div>
 
     <!-- Training Path -->
@@ -765,10 +915,59 @@
   </div>
 
   <script>
+    // Enhanced progress tracking with user data
+    function getStoredData() {
+      const stored = localStorage.getItem('awsTrainingProgress');
+      if (stored) {
+        return JSON.parse(stored);
+      }
+      return null;
+    }
+
+    function saveProgress(data) {
+      localStorage.setItem('awsTrainingProgress', JSON.stringify(data));
+    }
+
+    function getCurrentDate() {
+      return new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+
+    function calculateStreak(data) {
+      const days = ['day1_completed', 'day2_completed', 'day3_completed'];
+      let streak = 0;
+      const today = new Date();
+      
+      for (let day of days) {
+        if (data[day]) {
+          const completionDate = new Date(data[day]);
+          const daysDiff = Math.floor((today - completionDate) / (1000 * 60 * 60 * 24));
+          if (daysDiff <= 7) { // Within a week
+            streak++;
+          }
+        }
+      }
+      return streak;
+    }
+
     function trackProgress() {
-      const day1Done = localStorage.getItem('day1_completed') === 'true';
-      const day2Done = localStorage.getItem('day2_completed') === 'true';
-      const day3Done = localStorage.getItem('day3_completed') === 'true';
+      const data = getStoredData();
+      
+      if (!data || !data.userName) {
+        document.getElementById('welcomeModal').classList.remove('hidden');
+        return;
+      }
+
+      // Update greeting
+      document.getElementById('userGreeting').textContent = `Hello, ${data.userName}! 👋`;
+
+      // Calculate progress
+      const day1Done = data.day1_completed;
+      const day2Done = data.day2_completed;
+      const day3Done = data.day3_completed;
       
       let progress = 0;
       let message = 'Ready to begin your AWS journey';
@@ -788,17 +987,139 @@
       
       document.getElementById('progressBar').style.width = progress + '%';
       document.getElementById('progressText').textContent = message;
+
+      // Show completion details
+      if (completed > 0) {
+        const streak = calculateStreak(data);
+        let details = '<strong>Your Achievement Timeline:</strong><br>';
+        
+        if (day1Done) details += `✅ Day 1 completed on <span class="completion-date">${day1Done}</span><br>`;
+        if (day2Done) details += `✅ Day 2 completed on <span class="completion-date">${day2Done}</span><br>`;
+        if (day3Done) details += `✅ Day 3 completed on <span class="completion-date">${day3Done}</span><br>`;
+        
+        if (streak > 0) {
+          details += `<br><span class="streak-info">🔥 Learning streak: ${streak} topic${streak > 1 ? 's' : ''} completed!</span>`;
+        }
+
+        document.getElementById('progressDetails').innerHTML = details;
+        document.getElementById('progressDetails').classList.remove('hidden');
+      }
+    }
+
+    function markDayComplete(dayNumber) {
+      const data = getStoredData() || {};
+      const dayKey = `day${dayNumber}_completed`;
+      data[dayKey] = getCurrentDate();
+      saveProgress(data);
+      trackProgress();
+    }
+
+    function showProgressHistory() {
+      const data = getStoredData();
+      if (!data) {
+        alert('No progress data found!');
+        return;
+      }
+
+      let history = `📚 ${data.userName}'s AWS Learning Journey\n\n`;
+      history += `Day 1 (Cloud Fundamentals): ${data.day1_completed || 'Not completed'}\n`;
+      history += `Day 2 (Security & Identity): ${data.day2_completed || 'Not completed'}\n`;
+      history += `Day 3 (Compute & Storage): ${data.day3_completed || 'Not completed'}\n\n`;
+      
+      const completed = [data.day1_completed, data.day2_completed, data.day3_completed].filter(Boolean).length;
+      history += `Total Progress: ${completed}/3 topics completed`;
+
+      alert(history);
+    }
+
+    function exportProgress() {
+      const data = getStoredData();
+      if (!data) {
+        alert('No progress data to export!');
+        return;
+      }
+
+      const exportData = {
+        userName: data.userName,
+        exportDate: getCurrentDate(),
+        progress: {
+          day1_completed: data.day1_completed || null,
+          day2_completed: data.day2_completed || null,
+          day3_completed: data.day3_completed || null
+        }
+      };
+
+      const dataStr = JSON.stringify(exportData, null, 2);
+      const dataBlob = new Blob([dataStr], {type: 'application/json'});
+      const url = URL.createObjectURL(dataBlob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `aws-training-progress-${data.userName}-${getCurrentDate().replace(/\s+/g, '-')}.json`;
+      link.click();
+      
+      URL.revokeObjectURL(url);
+    }
+
+    function resetProgress() {
+      if (confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
+        localStorage.removeItem('awsTrainingProgress');
+        location.reload();
+      }
+    }
+
+    // Welcome modal functions
+    function initializeWelcome() {
+      const nameInput = document.getElementById('userName');
+      const startBtn = document.getElementById('startJourney');
+
+      nameInput.addEventListener('input', function() {
+        startBtn.disabled = this.value.trim().length < 2;
+      });
+
+      nameInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !startBtn.disabled) {
+          startJourney();
+        }
+      });
+
+      startBtn.addEventListener('click', startJourney);
+    }
+
+    function startJourney() {
+      const nameInput = document.getElementById('userName');
+      const name = nameInput.value.trim();
+      
+      if (name.length < 2) {
+        alert('Please enter a valid name (at least 2 characters)');
+        return;
+      }
+
+      const data = {
+        userName: name,
+        joinDate: getCurrentDate(),
+        day1_completed: null,
+        day2_completed: null,
+        day3_completed: null
+      };
+
+      saveProgress(data);
+      document.getElementById('welcomeModal').classList.add('hidden');
+      trackProgress();
     }
 
     function openDay1() {
+      markDayComplete(1);
       window.location.href = 'https://codewrapr.github.io/AWS-Cloud-Challenge/Sol_Arch/Day1/';
     }
 
     function openDay2() {
+      markDayComplete(2);
       window.location.href = 'https://codewrapr.github.io/AWS-Cloud-Challenge/Sol_Arch/Day2/';
     }
 
     function openDay3() {
+      markDayComplete(3);
       window.location.href = 'https://codewrapr.github.io/AWS-Cloud-Challenge/Sol_Arch/Day3/';
     }
 
@@ -817,6 +1138,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+      initializeWelcome();
       trackProgress();
       setTimeout(startAnimations, 300);
       
