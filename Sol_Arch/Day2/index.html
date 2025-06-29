@@ -24,7 +24,7 @@
     
     /* AWS-style header */
     .aws-header {
-      background-color: #232f3e;
+      background-color: #000000 !important;
       color: white;
       padding: 0;
       border-bottom: 1px solid #3c4043;
@@ -33,6 +33,7 @@
     .aws-nav {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       padding: 0 20px;
       height: 60px;
     }
@@ -52,6 +53,25 @@
       color: white;
       border-left: 1px solid #666;
       padding-left: 20px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .linkedin-link {
+      color: #ff9900;
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.3s ease;
+      display: flex;
+      align-items: center;
+    }
+
+    .linkedin-link:hover {
+      color: #ffb84d;
     }
     
     /* AWS-style breadcrumb */
@@ -348,12 +368,32 @@
     }
     
     /* Quiz styling */
+    .quiz-container-wrapper {
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    .quiz-questions-scroll {
+      display: flex;
+      transition: transform 0.5s ease-in-out;
+      width: calc(100% * var(--total-questions, 15));
+      height: auto;
+    }
+
     .question-container {
-      margin-bottom: 32px;
+      width: calc(100% / var(--total-questions, 15));
+      flex-shrink: 0;
+      margin-bottom: 0;
       background: white;
       border: 1px solid #d5dbdb;
       border-radius: 8px;
       overflow: hidden;
+      scroll-snap-align: start;
+      box-sizing: border-box;
+      padding: 0;
     }
     
     .question-header {
@@ -423,6 +463,72 @@
       font-size: 14px;
       line-height: 1.5;
       flex: 1;
+    }
+
+    .quiz-navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 24px 0;
+      padding: 16px;
+      background-color: #fafafa;
+      border-radius: 8px;
+      border: 1px solid #d5dbdb;
+    }
+
+    .quiz-nav-btn {
+      background-color: #d13212;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .quiz-nav-btn:hover {
+      background-color: #b12a1a;
+    }
+
+    .quiz-nav-btn:disabled {
+      background-color: #d5dbdb;
+      color: #687078;
+      cursor: not-allowed;
+    }
+
+    .quiz-progress-info {
+      font-size: 14px;
+      color: #687078;
+      text-align: center;
+      flex: 1;
+      margin: 0 16px;
+    }
+
+    .quiz-progress-text {
+      font-weight: 500;
+      color: #232f3e;
+      margin-bottom: 4px;
+    }
+
+    .quiz-progress-bar {
+      width: 100%;
+      height: 6px;
+      background-color: #f2f3f3;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .quiz-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #d13212 0%, #ff9900 100%);
+      border-radius: 3px;
+      transition: width 0.3s ease;
     }
     
     .quiz-submit {
@@ -657,14 +763,31 @@
       .aws-nav {
         padding: 0 12px;
         height: 50px;
+        flex-wrap: nowrap;
       }
       
       .aws-logo {
         font-size: 16px;
+        gap: 8px;
       }
       
       .aws-service-name {
         display: none;
+      }
+
+      .nav-links {
+        gap: 8px;
+      }
+
+      .linkedin-link {
+        font-size: 11px;
+        gap: 2px;
+      }
+
+      .linkedin-link svg {
+        width: 12px;
+        height: 12px;
+        margin-right: 2px;
       }
       
       .flashcard {
@@ -688,17 +811,67 @@
       #nextBtn {
         order: 3;
       }
+
+      .quiz-navigation {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .quiz-progress-info {
+        margin: 0;
+        order: 1;
+      }
+
+      #prevQuestionBtn {
+        order: 2;
+      }
+
+      #nextQuestionBtn {
+        order: 3;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .aws-nav {
+        padding: 0 8px;
+        height: 45px;
+      }
+
+      .aws-logo {
+        font-size: 12px;
+        gap: 6px;
+      }
+
+      .linkedin-link {
+        font-size: 10px;
+      }
+
+      .linkedin-link svg {
+        width: 10px;
+        height: 10px;
+        margin-right: 1px;
+      }
     }
   </style>
 </head>
 <body>
   <!-- AWS Console-style header -->
-  <div class="aws-header">
-    <div class="aws-nav">
-      <div class="aws-logo">
-        <span>🟠</span> AWS
+  <div class="aws-header" style="background-color: #000000 !important;">
+    <div class="aws-nav" style="background-color: #000000 !important;">
+      <div style="display: flex; align-items: center;">
+        <div class="aws-logo">
+          <span>🟠</span> AWS
+        </div>
+        <div class="aws-service-name">Security & Identity Training</div>
       </div>
-      <div class="aws-service-name">Security & Identity Training</div>
+      <div class="nav-links">
+        <a href="https://www.linkedin.com/in/vamshi-majhi-a59727102/" target="_blank" rel="noopener noreferrer" class="linkedin-link">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 4px;">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+          </svg>
+          LinkedIn
+        </a>
+      </div>
     </div>
   </div>
   
@@ -807,6 +980,27 @@
           </div>
         </div>
         
+        <div class="quiz-container-wrapper">
+          <div class="quiz-questions-scroll" id="quizQuestionsContainer"></div>
+        </div>
+        
+        <!-- Quiz Navigation -->
+        <div class="quiz-navigation">
+          <button class="quiz-nav-btn" onclick="prevQuestion()" id="prevQuestionBtn">
+            ← Previous
+          </button>
+          <div class="quiz-progress-info">
+            <div class="quiz-progress-text" id="quizProgressText">Question 1 of 15</div>
+            <div style="font-size: 12px; color: #687078;">Navigate through questions</div>
+            <div class="quiz-progress-bar">
+              <div class="quiz-progress-fill" id="quizProgressFill" style="width: 6.67%;"></div>
+            </div>
+          </div>
+          <button class="quiz-nav-btn" onclick="nextQuestion()" id="nextQuestionBtn">
+            Next →
+          </button>
+        </div>
+        
         <div id="quizContainer"></div>
         <div class="quiz-submit">
           <button class="btn-submit" onclick="checkAnswers()">
@@ -910,18 +1104,6 @@
         front: "AWS Config for Compliance Monitoring",
         back: "<strong>Definition:</strong> AWS Config is a service that enables you to assess, audit, and evaluate the configurations of your AWS resources by continuously monitoring and recording configuration changes and evaluating them against desired configurations.\n\n<strong>What AWS Config Does:</strong> Monitors your AWS resources for compliance with configuration rules\n\n<strong>Compliance Scenario:</strong>\nRequirement: All S3 buckets must have encryption enabled\n\n<strong>Config Implementation:</strong>\n1. Enable Config in all regions\n2. Create rule: s3-bucket-server-side-encryption-enabled\n3. Automatic evaluation of all S3 buckets\n4. Non-compliant resources flagged immediately\n\n<strong>Remediation Options:</strong>\n• <strong>Manual:</strong> Security team reviews and fixes\n• <strong>Automated:</strong> Lambda function enables encryption\n• <strong>Preventive:</strong> IAM policy prevents creation without encryption\n\n<strong>Benefits:</strong> Continuous compliance monitoring, audit trails, integration with Security Hub",
         category: "Compliance"
-      },
-      {
-        level: 2,
-        front: "AWS Systems Manager Session Manager",
-        back: "<strong>Secure Remote Access Without SSH Keys:</strong>\n\n<strong>Traditional Challenge:</strong>\n• Managing SSH keys across hundreds of EC2 instances\n• Bastion hosts creating security bottlenecks\n• No audit trail of shell commands\n\n<strong>Session Manager Solution:</strong>\n1. No SSH keys needed - uses IAM permissions\n2. No bastion hosts - direct access through AWS console/CLI\n3. Full session logging to CloudWatch/S3\n4. Session encryption in transit\n\n<strong>Implementation:</strong>\n• Install SSM Agent on EC2 instances\n• Attach IAM role with SSM permissions\n• Users access through AWS console or CLI\n\n<strong>Result:</strong> Secure, auditable, keyless access to EC2 instances",
-        category: "Access Management"
-      },
-      {
-        level: 3,
-        front: "Incident Response with AWS Security Services",
-        back: "<strong>Complete Incident Response Workflow:</strong>\n\nScenario: Suspected data breach in production environment\n\n<strong>1. Detection Phase:</strong>\n• GuardDuty alerts on suspicious API calls\n• CloudWatch alarms on unusual data transfer\n• Security Hub aggregates all findings\n\n<strong>2. Investigation Phase:</strong>\n• CloudTrail analysis reveals compromised IAM user\n• VPC Flow Logs show unusual network traffic\n• Config history shows recent security group changes\n\n<strong>3. Containment:</strong>\n• Automated Lambda isolates affected instances\n• IAM user access revoked immediately\n• Security groups updated to block suspicious IPs\n\n<strong>4. Recovery:</strong>\n• Clean instances launched from secure AMIs\n• Database restored from encrypted backups\n• Network access gradually restored\n\n<strong>5. Lessons Learned:</strong>\n• Update IAM policies based on findings\n• Enhance monitoring rules\n• Conduct security training for team",
-        category: "Incident Response"
       }
     ];
 
@@ -1144,6 +1326,7 @@
     // Application state
     let currentCard = 0;
     let isFlipped = false;
+    let currentQuestionIndex = 0;
     
     // Timer state
     let quizTimer = null;
@@ -1366,7 +1549,7 @@
       clearInterval(quizTimer);
       
       // Show expiration message
-      const quizContainer = document.getElementById('quizContainer');
+      const quizContainer = document.getElementById('quizQuestionsContainer');
       quizContainer.insertAdjacentHTML('afterbegin', `
         <div class="quiz-expired">
           <h3>⏰ Time's Up!</h3>
@@ -1389,7 +1572,10 @@
 
     // Generate quiz HTML
     function generateQuiz() {
-      const container = document.getElementById('quizContainer');
+      const container = document.getElementById('quizQuestionsContainer');
+      
+      // Set CSS custom property for total questions
+      container.style.setProperty('--total-questions', quizQuestions.length);
       
       quizQuestions.forEach((q, index) => {
         const questionDiv = document.createElement('div');
@@ -1398,7 +1584,7 @@
         questionDiv.innerHTML = `
           <div class="question-header">
             <div class="scenario-tag">${q.scenario}</div>
-            <div class="question-title">${q.question}</div>
+            <div class="question-title">${index + 1}. ${q.question}</div>
           </div>
           <div class="question-body">
             <div class="option-group">
@@ -1414,6 +1600,48 @@
         
         container.appendChild(questionDiv);
       });
+      
+      // Initialize quiz navigation
+      updateQuizNavigation();
+    }
+
+    // Quiz navigation functions
+    function nextQuestion() {
+      if (currentQuestionIndex < quizQuestions.length - 1) {
+        currentQuestionIndex++;
+        scrollToQuestion(currentQuestionIndex);
+        updateQuizNavigation();
+      }
+    }
+
+    function prevQuestion() {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        scrollToQuestion(currentQuestionIndex);
+        updateQuizNavigation();
+      }
+    }
+
+    function scrollToQuestion(index) {
+      const container = document.getElementById('quizQuestionsContainer');
+      const wrapper = container.parentElement;
+      const questionWidth = wrapper.offsetWidth;
+      const scrollAmount = index * questionWidth;
+      container.style.transform = `translateX(-${scrollAmount}px)`;
+    }
+
+    function updateQuizNavigation() {
+      // Update progress text
+      document.getElementById('quizProgressText').textContent = 
+        `Question ${currentQuestionIndex + 1} of ${quizQuestions.length}`;
+      
+      // Update progress bar
+      const progressPercentage = ((currentQuestionIndex + 1) / quizQuestions.length) * 100;
+      document.getElementById('quizProgressFill').style.width = `${progressPercentage}%`;
+      
+      // Update button states
+      document.getElementById('prevQuestionBtn').disabled = currentQuestionIndex === 0;
+      document.getElementById('nextQuestionBtn').disabled = currentQuestionIndex === quizQuestions.length - 1;
     }
 
     // Handle option selection
@@ -1529,6 +1757,11 @@
       if (isQuizActive) {
         resetTimer();
       }
+      
+      // Reset quiz navigation
+      currentQuestionIndex = 0;
+      scrollToQuestion(0);
+      updateQuizNavigation();
       
       // Scroll to top of quiz
       document.getElementById('quiz').scrollIntoView({ behavior: 'smooth' });
