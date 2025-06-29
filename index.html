@@ -33,6 +33,7 @@
     .aws-nav {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       padding: 0 20px;
       height: 60px;
     }
@@ -53,6 +54,25 @@
       border-left: 1px solid #666;
       padding-left: 20px;
     }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .linkedin-link {
+      color: #ff9900;
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.3s ease;
+      display: flex;
+      align-items: center;
+    }
+
+    .linkedin-link:hover {
+      color: #ffb84d;
+    }
     
     /* AWS-style breadcrumb */
     .aws-breadcrumb {
@@ -69,6 +89,32 @@
     
     .breadcrumb-link:hover {
       text-decoration: underline;
+    }
+
+    /* Daily capsules banner */
+    .daily-banner {
+      background: linear-gradient(135deg, #0073bb 0%, #005a9f 100%);
+      color: white;
+      text-align: center;
+      padding: 12px 20px;
+      font-size: 14px;
+      border-bottom: 3px solid #ff9900;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { background: linear-gradient(135deg, #0073bb 0%, #005a9f 100%); }
+      50% { background: linear-gradient(135deg, #005a9f 0%, #0073bb 100%); }
+      100% { background: linear-gradient(135deg, #0073bb 0%, #005a9f 100%); }
+    }
+
+    .banner-text {
+      font-weight: 500;
+    }
+
+    .banner-highlight {
+      color: #ff9900;
+      font-weight: 600;
     }
     
     /* Main content container */
@@ -136,9 +182,11 @@
     }
     
     .training-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-      gap: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-width: 800px;
+      margin: 0 auto;
     }
     
     .training-card {
@@ -149,6 +197,8 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       transition: all 0.3s ease;
       cursor: pointer;
+      display: flex;
+      min-height: 180px;
     }
     
     .training-card:hover {
@@ -163,6 +213,18 @@
       padding: 24px;
       position: relative;
       overflow: hidden;
+      flex: 0 0 300px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .card-header.day2 {
+      background: linear-gradient(135deg, #ff9900 0%, #ffb84d 100%);
+    }
+
+    .card-header.day3 {
+      background: linear-gradient(135deg, #ff9900 0%, #ffb84d 100%);
     }
     
     .card-header::before {
@@ -177,24 +239,26 @@
     }
     
     .card-day {
-      font-size: 14px;
-      font-weight: 500;
+      font-size: 12px;
+      font-weight: 600;
       opacity: 0.9;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      position: relative;
+      z-index: 1;
     }
     
     .card-title {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 500;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
       position: relative;
       z-index: 1;
     }
     
     .card-subtitle {
-      font-size: 16px;
+      font-size: 14px;
       opacity: 0.9;
       position: relative;
       z-index: 1;
@@ -202,17 +266,21 @@
     
     .card-body {
       padding: 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
     }
     
     .card-description {
       font-size: 14px;
       color: #687078;
       line-height: 1.6;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
+      flex: 1;
     }
     
     .card-topics {
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
     
     .topics-title {
@@ -225,47 +293,47 @@
     .topic-list {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 6px;
     }
     
     .topic-tag {
       background-color: #f0f8ff;
       color: #0073bb;
-      padding: 4px 12px;
-      border-radius: 16px;
-      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 11px;
       font-weight: 500;
       border: 1px solid #e1f0ff;
     }
     
     .card-stats {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
       align-items: center;
-      padding: 16px 24px;
-      background-color: #fafafa;
-      border-top: 1px solid #d5dbdb;
-      font-size: 14px;
+      gap: 20px;
+      font-size: 12px;
       color: #687078;
+      margin-top: auto;
     }
     
     .stat-item {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
     }
     
     .stat-icon {
-      font-size: 16px;
+      font-size: 14px;
     }
     
     .difficulty-badge {
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 10px;
       font-weight: 500;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      margin-left: auto;
     }
     
     .difficulty-beginner {
@@ -411,6 +479,14 @@
       .aws-service-name {
         display: none;
       }
+
+      .nav-links {
+        gap: 10px;
+      }
+
+      .linkedin-link {
+        font-size: 12px;
+      }
       
       .hero-section {
         padding: 32px 16px;
@@ -426,29 +502,45 @@
       }
       
       .training-cards {
-        grid-template-columns: 1fr;
-        gap: 16px;
+        gap: 12px;
       }
       
-      .cta-buttons {
+      .training-card {
         flex-direction: column;
-        align-items: center;
+        min-height: auto;
+      }
+
+      .card-header {
+        flex: none;
       }
       
-      .btn-primary, .btn-secondary {
-        width: 100%;
-        max-width: 280px;
-        justify-content: center;
+      .card-body {
+        padding: 20px;
+      }
+      
+      .topic-list {
+        gap: 6px;
+      }
+      
+      .topic-tag {
+        font-size: 11px;
+        padding: 3px 8px;
+      }
+      
+      .card-stats {
+        flex-wrap: wrap;
+        gap: 10px;
       }
     }
     
     @media (max-width: 480px) {
-      .training-cards {
-        grid-template-columns: 1fr;
+      .training-card {
+        flex-direction: column;
       }
       
       .card-header {
         padding: 20px;
+        flex: none;
       }
       
       .card-body {
@@ -470,11 +562,26 @@
   <!-- AWS Console-style header -->
   <div class="aws-header">
     <div class="aws-nav">
-      <div class="aws-logo">
-        <span>🟠</span> AWS
+      <div style="display: flex; align-items: center;">
+        <div class="aws-logo">
+          <span>🟠</span> AWS
+        </div>
+        <div class="aws-service-name">Training Hub</div>
       </div>
-      <div class="aws-service-name">Training </div>
+      <div class="nav-links">
+        <a href="https://www.linkedin.com/in/vamshi-majhi-a59727102/" target="_blank" rel="noopener noreferrer" class="linkedin-link">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 4px;">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+          </svg>
+          LinkedIn
+        </a>
+      </div>
     </div>
+  </div>
+
+  <!-- Daily capsules banner -->
+  <div class="daily-banner">
+    <span class="banner-text">📚 <span class="banner-highlight">NEW!</span> We add daily AWS learning capsules - Stay tuned for fresh content!</span>
   </div>
   
   <!-- AWS-style breadcrumb -->
@@ -541,7 +648,7 @@
           <div class="card-stats">
             <div class="stat-item">
               <span class="stat-icon">📚</span>
-              <span>12 Flashcards</span>
+              <span>27 Flashcards</span>
             </div>
             <div class="stat-item">
               <span class="stat-icon">❓</span>
@@ -549,7 +656,7 @@
             </div>
             <div class="stat-item">
               <span class="stat-icon">⏱️</span>
-              <span>45 min</span>
+              <span>30 min</span>
             </div>
             <div class="difficulty-badge difficulty-beginner">Beginner</div>
           </div>
@@ -557,7 +664,7 @@
 
         <!-- Day 2 Card -->
         <div class="training-card" onclick="navigateToDay2()">
-          <div class="card-header">
+          <div class="card-header day2">
             <div class="card-day">Day 2</div>
             <h3 class="card-title">Security & Identity</h3>
             <p class="card-subtitle">IAM, Security Services & Best Practices</p>
@@ -582,7 +689,7 @@
           <div class="card-stats">
             <div class="stat-item">
               <span class="stat-icon">📚</span>
-              <span>15 Flashcards</span>
+              <span>17 Flashcards</span>
             </div>
             <div class="stat-item">
               <span class="stat-icon">❓</span>
@@ -590,7 +697,48 @@
             </div>
             <div class="stat-item">
               <span class="stat-icon">⏱️</span>
-              <span>60 min</span>
+              <span>30 min</span>
+            </div>
+            <div class="difficulty-badge difficulty-intermediate">Intermediate</div>
+          </div>
+        </div>
+
+        <!-- Day 3 Card -->
+        <div class="training-card" onclick="navigateToDay3()">
+          <div class="card-header day3">
+            <div class="card-day">Day 3</div>
+            <h3 class="card-title">Storage & Databases</h3>
+            <p class="card-subtitle">AWS Storage Solutions & Database Services</p>
+          </div>
+          <div class="card-body">
+            <p class="card-description">
+              Dive deep into AWS storage and database services. Learn about different storage classes, database types, 
+              and when to use each service. Understand backup strategies, performance optimization, and cost management.
+            </p>
+            <div class="card-topics">
+              <h4 class="topics-title">Key Topics</h4>
+              <div class="topic-list">
+                <span class="topic-tag">S3 Storage Classes</span>
+                <span class="topic-tag">EBS Volumes</span>
+                <span class="topic-tag">RDS Databases</span>
+                <span class="topic-tag">DynamoDB</span>
+                <span class="topic-tag">Backup Strategies</span>
+                <span class="topic-tag">Performance Tuning</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-stats">
+            <div class="stat-item">
+              <span class="stat-icon">📚</span>
+              <span>17 Flashcards</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-icon">❓</span>
+              <span>20 Questions</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-icon">⏱️</span>
+              <span>30 min</span>
             </div>
             <div class="difficulty-badge difficulty-intermediate">Intermediate</div>
           </div>
@@ -598,22 +746,7 @@
       </div>
     </div>
 
-    <!-- Call to Action -->
-    <div class="cta-section" style="display: none;">
-      <h2 class="cta-title">Ready to Start Your AWS Journey?</h2>
-      <p class="cta-description">
-        Choose your starting point based on your current knowledge level. We recommend starting with Day 1 
-        if you're new to AWS, or jump directly to Day 2 if you're familiar with basic cloud concepts.
-      </p>
-      <div class="cta-buttons">
-        <a href="#" class="btn-primary" onclick="navigateToDay1()">
-          🚀 Start with Fundamentals
-        </a>
-        <a href="#" class="btn-secondary" onclick="navigateToDay2()">
-          🔐 Jump to Security
-        </a>
-      </div>
-    </div>
+
   </div>
 
   <script>
@@ -621,19 +754,22 @@
     function updateProgress() {
       const day1Completed = localStorage.getItem('day1_completed') === 'true';
       const day2Completed = localStorage.getItem('day2_completed') === 'true';
+      const day3Completed = localStorage.getItem('day3_completed') === 'true';
       
       let progress = 0;
       let progressText = 'Ready to begin your AWS journey';
       
-      if (day1Completed && day2Completed) {
+      const completedDays = [day1Completed, day2Completed, day3Completed].filter(Boolean).length;
+      
+      if (completedDays === 3) {
         progress = 100;
-        progressText = 'Congratulations! You\'ve completed both AWS topics! 🎉';
-      } else if (day1Completed) {
-        progress = 50;
-        progressText = 'Great progress! Day 1 complete. Ready for Day 2 Security?';
-      } else if (day2Completed) {
-        progress = 50;
-        progressText = 'Day 2 complete! Consider reviewing Day 1 fundamentals.';
+        progressText = 'Congratulations! You\'ve completed all AWS topics! 🎉';
+      } else if (completedDays === 2) {
+        progress = 67;
+        progressText = `Excellent progress! ${completedDays}/3 topics completed. Keep going! 💪`;
+      } else if (completedDays === 1) {
+        progress = 33;
+        progressText = `Great start! ${completedDays}/3 topics completed. You're on your way! 🌟`;
       }
       
       document.getElementById('progressBar').style.width = progress + '%';
@@ -647,6 +783,10 @@
 
     function navigateToDay2() {
       window.open('https://codewrapr.github.io/AWS-Cloud-Challenge/Sol_Arch/Day2/', '_blank');
+    }
+
+    function navigateToDay3() {
+      window.open('https://codewrapr.github.io/AWS-Cloud-Challenge/Sol_Arch/Day3/', '_blank');
     }
 
     // Add some interactive animations
