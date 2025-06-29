@@ -182,9 +182,30 @@
     }
     
     .training-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-      gap: 24px;
+      display: flex;
+      gap: 20px;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      padding: 10px 0;
+      scroll-snap-type: x mandatory;
+    }
+
+    .training-cards::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .training-cards::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    .training-cards::-webkit-scrollbar-thumb {
+      background: #ff9900;
+      border-radius: 10px;
+    }
+
+    .training-cards::-webkit-scrollbar-thumb:hover {
+      background: #e88900;
     }
     
     .training-card {
@@ -195,6 +216,9 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       transition: all 0.3s ease;
       cursor: pointer;
+      flex: 0 0 320px;
+      min-height: 350px;
+      scroll-snap-align: start;
     }
     
     .training-card:hover {
@@ -206,7 +230,7 @@
     .card-header {
       background: linear-gradient(135deg, #ff9900 0%, #ffb84d 100%);
       color: white;
-      padding: 24px;
+      padding: 16px;
       position: relative;
       overflow: hidden;
     }
@@ -231,63 +255,63 @@
     }
     
     .card-day {
-      font-size: 14px;
+      font-size: 12px;
       font-weight: 500;
       opacity: 0.9;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
     
     .card-title {
-      font-size: 24px;
+      font-size: 18px;
       font-weight: 500;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       position: relative;
       z-index: 1;
     }
     
     .card-subtitle {
-      font-size: 16px;
+      font-size: 13px;
       opacity: 0.9;
       position: relative;
       z-index: 1;
     }
     
     .card-body {
-      padding: 24px;
+      padding: 16px;
     }
     
     .card-description {
-      font-size: 14px;
+      font-size: 12px;
       color: #687078;
-      line-height: 1.6;
-      margin-bottom: 24px;
+      line-height: 1.5;
+      margin-bottom: 16px;
     }
     
     .card-topics {
-      margin-bottom: 24px;
+      margin-bottom: 16px;
     }
     
     .topics-title {
-      font-size: 14px;
+      font-size: 12px;
       font-weight: 500;
       color: #232f3e;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
     
     .topic-list {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 4px;
     }
     
     .topic-tag {
       background-color: #f0f8ff;
       color: #0073bb;
-      padding: 4px 12px;
-      border-radius: 16px;
-      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 10px;
       font-weight: 500;
       border: 1px solid #e1f0ff;
     }
@@ -296,30 +320,71 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 16px 24px;
+      padding: 12px 16px;
       background-color: #fafafa;
       border-top: 1px solid #d5dbdb;
-      font-size: 14px;
+      font-size: 11px;
       color: #687078;
     }
     
     .stat-item {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
     }
     
     .stat-icon {
-      font-size: 16px;
+      font-size: 12px;
     }
     
     .difficulty-badge {
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 11px;
+      padding: 3px 6px;
+      border-radius: 3px;
+      font-size: 9px;
       font-weight: 500;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+    }
+
+    /* Scroll controls */
+    .scroll-controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .scroll-btn {
+      background: #ff9900;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 16px;
+    }
+
+    .scroll-btn:hover {
+      background: #e88900;
+      transform: scale(1.1);
+    }
+
+    .scroll-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: scale(1);
+    }
+
+    .scroll-indicator {
+      text-align: center;
+      margin-top: 12px;
+      font-size: 12px;
+      color: #687078;
     }
     
     .difficulty-beginner {
@@ -415,31 +480,75 @@
       }
       
       .training-cards {
-        grid-template-columns: 1fr;
         gap: 16px;
+        padding: 10px 5px;
+      }
+      
+      .training-card {
+        flex: 0 0 280px;
+        min-height: 320px;
+      }
+
+      .card-header {
+        padding: 14px;
+      }
+      
+      .card-body {
+        padding: 14px;
+      }
+      
+      .topic-list {
+        gap: 3px;
+      }
+      
+      .topic-tag {
+        font-size: 9px;
+        padding: 2px 6px;
+      }
+
+      .scroll-controls {
+        margin-top: 16px;
+      }
+
+      .scroll-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
       }
     }
     
     @media (max-width: 480px) {
       .training-cards {
-        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 8px 3px;
+      }
+      
+      .training-card {
+        flex: 0 0 250px;
+        min-height: 300px;
       }
       
       .card-header {
-        padding: 20px;
+        padding: 12px;
       }
       
       .card-body {
-        padding: 20px;
+        padding: 12px;
       }
       
       .topic-list {
-        gap: 6px;
+        gap: 3px;
       }
       
       .topic-tag {
-        font-size: 11px;
-        padding: 3px 8px;
+        font-size: 9px;
+        padding: 2px 5px;
+      }
+
+      .scroll-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
       }
     }
   </style>
@@ -461,6 +570,19 @@
           </svg>
           LinkedIn
         </a>
+      </div>
+
+      <!-- Scroll Controls -->
+      <div class="scroll-controls">
+        <button class="scroll-btn" id="scrollLeft" onclick="scrollCards('left')">
+          ←
+        </button>
+        <button class="scroll-btn" id="scrollRight" onclick="scrollCards('right')">
+          →
+        </button>
+      </div>
+      <div class="scroll-indicator">
+        Scroll horizontally to explore all AWS topics
       </div>
     </div>
   </div>
@@ -499,7 +621,7 @@
     <!-- Training Path -->
     <div class="training-path">
       <div class="path-header">
-        <h2 class="path-title">Foundation Learning Path</h2>
+        <h2 class="path-title">Learning Path</h2>
         <p class="path-description">
           Start your AWS journey with these carefully designed modules that build upon each other. 
           Each day focuses on core concepts with hands-on exercises and real-world scenarios.
@@ -673,6 +795,30 @@
       window.open('https://codewrapr.github.io/AWS-Cloud-Challenge/Sol_Arch/Day3/', '_blank');
     }
 
+    // Scroll functionality
+    function scrollCards(direction) {
+      const container = document.querySelector('.training-cards');
+      const scrollAmount = 340; // Card width + gap
+      
+      if (direction === 'left') {
+        container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+      } else {
+        container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      }
+      
+      // Update button states
+      setTimeout(updateScrollButtons, 300);
+    }
+
+    function updateScrollButtons() {
+      const container = document.querySelector('.training-cards');
+      const leftBtn = document.getElementById('scrollLeft');
+      const rightBtn = document.getElementById('scrollRight');
+      
+      leftBtn.disabled = container.scrollLeft <= 0;
+      rightBtn.disabled = container.scrollLeft >= container.scrollWidth - container.clientWidth;
+    }
+
     // Add some interactive animations
     function animateCards() {
       const cards = document.querySelectorAll('.training-card');
@@ -692,6 +838,10 @@
     document.addEventListener('DOMContentLoaded', function() {
       updateProgress();
       setTimeout(animateCards, 300);
+      updateScrollButtons();
+      
+      // Add scroll event listener
+      document.querySelector('.training-cards').addEventListener('scroll', updateScrollButtons);
       
       // Add click handlers for better UX
       document.querySelectorAll('.training-card').forEach(card => {
