@@ -182,11 +182,9 @@
     }
     
     .training-cards {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      max-width: 800px;
-      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 24px;
     }
     
     .training-card {
@@ -197,8 +195,6 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       transition: all 0.3s ease;
       cursor: pointer;
-      display: flex;
-      min-height: 180px;
     }
     
     .training-card:hover {
@@ -213,18 +209,14 @@
       padding: 24px;
       position: relative;
       overflow: hidden;
-      flex: 0 0 300px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
     }
 
     .card-header.day2 {
-      background: linear-gradient(135deg, #ff9900 0%, #ffb84d 100%);
+      background: linear-gradient(135deg, #0073bb 0%, #0099e6 100%);
     }
 
     .card-header.day3 {
-      background: linear-gradient(135deg, #ff9900 0%, #ffb84d 100%);
+      background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
     }
     
     .card-header::before {
@@ -239,26 +231,24 @@
     }
     
     .card-day {
-      font-size: 12px;
-      font-weight: 600;
+      font-size: 14px;
+      font-weight: 500;
       opacity: 0.9;
-      margin-bottom: 4px;
+      margin-bottom: 8px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      position: relative;
-      z-index: 1;
     }
     
     .card-title {
-      font-size: 22px;
+      font-size: 24px;
       font-weight: 500;
-      margin-bottom: 4px;
+      margin-bottom: 8px;
       position: relative;
       z-index: 1;
     }
     
     .card-subtitle {
-      font-size: 14px;
+      font-size: 16px;
       opacity: 0.9;
       position: relative;
       z-index: 1;
@@ -266,21 +256,17 @@
     
     .card-body {
       padding: 24px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
     }
     
     .card-description {
       font-size: 14px;
       color: #687078;
       line-height: 1.6;
-      margin-bottom: 20px;
-      flex: 1;
+      margin-bottom: 24px;
     }
     
     .card-topics {
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
     
     .topics-title {
@@ -293,47 +279,47 @@
     .topic-list {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
+      gap: 8px;
     }
     
     .topic-tag {
       background-color: #f0f8ff;
       color: #0073bb;
-      padding: 3px 8px;
-      border-radius: 12px;
-      font-size: 11px;
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 12px;
       font-weight: 500;
       border: 1px solid #e1f0ff;
     }
     
     .card-stats {
       display: flex;
-      justify-content: flex-start;
+      justify-content: space-between;
       align-items: center;
-      gap: 20px;
-      font-size: 12px;
+      padding: 16px 24px;
+      background-color: #fafafa;
+      border-top: 1px solid #d5dbdb;
+      font-size: 14px;
       color: #687078;
-      margin-top: auto;
     }
     
     .stat-item {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
     }
     
     .stat-icon {
-      font-size: 14px;
+      font-size: 16px;
     }
     
     .difficulty-badge {
-      padding: 2px 6px;
-      border-radius: 3px;
-      font-size: 10px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
       font-weight: 500;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-left: auto;
     }
     
     .difficulty-beginner {
@@ -349,79 +335,6 @@
     .difficulty-advanced {
       background-color: #fdf2f2;
       color: #d13212;
-    }
-    
-    .cta-section {
-      text-align: center;
-      background: white;
-      padding: 48px 24px;
-      border-radius: 8px;
-      border: 1px solid #d5dbdb;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    
-    .cta-title {
-      font-size: 24px;
-      font-weight: 500;
-      color: #232f3e;
-      margin-bottom: 16px;
-    }
-    
-    .cta-description {
-      font-size: 16px;
-      color: #687078;
-      margin-bottom: 32px;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    
-    .cta-buttons {
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    
-    .btn-primary {
-      background-color: #ff9900;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 4px;
-      font-size: 16px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .btn-primary:hover {
-      background-color: #e88900;
-    }
-    
-    .btn-secondary {
-      background-color: #fafafa;
-      color: #232f3e;
-      border: 1px solid #d5dbdb;
-      padding: 12px 24px;
-      border-radius: 4px;
-      font-size: 16px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .btn-secondary:hover {
-      background-color: #f2f3f3;
-      border-color: #ff9900;
     }
     
     .progress-section {
@@ -502,45 +415,18 @@
       }
       
       .training-cards {
-        gap: 12px;
-      }
-      
-      .training-card {
-        flex-direction: column;
-        min-height: auto;
-      }
-
-      .card-header {
-        flex: none;
-      }
-      
-      .card-body {
-        padding: 20px;
-      }
-      
-      .topic-list {
-        gap: 6px;
-      }
-      
-      .topic-tag {
-        font-size: 11px;
-        padding: 3px 8px;
-      }
-      
-      .card-stats {
-        flex-wrap: wrap;
-        gap: 10px;
+        grid-template-columns: 1fr;
+        gap: 16px;
       }
     }
     
     @media (max-width: 480px) {
-      .training-card {
-        flex-direction: column;
+      .training-cards {
+        grid-template-columns: 1fr;
       }
       
       .card-header {
         padding: 20px;
-        flex: none;
       }
       
       .card-body {
@@ -745,8 +631,6 @@
         </div>
       </div>
     </div>
-
-
   </div>
 
   <script>
