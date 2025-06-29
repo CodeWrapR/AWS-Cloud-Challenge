@@ -24,8 +24,8 @@
     
     /* AWS-style header */
     .aws-header {
-      background-color: #232f3e;
-      background-color: #1b660f;
+      background-color: #000000 !important;
+      color: white;
       padding: 0;
       border-bottom: 1px solid #3c4043;
     }
@@ -372,23 +372,28 @@
       position: relative;
       overflow: hidden;
       width: 100%;
+      height: auto;
+      border-radius: 8px;
     }
 
     .quiz-questions-scroll {
       display: flex;
       transition: transform 0.5s ease-in-out;
-      width: 100%;
+      width: calc(100% * var(--total-questions, 12));
+      height: auto;
     }
 
     .question-container {
-      min-width: 100%;
+      width: calc(100% / var(--total-questions, 12));
       flex-shrink: 0;
-      margin-bottom: 32px;
+      margin-bottom: 0;
       background: white;
       border: 1px solid #d5dbdb;
       border-radius: 8px;
       overflow: hidden;
       scroll-snap-align: start;
+      box-sizing: border-box;
+      padding: 0;
     }
     
     .question-header {
@@ -530,7 +535,9 @@
       text-align: center;
       margin: 32px 0;
     }
+    
     .btn-submit {
+      background-color: #1b660f;
       color: white;
       border: none;
       padding: 12px 24px;
@@ -751,82 +758,82 @@
       margin-bottom: 16px;
     }
     
-      /* Mobile Responsiveness */
-      @media (max-width: 768px) {
-        .container {
-          padding: 12px;
-        }
-        
-        .aws-nav {
-          padding: 0 12px;
-          height: 50px;
-          flex-wrap: nowrap;
-        }
-        
-        .aws-logo {
-          font-size: 16px;
-          gap: 8px;
-        }
-        
-        .aws-service-name {
-          display: none;
-        }
-
-        .nav-links {
-          gap: 8px;
-        }
-
-        .linkedin-link {
-          font-size: 11px;
-          gap: 2px;
-        }
-
-        .linkedin-link svg {
-          width: 12px;
-          height: 12px;
-          margin-right: 2px;
-        }
-        
-        .flashcard {
-          height: 400px;
-        }
-        
-        .controls {
-          flex-direction: column;
-          gap: 12px;
-        }
-        
-        .progress-info {
-          margin: 0;
-          order: 1;
-        }
-        
-        #prevBtn {
-          order: 2;
-        }
-        
-        #nextBtn {
-          order: 3;
-        }
-
-        .quiz-navigation {
-          flex-direction: column;
-          gap: 12px;
-        }
-
-        .quiz-progress-info {
-          margin: 0;
-          order: 1;
-        }
-
-        #prevQuestionBtn {
-          order: 2;
-        }
-
-        #nextQuestionBtn {
-          order: 3;
-        }
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+      .container {
+        padding: 12px;
       }
+      
+      .aws-nav {
+        padding: 0 12px;
+        height: 50px;
+        flex-wrap: nowrap;
+      }
+      
+      .aws-logo {
+        font-size: 16px;
+        gap: 8px;
+      }
+      
+      .aws-service-name {
+        display: none;
+      }
+
+      .nav-links {
+        gap: 8px;
+      }
+
+      .linkedin-link {
+        font-size: 11px;
+        gap: 2px;
+      }
+
+      .linkedin-link svg {
+        width: 12px;
+        height: 12px;
+        margin-right: 2px;
+      }
+      
+      .flashcard {
+        height: 400px;
+      }
+      
+      .controls {
+        flex-direction: column;
+        gap: 12px;
+      }
+      
+      .progress-info {
+        margin: 0;
+        order: 1;
+      }
+      
+      #prevBtn {
+        order: 2;
+      }
+      
+      #nextBtn {
+        order: 3;
+      }
+
+      .quiz-navigation {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .quiz-progress-info {
+        margin: 0;
+        order: 1;
+      }
+
+      #prevQuestionBtn {
+        order: 2;
+      }
+
+      #nextQuestionBtn {
+        order: 3;
+      }
+    }
 
     @media (max-width: 480px) {
       .aws-nav {
@@ -977,7 +984,6 @@
             <div class="timer-progress-bar" id="timerProgressBar" style="width: 100%;"></div>
           </div>
         </div>
-        
         
         <div class="quiz-container-wrapper">
           <div class="quiz-questions-scroll" id="quizQuestionsContainer"></div>
@@ -1581,7 +1587,7 @@
       clearInterval(quizTimer);
       
       // Show expiration message
-      const quizContainer = document.getElementById('quizContainer');
+      const quizContainer = document.getElementById('quizQuestionsContainer');
       quizContainer.insertAdjacentHTML('afterbegin', `
         <div class="quiz-expired">
           <h3>⏰ Time's Up!</h3>
@@ -1605,6 +1611,9 @@
     // Generate quiz HTML
     function generateQuiz() {
       const container = document.getElementById('quizQuestionsContainer');
+      
+      // Set CSS custom property for total questions
+      container.style.setProperty('--total-questions', questions.length);
       
       questions.forEach((q, index) => {
         const questionDiv = document.createElement('div');
@@ -1653,8 +1662,10 @@
 
     function scrollToQuestion(index) {
       const container = document.getElementById('quizQuestionsContainer');
-      const scrollAmount = index * 100; // Each question is 100% width
-      container.style.transform = `translateX(-${scrollAmount}%)`;
+      const wrapper = container.parentElement;
+      const questionWidth = wrapper.offsetWidth;
+      const scrollAmount = index * questionWidth;
+      container.style.transform = `translateX(-${scrollAmount}px)`;
     }
 
     function updateQuizNavigation() {
