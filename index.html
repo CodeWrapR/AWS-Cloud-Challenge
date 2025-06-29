@@ -609,7 +609,7 @@
       
       <div class="training-cards">
         <!-- Day 1 Card -->
-        <div class="training-card" onclick="navigateToDay1()">
+        <div class="training-card" onclick="openDay1()">
           <div class="card-header">
             <div class="card-day">Day 1</div>
             <h3 class="card-title">Cloud Fundamentals</h3>
@@ -650,7 +650,7 @@
         </div>
 
         <!-- Day 2 Card -->
-        <div class="training-card" onclick="navigateToDay2()">
+        <div class="training-card" onclick="openDay2()">
           <div class="card-header day2">
             <div class="card-day">Day 2</div>
             <h3 class="card-title">Security & Identity</h3>
@@ -691,7 +691,7 @@
         </div>
 
         <!-- Day 3 Card -->
-        <div class="training-card" onclick="navigateToDay3()">
+        <div class="training-card" onclick="openDay3()">
           <div class="card-header day3">
             <div class="card-day">Day 3</div>
             <h3 class="card-title">Storage & Databases</h3>
@@ -735,44 +735,44 @@
   </div>
 
   <script>
-    function updateProgress() {
-      const day1Completed = localStorage.getItem('day1_completed') === 'true';
-      const day2Completed = localStorage.getItem('day2_completed') === 'true';
-      const day3Completed = localStorage.getItem('day3_completed') === 'true';
+    function trackProgress() {
+      const day1Done = localStorage.getItem('day1_completed') === 'true';
+      const day2Done = localStorage.getItem('day2_completed') === 'true';
+      const day3Done = localStorage.getItem('day3_completed') === 'true';
       
       let progress = 0;
-      let progressText = 'Ready to begin your AWS journey';
+      let message = 'Ready to begin your AWS journey';
       
-      const completedDays = [day1Completed, day2Completed, day3Completed].filter(Boolean).length;
+      const completed = [day1Done, day2Done, day3Done].filter(Boolean).length;
       
-      if (completedDays === 3) {
+      if (completed === 3) {
         progress = 100;
-        progressText = 'Congratulations! You\'ve completed all AWS topics! 🎉';
-      } else if (completedDays === 2) {
+        message = 'Congratulations! You\'ve completed all AWS topics! 🎉';
+      } else if (completed === 2) {
         progress = 67;
-        progressText = `Excellent progress! ${completedDays}/3 topics completed. Keep going! 💪`;
-      } else if (completedDays === 1) {
+        message = `Excellent progress! ${completed}/3 topics completed. Keep going! 💪`;
+      } else if (completed === 1) {
         progress = 33;
-        progressText = `Great start! ${completedDays}/3 topics completed. You're on your way! 🌟`;
+        message = `Great start! ${completed}/3 topics completed. You're on your way! 🌟`;
       }
       
       document.getElementById('progressBar').style.width = progress + '%';
-      document.getElementById('progressText').textContent = progressText;
+      document.getElementById('progressText').textContent = message;
     }
 
-    function navigateToDay1() {
-      window.open('https://codewrapr.github.io/AWS-Cloud-Challenge/Sol_Arch/Day1/', '_blank');
+    function openDay1() {
+      window.location.href = 'https://codewrapr.github.io/AWS-Cloud-Challenge/Sol_Arch/Day1/';
     }
 
-    function navigateToDay2() {
-      window.open('https://codewrapr.github.io/AWS-Cloud-Challenge/Sol_Arch/Day2/', '_blank');
+    function openDay2() {
+      window.location.href = 'https://codewrapr.github.io/AWS-Cloud-Challenge/Sol_Arch/Day2/';
     }
 
-    function navigateToDay3() {
-      window.open('https://codewrapr.github.io/AWS-Cloud-Challenge/Sol_Arch/Day3/', '_blank');
+    function openDay3() {
+      window.location.href = 'https://codewrapr.github.io/AWS-Cloud-Challenge/Sol_Arch/Day3/';
     }
 
-    function animateCards() {
+    function startAnimations() {
       const cards = document.querySelectorAll('.training-card');
       cards.forEach((card, index) => {
         card.style.opacity = '0';
@@ -787,8 +787,8 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-      updateProgress();
-      setTimeout(animateCards, 300);
+      trackProgress();
+      setTimeout(startAnimations, 300);
       
       document.querySelectorAll('.training-card').forEach(card => {
         card.addEventListener('mouseenter', function() {
