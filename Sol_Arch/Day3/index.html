@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>AWS Day 3: Compute & Storage</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Amazon Ember', 'Helvetica Neue', Roboto, Arial, sans-serif;
+      background-color: #f2f3f3;
+      color: #232f3e;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    
+    /* AWS-style header */
+    .aws-header {
+      background-color: #232f3e;
+      color: white;
+      padding: 0;
+      border-bottom: 1px solid #3c4043;
+    }
+    
+    .aws-nav {
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      height: 60px;
+    }
+    
+    .aws-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 18px;
+      font-weight: 600;
+      color: #ff9900;
+    }
+    
+    .aws-service-name {
+      margin-left: 20px;
+      font-size: 16px;
+      color: white;
+      border-left: 1px solid #666;
+      padding-left: 20px;
+    }
+    
+    /* AWS-style breadcrumb */
+    .aws-breadcrumb {
+      background-color: #f9f9f9;
+      padding: 12px 20px;
+      border-bottom: 1px solid #d5dbdb;
+      font-size: 14px;
+    }
+    
+    .breadcrumb-link {
+      color: #0073bb;
+      text-decoration: none;
+    }
+    
+    .breadcrumb-link:hover {
+      text-decoration: underline;
+    }
+    
+    /* Main content container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    
+    /* AWS-style page header */
+    .page-header {
+      margin-bottom: 32px;
+    }
+    
+    .page-title {
+      font-size: 28px;
+      font-weight: 300;
+      color: #232f3e;
+      margin-bottom: 8px;
+    }
+    
+    .page-description {
+      font-size: 14px;
+      color: #687078;
+      line-height: 1.5;
+    }
+    
+    /* AWS-style tabs */
+    .tab-container {
+      border-bottom: 1px solid #d5dbdb;
+      margin-bottom: 24px;
+      display: flex;
+    }
+    
+    .tab-button {
+      background: none;
+      border: none;
+      padding: 16px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #687078;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s ease;
+    }
+    
+    .tab-button:hover {
+      color: #232f3e;
+      background-color: #fafafa;
+    }
+    
+    .tab-button.active {
+      color: #ff9900;
+      border-bottom-color: #ff9900;
+      background-color: white;
+    }
+    
+    /* AWS-style content panels */
+    .tab-content {
+      display: none;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .content-header {
+      background-color: #fafafa;
+      padding: 20px 24px;
+      border-bottom: 1px solid #d5dbdb;
+    }
+    
+    .content-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-bottom: 8px;
+    }
+    
+    .content-subtitle {
+      font-size: 14px;
+      color: #687078;
+    }
+    
+    .content-body {
+      padding: 24px;
+    }
+    
+    /* Flashcard styling */
+    .flashcard-container {
+      perspective: 1000px;
+      margin: 24px 0;
+    }
+    
+    .difficulty-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      padding: 12px 16px;
+      background-color: #f9f9f9;
+      border-radius: 4px;
+      border-left: 4px solid #ff9900;
+    }
+    
+    .difficulty-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-right: 12px;
+    }
+    
+    .difficulty-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #d5dbdb;
+    }
+    
+    .difficulty-dot.active { background: #1b660f; }
+    .difficulty-dot.medium { background: #ff9900; }
+    .difficulty-dot.hard { background: #d13212; }
+    
+    .difficulty-text {
+      font-size: 14px;
+      color: #687078;
+      margin-left: 8px;
+    }
+    
+    .flashcard {
+      width: 100%;
+      height: 450px;
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+      position: relative;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin: 0 auto;
+    }
+    
+    .flashcard:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .flip {
+      transform: rotateY(180deg);
+    }
+    
+    .front, .back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+    
+    .front {
+      background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+      color: #232f3e;
+    }
+    
+    .back {
+      background: linear-gradient(135deg, #fff8e6 0%, #ffe6cc 100%);
+      color: #232f3e;
+      transform: rotateY(180deg);
+    }
+    
+    .card-category {
+      font-size: 12px;
+      font-weight: 500;
+      color: #ff9900;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+      padding: 4px 12px;
+      background-color: rgba(255, 153, 0, 0.1);
+      border-radius: 12px;
+    }
+    
+    .card-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+    
+    .card-content {
+      font-size: 15px;
+      line-height: 1.6;
+      color: #232f3e;
+      white-space: pre-line;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      max-width: 100%;
+      text-align: left;
+      width: 100%;
+    }
+    
+    .card-content strong {
+      font-weight: 600;
+      color: #ff9900;
+    }
+    
+    /* AWS-style controls */
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+      padding: 16px;
+      background-color: #fafafa;
+      border-radius: 4px;
+    }
+    
+    .btn-aws {
+      background-color: #ff9900;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn-aws:hover {
+      background-color: #e6890a;
+    }
+    
+    .btn-aws:disabled {
+      background-color: #d5dbdb;
+      color: #687078;
+      cursor: not-allowed;
+    }
+    
+    .btn-secondary {
+      background-color: #fafafa;
+      color: #232f3e;
+      border: 1px solid #d5dbdb;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #f2f3f3;
+    }
+    
+    .progress-info {
+      font-size: 14px;
+      color: #687078;
+      text-align: center;
+      flex: 1;
+      margin: 0 16px;
+    }
+    
+    .progress-text {
+      font-weight: 500;
+      color: #232f3e;
+    }
+    
+    /* Quiz styling */
+    .question-container {
+      margin-bottom: 32px;
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .question-header {
+      background-color: #f9f9f9;
+      padding: 16px 20px;
+      border-bottom: 1px solid #d5dbdb;
+    }
+    
+    .scenario-tag {
+      display: inline-block;
+      background-color: #ff9900;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    
+    .question-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: #232f3e;
+      line-height: 1.5;
+    }
+    
+    .question-body {
+      padding: 20px;
+    }
+    
+    .option-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .option {
+      display: flex;
+      align-items: flex-start;
+      padding: 12px 16px;
+      background: #fafafa;
+      border: 1px solid #d5dbdb;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .option:hover {
+      background-color: #f2f3f3;
+      border-color: #ff9900;
+    }
+    
+    .option.selected {
+      background-color: #fff8e6;
+      border-color: #ff9900;
+    }
+    
+    .option input {
+      margin-right: 12px;
+      margin-top: 2px;
+    }
+    
+    .option label {
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1.5;
+      flex: 1;
+    }
+    
+    .quiz-submit {
+      text-align: center;
+      margin: 32px 0;
+    }
+    
+    .btn-submit {
+      background-color: #1b660f;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    
+    .btn-submit:hover {
+      background-color: #0f4d0a;
+    }
+    
+    /* Results styling */
+    .result {
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      padding: 24px;
+      margin-top: 24px;
+      display: none;
+      text-align: center;
+    }
+    
+    .result.show {
+      display: block;
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .score-circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background-color: #1b660f;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 auto 16px;
+    }
+    
+    .result-title {
+      font-size: 20px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-bottom: 8px;
+    }
+    
+    .result-subtitle {
+      font-size: 16px;
+      color: #687078;
+      margin-bottom: 20px;
+    }
+    
+    .result-details {
+      text-align: left;
+      margin-top: 24px;
+    }
+    
+    .result-item {
+      margin: 12px 0;
+      padding: 12px;
+      border-radius: 4px;
+      border-left: 4px solid;
+    }
+    
+    .result-item.correct {
+      background-color: #f0f8f0;
+      border-color: #1b660f;
+    }
+    
+    .result-item.incorrect {
+      background-color: #fdf2f2;
+      border-color: #d13212;
+    }
+    
+    .result-item-header {
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    
+    .result-item-explanation {
+      font-size: 14px;
+      color: #687078;
+      line-height: 1.5;
+    }
+    
+    .btn-reset {
+      background-color: #687078;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 16px;
+    }
+    
+    .btn-reset:hover {
+      background-color: #5a6269;
+    }
+    
+    /* Timer styling */
+    .quiz-timer {
+      position: sticky;
+      top: 0;
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      z-index: 10;
+    }
+    
+    .timer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    
+    .timer-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: #232f3e;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .timer-display {
+      font-size: 18px;
+      font-weight: 600;
+      color: #ff9900;
+      font-family: 'Courier New', monospace;
+    }
+    
+    .timer-display.warning {
+      color: #ff9900;
+      animation: pulse 1s infinite;
+    }
+    
+    .timer-display.critical {
+      color: #d13212;
+      animation: pulse 0.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+    
+    .timer-progress {
+      width: 100%;
+      height: 8px;
+      background-color: #f2f3f3;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    
+    .timer-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #1b660f 0%, #ff9900 70%, #d13212 100%);
+      border-radius: 4px;
+      transition: width 1s ease;
+    }
+    
+    .timer-controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    
+    .timer-btn {
+      background: none;
+      border: 1px solid #d5dbdb;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      color: #687078;
+      transition: all 0.2s ease;
+    }
+    
+    .timer-btn:hover {
+      background-color: #f2f3f3;
+      border-color: #ff9900;
+      color: #ff9900;
+    }
+    
+    .quiz-expired {
+      background-color: #fdf2f2;
+      border: 2px solid #d13212;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .quiz-expired h3 {
+      color: #d13212;
+      margin-bottom: 8px;
+      font-size: 18px;
+    }
+    
+    .quiz-expired p {
+      color: #687078;
+      margin-bottom: 16px;
+    }
+    
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+      .container {
+        padding: 12px;
+      }
+      
+      .aws-nav {
+        padding: 0 12px;
+        height: 50px;
+      }
+      
+      .aws-logo {
+        font-size: 16px;
+      }
+      
+      .aws-service-name {
+        display: none;
+      }
+      
+      .flashcard {
+        height: 400px;
+      }
+      
+      .controls {
+        flex-direction: column;
+        gap: 12px;
+      }
+      
+      .progress-info {
+        margin: 0;
+        order: 1;
+      }
+      
+      #prevBtn {
+        order: 2;
+      }
+      
+      #nextBtn {
+        order: 3;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- AWS Console-style header -->
+  <div class="aws-header">
+    <div class="aws-nav">
+      <div class="aws-logo">
+        <span>🟠</span> AWS
+      </div>
+      <div class="aws-service-name">Compute & Storage Training</div>
+    </div>
+  </div>
+  
+  <!-- AWS-style breadcrumb -->
+  <div class="aws-breadcrumb">
+    <a href="https://codewrapr.github.io/AWS-Cloud-Challenge/index.html" class="breadcrumb-link">AWS Training</a> &gt; 
+    Day 3: Compute & Storage
+  </div>
+  
+  <div class="container">
+    <!-- Page header -->
+    <div class="page-header">
+      <h1 class="page-title">AWS Compute & Storage</h1>
+      <p class="page-description">
+        Master AWS compute and storage fundamentals including EC2 instances, purchasing options, IP addressing, placement groups, EBS volumes, snapshots, and EFS. 
+        Build expertise in designing scalable and cost-effective infrastructure solutions.
+      </p>
+    </div>
+    
+    <!-- Tabs -->
+    <div class="tab-container">
+      <button class="tab-button active" onclick="showTab('learn', this)">
+        💻 Compute & Storage
+      </button>
+      <button class="tab-button" onclick="showTab('quiz', this)">
+        📝 Assessment
+      </button>
+    </div>
+
+    <!-- Flashcards Tab -->
+    <div id="learn" class="tab-content active">
+      <div class="content-header">
+        <h2 class="content-title">Interactive Compute & Storage Learning</h2>
+        <p class="content-subtitle">
+          Comprehensive training with 22 detailed flashcards covering EC2, IP addressing, EBS, EFS, and storage optimization strategies.
+        </p>
+      </div>
+      
+      <div class="content-body">
+        <div class="difficulty-indicator">
+          <span class="difficulty-label">Complexity Level:</span>
+          <div class="difficulty-dot" id="diff1"></div>
+          <div class="difficulty-dot" id="diff2"></div>
+          <div class="difficulty-dot" id="diff3"></div>
+          <span class="difficulty-text" id="diffLabel">Foundation</span>
+        </div>
+        
+        <div class="flashcard-container">
+          <div id="flashcard" class="flashcard" onclick="flipCard()">
+            <div class="front">
+              <div class="card-category" id="frontCategory"></div>
+              <div class="card-title" id="frontTitle"></div>
+            </div>
+            <div class="back">
+              <div class="card-category">Technical Details</div>
+              <div class="card-title">Comprehensive Guide</div>
+              <div class="card-content" id="backText"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="controls">
+          <button class="btn-aws btn-secondary" onclick="prevCard()" id="prevBtn">
+            ← Previous
+          </button>
+          <div class="progress-info">
+            <div class="progress-text" id="progressText"></div>
+            <div style="font-size: 12px; color: #687078; margin-top: 4px;">
+              Click card to flip • Use arrow keys to navigate
+            </div>
+          </div>
+          <button class="btn-aws" onclick="nextCard()" id="nextBtn">
+            Next →
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quiz Tab -->
+    <div id="quiz" class="tab-content">
+      <div class="content-header">
+        <h2 class="content-title">Compute & Storage Assessment</h2>
+        <p class="content-subtitle">
+          Test your knowledge with 20 comprehensive scenarios covering EC2 optimization, storage selection, and cost management strategies.
+        </p>
+      </div>
+      
+      <div class="content-body">
+        <!-- Quiz Timer -->
+        <div class="quiz-timer" id="quizTimer" style="display: none;">
+          <div class="timer-header">
+            <div class="timer-title">
+              ⏰ Assessment Timer
+            </div>
+            <div class="timer-controls">
+              <button class="timer-btn" onclick="pauseTimer()" id="pauseBtn">⏸ Pause</button>
+              <button class="timer-btn" onclick="resetTimer()" id="resetTimerBtn">🔄 Reset</button>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 14px; color: #687078;">Time Remaining:</span>
+            <div class="timer-display" id="timerDisplay">30:00</div>
+          </div>
+          <div class="timer-progress">
+            <div class="timer-progress-bar" id="timerProgressBar" style="width: 100%;"></div>
+          </div>
+        </div>
+        
+        <div id="quizContainer"></div>
+        <div class="quiz-submit">
+          <button class="btn-submit" onclick="checkAnswers()">
+            🚀 Submit Assessment
+          </button>
+        </div>
+        <div class="result" id="resultBox"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const flashcards = [
+      // Level 1: EC2 Fundamentals
+      {
+        level: 1,
+        front: "What is Amazon EC2 (Elastic Compute Cloud)?",
+        back: "<strong>Definition:</strong> Amazon EC2 is a web service that provides secure, resizable compute capacity in the cloud, allowing you to quickly scale computing resources up or down as your computing requirements change.\n\n<strong>Key Features:</strong>\n• <strong>Virtual Servers:</strong> Launch instances (virtual machines) in minutes\n• <strong>Complete Control:</strong> Root access to each instance\n• <strong>Flexible:</strong> Choose instance types, operating systems, and configurations\n• <strong>Scalable:</strong> Scale capacity up or down based on demand\n• <strong>Secure:</strong> Built-in firewall and network security features\n• <strong>Cost-Effective:</strong> Pay only for compute time you actually use\n\n<strong>Core Concepts:</strong>\n• <strong>Instance:</strong> A virtual server running in AWS cloud\n• <strong>AMI (Amazon Machine Image):</strong> Template used to create instances\n• <strong>Instance Type:</strong> Hardware configuration (CPU, memory, storage, networking)\n• <strong>Key Pair:</strong> Secure login credentials for your instances",
+        category: "EC2 Fundamentals"
+      },
+      {
+        level: 1,
+        front: "EC2 Instance Types and Use Cases",
+        back: "<strong>Definition:</strong> EC2 Instance Types are various combinations of CPU, memory, storage, and networking capacity designed for different workload requirements.\n\n<strong>Main Instance Families:</strong>\n\n<strong>General Purpose (T3, T4g, M5, M6i):</strong>\n• Balanced CPU, memory, and networking\n• Use Cases: Web servers, small databases, development environments\n• Example: t3.medium for small web applications\n\n<strong>Compute Optimized (C5, C6i):</strong>\n• High-performance processors\n• Use Cases: CPU-intensive applications, gaming, scientific computing\n• Example: c5.large for high-performance web servers\n\n<strong>Memory Optimized (R5, R6i, X1e):</strong>\n• High memory-to-CPU ratio\n• Use Cases: In-memory databases, big data analytics\n• Example: r5.xlarge for Redis cache clusters\n\n<strong>Storage Optimized (I3, D2):</strong>\n• High sequential read/write to local storage\n• Use Cases: Distributed file systems, data warehousing\n• Example: i3.large for NoSQL databases\n\n<strong>Accelerated Computing (P3, G4):</strong>\n• GPU instances for parallel processing\n• Use Cases: Machine learning, video processing, gaming",
+        category: "EC2 Instance Types"
+      },
+      {
+        level: 2,
+        front: "EC2 Purchasing Options Comparison",
+        back: "<strong>Definition:</strong> EC2 Purchasing Options are different pricing models that allow you to optimize costs based on your usage patterns and requirements.\n\n<strong>Detailed Comparison:</strong>\n\n<strong>1. On-Demand Instances:</strong>\n• <strong>Cost:</strong> Highest per hour, no upfront payment\n• <strong>Commitment:</strong> None, pay as you go\n• <strong>Use Case:</strong> Unpredictable workloads, short-term projects\n• <strong>Best For:</strong> Development, testing, applications with unpredictable traffic\n\n<strong>2. Reserved Instances (1-3 years):</strong>\n• <strong>Cost:</strong> Up to 75% discount vs On-Demand\n• <strong>Payment:</strong> All upfront, partial upfront, or no upfront\n• <strong>Types:</strong> Standard (75% discount), Convertible (54% discount)\n• <strong>Best For:</strong> Steady-state workloads, predictable usage\n\n<strong>3. Spot Instances:</strong>\n• <strong>Cost:</strong> Up to 90% discount vs On-Demand\n• <strong>Risk:</strong> Can be terminated with 2-minute notice\n• <strong>Best For:</strong> Fault-tolerant, flexible applications (batch processing, CI/CD)\n\n<strong>4. Dedicated Hosts/Instances:</strong>\n• <strong>Cost:</strong> Most expensive option\n• <strong>Benefit:</strong> Physical isolation, bring your own licenses\n• <strong>Best For:</strong> Compliance requirements, existing software licenses\n\n<strong>5. Savings Plans:</strong>\n• <strong>Discount:</strong> Up to 72% vs On-Demand\n• <strong>Flexibility:</strong> Apply to EC2, Lambda, Fargate across regions\n• <strong>Commitment:</strong> 1 or 3 years, $/hour commitment",
+        category: "EC2 Pricing"
+      },
+      {
+        level: 2,
+        front: "Spot Instances and Spot Fleet Deep Dive",
+        back: "<strong>Definition:</strong> Spot Instances allow you to request spare EC2 capacity at up to 90% discount compared to On-Demand prices, but can be interrupted when AWS needs the capacity back.\n\n<strong>How Spot Instances Work:</strong>\n• <strong>Spot Price:</strong> Current market price for spare capacity\n• <strong>Spot Request:</strong> Your maximum price you're willing to pay\n• <strong>Spot Instance:</strong> Launched when your bid ≥ current spot price\n• <strong>Interruption:</strong> 2-minute warning when AWS needs capacity back\n\n<strong>Spot Fleet Definition:</strong>\nA Spot Fleet is a collection of Spot Instances and optionally On-Demand Instances that launches to meet your target capacity.\n\n<strong>Spot Fleet Configuration:</strong>\n• <strong>Target Capacity:</strong> Desired number of instances\n• <strong>Instance Types:</strong> Multiple instance types for flexibility\n• <strong>Allocation Strategy:</strong>\n  - Lowest Price: Launch from cheapest pool\n  - Diversified: Distribute across all pools\n  - Capacity Optimized: Launch from pools with most available capacity\n\n<strong>Best Practices:</strong>\n• Use multiple instance types and AZs\n• Design applications to handle interruptions gracefully\n• Implement checkpointing for long-running tasks\n• Monitor spot price history and trends\n\n<strong>Perfect Use Cases:</strong>\n• Batch processing jobs\n• CI/CD pipelines\n• Big data analytics\n• Image/video processing\n• Web crawling",
+        category: "EC2 Spot Instances"
+      },
+      {
+        level: 1,
+        front: "Private vs Public vs Elastic IP Addresses",
+        back: "<strong>Definition:</strong> IP addresses in AWS determine how EC2 instances communicate within AWS networks and with the internet.\n\n<strong>Private IP Addresses:</strong>\n• <strong>Range:</strong> 10.0.0.0/16, 172.16.0.0/12, 192.168.0.0/16\n• <strong>Scope:</strong> Internal VPC communication only\n• <strong>Persistence:</strong> Fixed for instance lifetime\n• <strong>Cost:</strong> No charge\n• <strong>Use Case:</strong> Internal service communication, databases\n\n<strong>Public IP Addresses:</strong>\n• <strong>Assignment:</strong> Dynamic, changes on stop/start\n• <strong>Scope:</strong> Internet-accessible from anywhere\n• <strong>Persistence:</strong> Lost when instance stops\n• <strong>Cost:</strong> No charge while instance is running\n• <strong>Use Case:</strong> Temporary internet access, development\n\n<strong>Elastic IP Addresses (EIP):</strong>\n• <strong>Definition:</strong> Static public IP address you can allocate to your account\n• <strong>Persistence:</strong> Remains until you release it\n• <strong>Portability:</strong> Can reassign between instances\n• <strong>Cost:</strong> FREE when attached to running instance, $0.005/hour when unattached\n• <strong>Limit:</strong> 5 EIPs per region (can request increase)\n\n<strong>Important Cost Consideration:</strong>\nYou're charged for EIPs when they're NOT attached to a running instance to encourage efficient IP usage.\n\n<strong>Best Practice:</strong>\nUse Elastic Load Balancers instead of EIPs for highly available applications - they provide better fault tolerance and don't charge for unused IPs.",
+        category: "IP Addressing"
+      },
+      {
+        level: 1,
+        front: "AWS IP Address Charges and Cost Optimization",
+        back: "<strong>Definition:</strong> AWS charges for IP addresses to encourage efficient usage and prevent IP address exhaustion, with different pricing models for different IP types.\n\n<strong>Detailed IP Pricing Structure:</strong>\n\n<strong>Public IPv4 Addresses:</strong>\n• <strong>In-Use Charge:</strong> $0.005 per hour when attached to running instance\n• <strong>Idle Charge:</strong> $0.005 per hour when not attached or instance stopped\n• <strong>New Policy:</strong> Started February 1, 2024 - even running instances are charged\n\n<strong>Elastic IP (EIP) Charges:</strong>\n• <strong>Attached to Running Instance:</strong> FREE (legacy), $0.005/hour (new policy)\n• <strong>Unattached or Stopped Instance:</strong> $0.005 per hour\n• <strong>Additional EIPs:</strong> $0.005 per hour for each EIP beyond the first one\n\n<strong>Cost Optimization Strategies:</strong>\n\n<strong>1. Use NAT Gateway Instead of NAT Instance:</strong>\n• More cost-effective for high-traffic scenarios\n• Managed service with automatic scaling\n\n<strong>2. Implement IPv6 Where Possible:</strong>\n• IPv6 addresses are free\n• Future-proof your applications\n\n<strong>3. Use Application Load Balancers:</strong>\n• Share one public IP across multiple instances\n• Better than assigning EIP to each instance\n\n<strong>4. Release Unused EIPs:</strong>\n• Regular audits to identify unused elastic IPs\n• Automate EIP cleanup with Lambda functions\n\n<strong>5. Use Private Subnets:</strong>\n• Keep instances without internet access in private subnets\n• Use NAT Gateway/Instance only when needed\n\n<strong>Monthly Cost Example:</strong>\nOne unused EIP = $0.005 × 24 hours × 30 days = $3.60/month",
+        category: "Cost Optimization"
+      },
+      {
+        level: 2,
+        front: "EC2 Instance Connect and SSH Access",
+        back: "<strong>Definition:</strong> EC2 Instance Connect is a simple and secure way to connect to your EC2 instances using SSH through the AWS console, CLI, or API without managing SSH keys.\n\n<strong>Traditional SSH vs EC2 Instance Connect:</strong>\n\n<strong>Traditional SSH Method:</strong>\n• <strong>Key Management:</strong> Store and manage private key files (.pem)\n• <strong>Security Risk:</strong> Keys can be lost, stolen, or shared\n• <strong>Access Control:</strong> Limited to key possession\n• <strong>Audit Trail:</strong> Limited logging capabilities\n\n<strong>EC2 Instance Connect Method:</strong>\n• <strong>Temporary Keys:</strong> AWS generates temporary SSH keys\n• <strong>IAM Integration:</strong> Uses IAM policies for access control\n• <strong>Browser-Based:</strong> Connect directly from AWS console\n• <strong>Audit Trail:</strong> Full CloudTrail logging of connections\n\n<strong>Setup Requirements:</strong>\n1. <strong>EC2 Instance Connect Agent:</strong> Pre-installed on Amazon Linux 2 and Ubuntu 16.04+\n2. <strong>Security Group:</strong> Allow SSH (port 22) from your IP or AWS IP ranges\n3. <strong>IAM Permissions:</strong> ec2-instance-connect:SendSSHPublicKey\n\n<strong>Connection Methods:</strong>\n\n<strong>1. AWS Console (Browser):</strong>\n• Navigate to EC2 → Instances\n• Select instance → Connect → EC2 Instance Connect\n• Opens browser-based terminal\n\n<strong>2. AWS CLI:</strong>\n```\naws ec2-instance-connect send-ssh-public-key \\\n  --instance-id i-1234567890abcdef0 \\\n  --availability-zone us-west-2b \\\n  --instance-os-user ec2-user \\\n  --ssh-public-key file://my_key.pub\n```\n\n<strong>Security Benefits:</strong>\n• No permanent SSH keys to manage\n• IAM-based access control\n• Complete audit trail in CloudTrail\n• Automatic key rotation",
+        category: "Access Management"
+      },
+      {
+        level: 3,
+        front: "EC2 Placement Groups Strategies",
+        back: "<strong>Definition:</strong> EC2 Placement Groups are logical groupings of instances within a single Availability Zone that enable applications to participate in a low-latency, high-throughput network.\n\n<strong>Three Placement Group Types:</strong>\n\n<strong>1. Cluster Placement Group:</strong>\n• <strong>Purpose:</strong> Low latency, high throughput networking\n• <strong>Placement:</strong> Instances physically close together\n• <strong>Network Performance:</strong> 10 Gbps bandwidth between instances\n• <strong>Limitation:</strong> Single AZ, single rack risk\n• <strong>Use Cases:</strong> HPC applications, distributed databases, tightly coupled workloads\n• <strong>Best Practice:</strong> Launch all instances at the same time\n\n<strong>2. Partition Placement Group:</strong>\n• <strong>Purpose:</strong> Large distributed workloads\n• <strong>Structure:</strong> Divides instances into logical partitions\n• <strong>Isolation:</strong> Each partition has its own rack with independent power and networking\n• <strong>Scale:</strong> Up to 7 partitions per AZ, hundreds of instances\n• <strong>Use Cases:</strong> HDFS, HBase, Cassandra, Kafka\n• <strong>Benefit:</strong> Reduces correlated hardware failures\n\n<strong>3. Spread Placement Group:</strong>\n• <strong>Purpose:</strong> Maximum availability and fault tolerance\n• <strong>Placement:</strong> Each instance on separate underlying hardware\n• <strong>Limitation:</strong> Max 7 instances per AZ\n• <strong>Scope:</strong> Can span multiple AZs\n• <strong>Use Cases:</strong> Critical applications requiring maximum availability\n• <strong>Benefit:</strong> Minimizes risk of simultaneous failures\n\n<strong>Selection Guidelines:</strong>\n• <strong>Need high performance?</strong> → Cluster\n• <strong>Need fault tolerance for large workloads?</strong> → Partition  \n• <strong>Need maximum availability for small workloads?</strong> → Spread\n\n<strong>Important Limitations:</strong>\n• Cannot merge placement groups\n• Cannot move existing instances into placement groups\n• Name must be unique within AWS account",
+        category: "Advanced EC2"
+      },
+      {
+        level: 2,
+        front: "Elastic Network Interface (ENI) Deep Dive",
+        back: "<strong>Definition:</strong> An Elastic Network Interface (ENI) is a virtual network interface that you can attach to an EC2 instance, providing network connectivity and allowing you to create dual-homed instances with workloads/roles on distinct subnets.\n\n<strong>ENI Components:</strong>\n• <strong>Primary Private IP:</strong> One per ENI\n• <strong>Secondary Private IPs:</strong> Multiple additional IPs\n• <strong>Public IP:</strong> One per private IP (optional)\n• <strong>Elastic IP:</strong> One per private IP\n• <strong>Security Groups:</strong> One or more per ENI\n• <strong>MAC Address:</strong> Persistent hardware address\n• <strong>Description:</strong> Text description\n\n<strong>ENI Use Cases:</strong>\n\n<strong>1. Network and Security Appliances:</strong>\n• Dual-homed instances (management + data networks)\n• Network Address Translation (NAT)\n• Intrusion Detection/Prevention Systems\n\n<strong>2. High Availability Solutions:</strong>\n• Move ENI between instances for failover\n• Retain IP addresses during instance replacement\n• License servers with fixed MAC addresses\n\n<strong>3. Workload Separation:</strong>\n• Separate network interfaces for different applications\n• Different security group rules per interface\n• Multiple subnets connectivity\n\n<strong>ENI vs Instance Store vs EBS:</strong>\n• <strong>ENI:</strong> Network interface (can be moved between instances)\n• <strong>Instance Store:</strong> Temporary storage (lost on stop)\n• <strong>EBS:</strong> Persistent storage (survives stop/start)\n\n<strong>Best Practices:</strong>\n• Create ENIs in advance for faster failover\n• Use descriptive names for ENI management\n• Monitor ENI attachment/detachment events\n• Consider ENI limits per instance type\n\n<strong>Common Pattern - Web Application:</strong>\n• ENI 1: Public subnet for web traffic\n• ENI 2: Private subnet for database access\n• Different security groups for each network interface",
+        category: "Networking"
+      },
+      {
+        level: 1,
+        front: "Amazon EBS (Elastic Block Store) Overview",
+        back: "<strong>Definition:</strong> Amazon EBS provides persistent block storage volumes for use with Amazon EC2 instances, offering high availability and durability for data that needs to persist beyond the life of an instance.\n\n<strong>Key EBS Characteristics:</strong>\n• <strong>Persistent:</strong> Data survives instance stop/restart/termination\n• <strong>Network Attached:</strong> Attached via network (slight latency vs instance store)\n• <strong>Detachable:</strong> Can move between instances in same AZ\n• <strong>Backup:</strong> Point-in-time snapshots to S3\n• <strong>Encryption:</strong> Built-in encryption at rest and in transit\n• <strong>Scalable:</strong> Increase size and change type without downtime\n\n<strong>EBS vs Instance Store:</strong>\n\n<strong>EBS Volumes:</strong>\n• Persistent storage\n• Network attached\n• Can attach/detach\n• Snapshot to S3\n• Lower performance than instance store\n\n<strong>Instance Store:</strong>\n• Temporary storage\n• Physically attached to host\n• Very high performance\n• Data lost on stop/termination\n• No additional cost\n\n<strong>EBS Use Cases:</strong>\n• <strong>Boot Volumes:</strong> Operating system and applications\n• <strong>Database Storage:</strong> MySQL, PostgreSQL, Oracle\n• <strong>File Systems:</strong> General purpose file storage\n• <strong>Application Data:</strong> Any data requiring persistence\n• <strong>Backup and Recovery:</strong> Point-in-time snapshots\n\n<strong>EBS Performance Factors:</strong>\n• <strong>Volume Type:</strong> gp3, gp2, io1, io2, st1, sc1\n• <strong>Instance Type:</strong> Some instances have EBS optimization\n• <strong>EBS Optimization:</strong> Dedicated bandwidth for EBS traffic\n• <strong>Volume Size:</strong> Larger volumes can achieve higher performance",
+        category: "Storage Fundamentals"
+      },
+      {
+        level: 2,
+        front: "EBS Volume Types Comparison",
+        back: "<strong>Definition:</strong> EBS offers different volume types optimized for different performance characteristics and use cases, ranging from cost-effective general purpose to high-performance SSDs.\n\n<strong>Complete Volume Type Breakdown:</strong>\n\n<strong>General Purpose SSD (gp3) - Latest Generation:</strong>\n• <strong>Performance:</strong> 3,000 IOPS baseline, up to 16,000 IOPS\n• <strong>Throughput:</strong> 125 MB/s baseline, up to 1,000 MB/s\n• <strong>Size:</strong> 1 GB - 16 TB\n• <strong>Cost:</strong> Most cost-effective SSD\n• <strong>Best For:</strong> Most workloads, virtual desktops, development\n\n<strong>General Purpose SSD (gp2) - Previous Generation:</strong>\n• <strong>Performance:</strong> 3 IOPS per GB, burst to 3,000 IOPS\n• <strong>Size:</strong> 1 GB - 16 TB\n• <strong>Limitation:</strong> Performance tied to volume size\n• <strong>Migration:</strong> AWS recommends upgrading to gp3\n\n<strong>Provisioned IOPS SSD (io2) - Highest Performance:</strong>\n• <strong>Performance:</strong> Up to 64,000 IOPS (Nitro instances)\n• <strong>Throughput:</strong> Up to 1,000 MB/s\n• <strong>Durability:</strong> 99.999% (10x better than gp3)\n• <strong>Best For:</strong> Mission-critical databases, I/O intensive applications\n\n<strong>Provisioned IOPS SSD (io1) - High Performance:</strong>\n• <strong>Performance:</strong> Up to 32,000 IOPS\n• <strong>Ratio:</strong> 50 IOPS per GB maximum\n• <strong>Best For:</strong> Critical business applications, large databases\n\n<strong>Throughput Optimized HDD (st1):</strong>\n• <strong>Performance:</strong> Up to 500 MB/s throughput\n• <strong>Cost:</strong> Lower cost than SSD\n• <strong>Best For:</strong> Big data, data warehouses, log processing\n• <strong>Cannot:</strong> Be a boot volume\n\n<strong>Cold HDD (sc1) - Lowest Cost:</strong>\n• <strong>Performance:</strong> Up to 250 MB/s throughput\n• <strong>Cost:</strong> Lowest cost option\n• <strong>Best For:</strong> Infrequent access, archival storage\n• <strong>Cannot:</strong> Be a boot volume\n\n<strong>Selection Guide:</strong>\n• <strong>General workloads:</strong> gp3\n• <strong>High IOPS databases:</strong> io2\n• <strong>Big data analytics:</strong> st1\n• <strong>Archive storage:</strong> sc1",
+        category: "Storage Types"
+      },
+      {
+        level: 2,
+        front: "EBS Snapshots and Backup Strategy",
+        back: "<strong>Definition:</strong> EBS Snapshots are point-in-time copies of EBS volumes stored in Amazon S3, providing a durable backup and enabling volume replication across regions.\n\n<strong>How EBS Snapshots Work:</strong>\n• <strong>Incremental:</strong> Only blocks changed since last snapshot are stored\n• <strong>Storage:</strong> Automatically stored in S3 (managed by AWS)\n• <strong>Regional:</strong> Snapshots are region-specific\n• <strong>Encryption:</strong> Encrypted volumes create encrypted snapshots\n• <strong>Performance:</strong> First snapshot takes longer (full copy)\n\n<strong>Snapshot Lifecycle:</strong>\n1. <strong>Initial Snapshot:</strong> Full copy of volume data\n2. <strong>Subsequent Snapshots:</strong> Only changed blocks\n3. <strong>Deletion:</strong> AWS manages data consolidation automatically\n4. <strong>Restoration:</strong> Create new volume from any snapshot\n\n<strong>Key Snapshot Features:</strong>\n\n<strong>Cross-Region Copy:</strong>\n• Copy snapshots to different regions for disaster recovery\n• Helpful for compliance and data residency requirements\n• Enables global backup strategy\n\n<strong>Fast Snapshot Restore (FSR):</strong>\n• Eliminates performance penalty when creating volumes from snapshots\n• Costs extra but provides instant full performance\n• Useful for critical applications requiring immediate performance\n\n<strong>Snapshot Automation:</strong>\n• <strong>AWS Backup:</strong> Centralized backup service with policies\n• <strong>Data Lifecycle Manager:</strong> Automated snapshot creation and deletion\n• <strong>Lambda Functions:</strong> Custom automation scripts\n\n<strong>Best Practices:</strong>\n• Take snapshots during low I/O periods\n• Tag snapshots for easy management\n• Set up automated deletion policies\n• Test restore procedures regularly\n• Use cross-region copying for disaster recovery\n\n<strong>Cost Optimization:</strong>\n• Delete old snapshots that are no longer needed\n• Use lifecycle policies to automate cleanup\n• Consider incremental nature when planning retention",
+        category: "Backup & Recovery"
+      },
+      {
+        level: 2,
+        front: "Amazon Machine Images (AMI) Deep Dive",
+        back: "<strong>Definition:</strong> An Amazon Machine Image (AMI) is a template that contains the software configuration (operating system, application server, applications) required to launch an EC2 instance.\n\n<strong>AMI Components:</strong>\n• <strong>Root Volume Template:</strong> Operating system and installed software\n• <strong>Launch Permissions:</strong> AWS accounts allowed to use the AMI\n• <strong>Block Device Mapping:</strong> Volumes to attach when launching\n• <strong>Architecture:</strong> 32-bit or 64-bit architecture\n\n<strong>AMI Types by Ownership:</strong>\n\n<strong>1. AWS-Provided AMIs:</strong>\n• <strong>Amazon Linux 2:</strong> AWS-optimized Linux distribution\n• <strong>Windows Server:</strong> Various Windows versions\n• <strong>Ubuntu, RHEL, SUSE:</strong> Popular Linux distributions\n• <strong>Benefits:</strong> Regularly updated, security patches, optimized for AWS\n\n<strong>2. AWS Marketplace AMIs:</strong>\n• <strong>Third-Party Software:</strong> Pre-configured applications\n• <strong>Examples:</strong> WordPress, SAP, Oracle, security appliances\n• <strong>Licensing:</strong> May include software costs\n• <strong>Support:</strong> Vendor-provided support\n\n<strong>3. Community AMIs:</strong>\n• <strong>User-Shared:</strong> Created by AWS community\n• <strong>Cost:</strong> Free to use\n• <strong>Caution:</strong> Verify security before use\n\n<strong>4. Custom AMIs:</strong>\n• <strong>Your Creation:</strong> Based on your configured instances\n• <strong>Benefits:</strong> Faster launches, standardized configurations\n• <strong>Use Cases:</strong> Golden images, application deployment\n\n<strong>Creating Custom AMIs:</strong>\n1. Launch and configure an EC2 instance\n2. Install and configure applications\n3. Create an image (stop instance first for consistency)\n4. AMI creation process creates snapshots of all attached EBS volumes\n\n<strong>AMI Best Practices:</strong>\n• Regularly update base AMIs with security patches\n• Use descriptive naming conventions\n• Tag AMIs for easy organization\n• Set appropriate launch permissions\n• Clean up old AMIs to reduce costs\n• Test AMIs before production deployment",
+        category: "Images & Templates"
+      },
+      {
+        level: 3,
+        front: "EBS Multi-Attach Feature",
+        back: "<strong>Definition:</strong> EBS Multi-Attach enables you to attach a single EBS volume to multiple EC2 instances simultaneously, allowing multiple instances to read and write to the same volume concurrently.\n\n<strong>Technical Requirements:</strong>\n• <strong>Volume Type:</strong> Only Provisioned IOPS SSD (io1 and io2)\n• <strong>Instance Types:</strong> Nitro-based instances only\n• <strong>Availability Zone:</strong> All instances must be in same AZ\n• <strong>File System:</strong> Must be cluster-aware (not standard ext4/NTFS)\n\n<strong>How Multi-Attach Works:</strong>\n• <strong>Block-Level Access:</strong> Multiple instances access raw blocks\n• <strong>No Built-in Coordination:</strong> Application must manage concurrent access\n• <strong>Shared Storage:</strong> All instances see the same data\n• <strong>I/O Fencing:</strong> Application responsibility to prevent data corruption\n\n<strong>Supported Use Cases:</strong>\n\n<strong>1. Cluster File Systems:</strong>\n• <strong>Examples:</strong> Oracle RAC, GFS2, OCFS2\n• <strong>Benefit:</strong> Shared storage for database clusters\n• <strong>Requirement:</strong> Cluster-aware file system\n\n<strong>2. Application-Level Clustering:</strong>\n• <strong>Examples:</strong> Shared application data between nodes\n• <strong>Benefit:</strong> High availability application clusters\n• <strong>Requirement:</strong> Application manages concurrent access\n\n<strong>3. High Availability Solutions:</strong>\n• <strong>Examples:</strong> Heartbeat/corosync clusters\n• <strong>Benefit:</strong> Shared quorum device\n• <strong>Requirement:</strong> Proper fencing mechanisms\n\n<strong>Important Limitations:</strong>\n• <strong>Data Corruption Risk:</strong> If multiple instances write without coordination\n• <strong>No Standard File Systems:</strong> Cannot use ext4, NTFS, XFS directly\n• <strong>Complex Management:</strong> Requires cluster management expertise\n• <strong>Performance:</strong> May be limited by weakest instance\n\n<strong>Alternative Solutions:</strong>\n• <strong>Amazon EFS:</strong> For shared file storage\n• <strong>Amazon FSx:</strong> For high-performance shared file systems\n• <strong>Application-Level Replication:</strong> Database replication instead of shared storage\n\n<strong>Best Practices:</strong>\n• Only use with cluster-aware applications\n• Implement proper I/O fencing\n• Test failover scenarios thoroughly\n• Monitor for split-brain conditions\n• Consider simpler alternatives first",
+        category: "Advanced Storage"
+      },
+      {
+        level: 2,
+        front: "EBS Encryption Implementation",
+        back: "<strong>Definition:</strong> EBS Encryption provides seamless encryption of EBS volumes and snapshots using AWS-managed encryption keys or customer-managed keys through AWS KMS.\n\n<strong>EBS Encryption Features:</strong>\n• <strong>Data at Rest:</strong> Volume data encrypted on storage media\n• <strong>Data in Transit:</strong> Traffic between instance and volume encrypted\n• <strong>Snapshots:</strong> Automatically encrypted\n• <strong>Performance:</strong> Minimal impact on performance\n• <strong>Transparency:</strong> Automatic encryption/decryption\n\n<strong>Encryption Key Options:</strong>\n\n<strong>1. AWS Managed Keys (aws/ebs):</strong>\n• <strong>Management:</strong> Fully managed by AWS\n• <strong>Cost:</strong> No additional charges for key usage\n• <strong>Rotation:</strong> Automatic annual rotation\n• <strong>Control:</strong> Limited customer control\n\n<strong>2. Customer Managed Keys (CMK):</strong>\n• <strong>Management:</strong> You control key policies and rotation\n• <strong>Cost:</strong> $1/month per key + usage charges\n• <strong>Rotation:</strong> Optional automatic or manual rotation\n• <strong>Control:</strong> Full control over key access and usage\n\n<strong>Encryption Implementation:</strong>\n\n<strong>New Volumes:</strong>\n• Enable encryption during volume creation\n• Choose key (AWS managed or customer managed)\n• All data written is automatically encrypted\n\n<strong>Existing Unencrypted Volumes:</strong>\n1. Create snapshot of unencrypted volume\n2. Copy snapshot with encryption enabled\n3. Create new volume from encrypted snapshot\n4. Replace original volume with encrypted volume\n\n<strong>Default Encryption:</strong>\n• <strong>Account Level:</strong> Enable default EBS encryption\n• <strong>Region Specific:</strong> Setting applies per region\n• <strong>New Volumes:</strong> Automatically encrypted\n• <strong>Existing Volumes:</strong> Not affected by default setting\n\n<strong>Cross-Region Considerations:</strong>\n• <strong>Snapshot Copy:</strong> Can re-encrypt with different key\n• <strong>Key Availability:</strong> CMKs are region-specific\n• <strong>Access Policies:</strong> Must grant access in target region\n\n<strong>Best Practices:</strong>\n• Enable default encryption for all new volumes\n• Use customer managed keys for sensitive data\n• Regularly rotate encryption keys\n• Monitor key usage through CloudTrail\n• Test recovery procedures with encrypted volumes",
+        category: "Security"
+      },
+      {
+        level: 1,
+        front: "Amazon EFS (Elastic File System) Overview",
+        back: "<strong>Definition:</strong> Amazon EFS is a fully managed, scalable, elastic NFS (Network File System) designed for use with AWS cloud services and on-premises resources.\n\n<strong>Key EFS Characteristics:</strong>\n• <strong>Fully Managed:</strong> No infrastructure to manage\n• <strong>Elastic:</strong> Automatically scales up and down\n• <strong>Shared Access:</strong> Thousands of EC2 instances simultaneously\n• <strong>POSIX Compliant:</strong> Standard file system interface\n• <strong>Regional Service:</strong> Spans multiple Availability Zones\n• <strong>Encryption:</strong> At rest and in transit\n\n<strong>EFS Performance Modes:</strong>\n\n<strong>1. General Purpose Mode:</strong>\n• <strong>Latency:</strong> Lowest latency per operation\n• <strong>IOPS:</strong> Up to 7,000 file operations per second\n• <strong>Use Case:</strong> Most file system workloads\n• <strong>Limitation:</strong> Lower total IOPS than Max I/O mode\n\n<strong>2. Max I/O Mode:</strong>\n• <strong>Scalability:</strong> Higher performance for applications and workloads\n• <strong>IOPS:</strong> More than 7,000 file operations per second\n• <strong>Latency:</strong> Slightly higher latency per operation\n• <strong>Use Case:</strong> Applications that need higher performance\n\n<strong>EFS Throughput Modes:</strong>\n\n<strong>1. Bursting Throughput:</strong>\n• <strong>Baseline:</strong> 50 MB/s per TB of storage\n• <strong>Burst:</strong> Up to 100 MB/s (with burst credits)\n• <strong>Cost:</strong> No additional charges\n\n<strong>2. Provisioned Throughput:</strong>\n• <strong>Fixed Performance:</strong> Specify throughput regardless of size\n• <strong>Range:</strong> 1 MB/s to 1 GB/s\n• <strong>Cost:</strong> Additional charges for provisioned throughput\n\n<strong>EFS Storage Classes:</strong>\n• <strong>Standard:</strong> Frequently accessed files\n• <strong>Infrequent Access (IA):</strong> Lower cost for infrequently accessed files\n• <strong>Lifecycle Management:</strong> Automatic transition between classes",
+        category: "File Systems"
+      },
+      {
+        level: 2,
+        front: "EFS vs EBS: When to Use Each",
+        back: "<strong>Definition:</strong> EFS and EBS serve different storage needs - EFS provides shared file storage while EBS provides block storage for individual instances.\n\n<strong>Detailed Comparison:</strong>\n\n<strong>Amazon EFS (Elastic File System):</strong>\n• <strong>Type:</strong> Network File System (NFS)\n• <strong>Access:</strong> Multiple instances simultaneously\n• <strong>Scope:</strong> Regional (spans multiple AZs)\n• <strong>Capacity:</strong> Automatically scales (no pre-provisioning)\n• <strong>Performance:</strong> Shared performance across all clients\n• <strong>Use Cases:</strong> Shared application data, content repositories, web serving\n• <strong>Cost:</strong> Pay for storage used + throughput\n\n<strong>Amazon EBS (Elastic Block Store):</strong>\n• <strong>Type:</strong> Block Storage\n• <strong>Access:</strong> Single instance at a time (except Multi-Attach)\n• <strong>Scope:</strong> Availability Zone specific\n• <strong>Capacity:</strong> Fixed size (can be increased)\n• <strong>Performance:</strong> Dedicated to attached instance\n• <strong>Use Cases:</strong> Boot volumes, databases, individual application storage\n• <strong>Cost:</strong> Pay for provisioned storage\n\n<strong>When to Choose EFS:</strong>\n\n<strong>✅ Multiple EC2 instances need shared access</strong>\n• Web servers sharing common assets\n• Application clusters requiring shared data\n• Development teams sharing code repositories\n\n<strong>✅ Need high availability across AZs</strong>\n• Applications spanning multiple AZs\n• Disaster recovery scenarios\n• Regional data sharing\n\n<strong>✅ Variable storage requirements</strong>\n• Unpredictable storage growth\n• Want automatic scaling\n• Don't want to manage capacity\n\n<strong>When to Choose EBS:</strong>\n\n<strong>✅ Single instance applications</strong>\n• Database storage (MySQL, PostgreSQL)\n• Operating system boot volumes\n• Application-specific storage\n\n<strong>✅ High performance requirements</strong>\n• I/O intensive applications\n• Low latency requirements\n• Consistent performance needed\n\n<strong>✅ Specific volume control</strong>\n• Need to manage volume size\n• Snapshot requirements\n• Encryption with specific keys\n\n<strong>Cost Considerations:</strong>\n• <strong>EFS:</strong> Higher per GB cost, pay for actual usage\n• <strong>EBS:</strong> Lower per GB cost, pay for provisioned capacity\n\n<strong>Hybrid Approach:</strong>\n• Use EBS for boot volumes and databases\n• Use EFS for shared application data and assets",
+        category: "Storage Comparison"
+      }
+    ];
+
+    // Quiz questions
+    const questions = [
+      {
+        question: "Your startup is launching a web application with unpredictable traffic patterns. You need compute resources that can scale quickly without upfront costs. Which EC2 purchasing option should you choose?",
+        type: "radio",
+        scenario: "Startup Architecture",
+        options: [
+          "Reserved Instances for predictable costs",
+          "On-Demand Instances for maximum flexibility",
+          "Spot Instances for lowest cost",
+          "Dedicated Hosts for security compliance"
+        ],
+        correct: ["On-Demand Instances for maximum flexibility"],
+        explanation: "On-Demand Instances are perfect for unpredictable workloads as they provide maximum flexibility with no upfront costs, allowing you to scale quickly based on actual demand without long-term commitments."
+      },
+      {
+        question: "A financial services company needs to run batch processing jobs that can tolerate interruptions. The jobs typically run for 2-4 hours and process large datasets. Which EC2 options would minimize costs?",
+        type: "checkbox",
+        scenario: "Cost Optimization",
+        options: [
+          "Use Spot Instances for up to 90% cost savings",
+          "Implement checkpointing to handle interruptions",
+          "Use Spot Fleet with multiple instance types",
+          "Choose Reserved Instances for guaranteed capacity",
+          "Select compute-optimized instance types"
+        ],
+        correct: ["Use Spot Instances for up to 90% cost savings", "Implement checkpointing to handle interruptions", "Use Spot Fleet with multiple instance types"],
+        explanation: "Spot Instances are ideal for fault-tolerant batch jobs, offering up to 90% savings. Checkpointing helps resume work after interruptions, and Spot Fleet with multiple instance types provides better availability and cost optimization."
+      },
+      {
+        question: "Your application requires consistent high IOPS performance for a database workload. The database needs 20,000 IOPS consistently. Which EBS volume type should you choose?",
+        type: "radio",
+        scenario: "Database Performance",
+        options: [
+          "gp3 with baseline 3,000 IOPS",
+          "gp2 with burst capability",
+          "io2 with 20,000 provisioned IOPS",
+          "st1 for high throughput"
+        ],
+        correct: ["io2 with 20,000 provisioned IOPS"],
+        explanation: "io2 volumes are designed for consistent high IOPS workloads and can provision exactly 20,000 IOPS. gp3 maxes out at 16,000 IOPS, and st1 is optimized for throughput, not IOPS."
+      },
+      {
+        question: "A media company needs shared storage accessible by multiple EC2 instances across different Availability Zones for video processing workflows. What storage solution should they use?",
+        type: "radio",
+        scenario: "Shared Storage",
+        options: [
+          "EBS Multi-Attach volumes",
+          "Amazon EFS with General Purpose mode",
+          "Multiple EBS volumes with application-level replication",
+          "Instance store volumes for high performance"
+        ],
+        correct: ["Amazon EFS with General Purpose mode"],
+        explanation: "EFS is designed for shared access across multiple instances and AZs. EBS Multi-Attach only works within a single AZ and requires cluster-aware applications. EFS provides the shared file system capability needed for this use case."
+      },
+      {
+        question: "Your company has compliance requirements that mandate all data must be encrypted at rest. Which EBS encryption approaches should you implement?",
+        type: "checkbox",
+        scenario: "Compliance & Security",
+        options: [
+          "Enable default EBS encryption at the account level",
+          "Use customer-managed KMS keys for sensitive data",
+          "Encrypt existing volumes by creating encrypted snapshots",
+          "Rely on application-level encryption only",
+          "Enable encryption for all new volumes during creation"
+        ],
+        correct: ["Enable default EBS encryption at the account level", "Use customer-managed KMS keys for sensitive data", "Encrypt existing volumes by creating encrypted snapshots", "Enable encryption for all new volumes during creation"],
+        explanation: "A comprehensive encryption strategy includes default encryption for new volumes, customer-managed keys for control, encrypting existing volumes via snapshots, and ensuring all new volumes are encrypted. Application-level encryption alone doesn't meet the 'at rest' requirement."
+      },
+      {
+        question: "A gaming company wants to minimize latency between their game servers for real-time multiplayer games. What EC2 placement strategy should they use?",
+        type: "radio",
+        scenario: "Low Latency Gaming",
+        options: [
+          "Spread Placement Group across multiple AZs",
+          "Cluster Placement Group in single AZ",
+          "Partition Placement Group for fault tolerance",
+          "No placement group - use default placement"
+        ],
+        correct: ["Cluster Placement Group in single AZ"],
+        explanation: "Cluster Placement Groups provide the lowest latency and highest network throughput by placing instances close together in a single AZ, which is ideal for real-time gaming applications that require minimal latency."
+      },
+      {
+        question: "Your development team needs to connect to EC2 instances securely without managing SSH keys. Which approaches provide secure, auditable access?",
+        type: "checkbox",
+        scenario: "Secure Access",
+        options: [
+          "AWS Systems Manager Session Manager",
+          "EC2 Instance Connect for browser-based access",
+          "Traditional SSH with shared key files",
+          "IAM-based access control for connections",
+          "CloudTrail logging for all connection attempts"
+        ],
+        correct: ["AWS Systems Manager Session Manager", "EC2 Instance Connect for browser-based access", "IAM-based access control for connections", "CloudTrail logging for all connection attempts"],
+        explanation: "Modern secure access uses Session Manager or Instance Connect with IAM-based permissions and CloudTrail logging. Traditional SSH with shared keys lacks proper access control and audit capabilities."
+      },
+      {
+        question: "A startup wants to avoid charges for unused IP addresses. What strategies should they implement?",
+        type: "checkbox",
+        scenario: "Cost Management",
+        options: [
+          "Release Elastic IPs when not attached to running instances",
+          "Use Application Load Balancers instead of multiple Elastic IPs",
+          "Implement IPv6 where possible (free)",
+          "Keep all instances in private subnets unless internet access needed",
+          "Assign Elastic IPs to all instances for consistent addressing"
+        ],
+        correct: ["Release Elastic IPs when not attached to running instances", "Use Application Load Balancers instead of multiple Elastic IPs", "Implement IPv6 where possible (free)", "Keep all instances in private subnets unless internet access needed"],
+        explanation: "Cost optimization includes releasing unused EIPs, using load balancers to share IPs, implementing free IPv6, and using private subnets. Assigning EIPs to all instances would increase costs unnecessarily."
+      },
+      {
+        question: "An e-commerce application experiences traffic spikes during sales events. The application uses a database that requires consistent storage performance. What combination of EC2 and EBS would work best?",
+        type: "checkbox",
+        scenario: "E-commerce Scaling",
+        options: [
+          "Auto Scaling Group with On-Demand instances for predictable scaling",
+          "Mix of Reserved Instances (baseline) and On-Demand instances (spikes)",
+          "EBS gp3 volumes for cost-effective consistent performance",
+          "EBS io2 volumes for guaranteed high IOPS during peak loads",
+          "Instance store volumes for temporary high-performance needs"
+        ],
+        correct: ["Mix of Reserved Instances (baseline) and On-Demand instances (spikes)", "EBS gp3 volumes for cost-effective consistent performance"],
+        explanation: "A hybrid approach using Reserved Instances for baseline capacity and On-Demand for spikes optimizes costs. gp3 volumes provide consistent performance at lower cost than io2 for most e-commerce database workloads."
+      },
+      {
+        question: "A data analytics company processes large datasets that can be interrupted and resumed. They want to minimize costs while maintaining reasonable processing times. What's the optimal approach?",
+        type: "radio",
+        scenario: "Big Data Processing",
+        options: [
+          "Reserved Instances for guaranteed capacity and lower costs",
+          "Spot Fleet with checkpointing and multiple instance types",
+          "On-Demand instances with EBS st1 volumes for throughput",
+          "Dedicated Hosts with instance store for maximum performance"
+        ],
+        correct: ["Spot Fleet with checkpointing and multiple instance types"],
+        explanation: "Spot Fleet is perfect for interruptible analytics workloads, providing up to 90% cost savings. Using multiple instance types increases availability, and checkpointing allows resuming work after interruptions."
+      },
+      {
+        question: "A healthcare application needs to ensure patient data is encrypted and that the organization maintains full control over encryption keys. What encryption strategy should they implement?",
+        type: "radio",
+        scenario: "Healthcare Compliance",
+        options: [
+          "Use AWS-managed encryption keys for simplicity",
+          "Implement customer-managed KMS keys with strict access policies",
+          "Use client-side encryption only",
+          "Rely on database-level encryption without EBS encryption"
+        ],
+        correct: ["Implement customer-managed KMS keys with strict access policies"],
+        explanation: "Healthcare compliance often requires customer-managed keys to maintain full control over encryption. This provides audit trails, custom access policies, and the ability to control key rotation schedules."
+      },
+      {
+        question: "A content delivery startup needs storage that multiple web servers can access simultaneously to serve static assets. The storage should automatically scale and provide high availability. What solution fits best?",
+        type: "radio",
+        scenario: "Content Delivery",
+        options: [
+          "EBS Multi-Attach volumes with cluster file system",
+          "Amazon EFS with multiple mount targets across AZs",
+          "Individual EBS volumes with application-level synchronization",
+          "Amazon S3 with CloudFront distribution"
+        ],
+        correct: ["Amazon EFS with multiple mount targets across AZs"],
+        explanation: "For shared file access by multiple instances, EFS is the ideal solution. It automatically scales, provides high availability across AZs, and supports concurrent access from multiple instances without complex setup."
+      },
+      {
+        question: "A new developer is learning about EC2 basics. They want to understand the difference between stopping and terminating an EC2 instance. What are the key differences?",
+        type: "checkbox",
+        scenario: "EC2 Basics",
+        options: [
+          "Stopping preserves EBS root volume data, terminating deletes it by default",
+          "Both stopping and terminating preserve instance store data",
+          "Stopping releases the public IP address, terminating does the same",
+          "You can restart a stopped instance, but not a terminated one",
+          "Stopping moves instance to a different physical host"
+        ],
+        correct: ["Stopping preserves EBS root volume data, terminating deletes it by default", "Stopping releases the public IP address, terminating does the same", "You can restart a stopped instance, but not a terminated one"],
+        explanation: "Stopping preserves EBS data and allows restart, while terminating permanently deletes the instance. Both release public IPs. Instance store data is lost in both cases, and stopping may move the instance to different hardware."
+      },
+      {
+        question: "An organization wants to ensure their EC2 instances can survive the failure of an entire data center. What placement strategy should they choose?",
+        type: "radio",
+        scenario: "High Availability",
+        options: [
+          "Cluster Placement Group for low latency",
+          "Spread Placement Group across multiple AZs",
+          "Partition Placement Group within single AZ",
+          "No placement group needed - AWS handles this automatically"
+        ],
+        correct: ["Spread Placement Group across multiple AZs"],
+        explanation: "Spread Placement Groups can span multiple AZs and ensure instances are on separate physical hardware, providing protection against data center failures. This offers the highest level of fault tolerance."
+      },
+      {
+        question: "A database administrator needs to create a backup strategy for critical database volumes. What EBS snapshot features should they consider?",
+        type: "checkbox",
+        scenario: "Backup Strategy",
+        options: [
+          "Snapshots are incremental and only store changed blocks",
+          "First snapshot is always a full copy of the volume",
+          "Cross-region snapshot copying for disaster recovery",
+          "Fast Snapshot Restore for immediate full performance",
+          "Snapshots must be taken while the instance is stopped"
+        ],
+        correct: ["Snapshots are incremental and only store changed blocks", "First snapshot is always a full copy of the volume", "Cross-region snapshot copying for disaster recovery", "Fast Snapshot Restore for immediate full performance"],
+        explanation: "EBS snapshots are incremental (after the first full snapshot), can be copied across regions, and Fast Snapshot Restore eliminates performance penalties. Snapshots can be taken while instances are running, though consistency is better when taken during low I/O periods."
+      },
+      {
+        question: "A machine learning team needs high-performance computing instances for training models. The workload runs for 6-8 hours and can handle interruptions. What's the most cost-effective approach?",
+        type: "checkbox",
+        scenario: "Machine Learning",
+        options: [
+          "Use Spot Instances with GPU instance types (P3, G4)",
+          "Implement model checkpointing to save progress",
+          "Use Reserved Instances for predictable long-term workloads",
+          "Choose compute-optimized instances for CPU-intensive tasks",
+          "Use Dedicated Hosts for licensing requirements"
+        ],
+        correct: ["Use Spot Instances with GPU instance types (P3, G4)", "Implement model checkpointing to save progress"],
+        explanation: "For ML training that can handle interruptions, Spot Instances offer up to 90% savings. GPU instances (P3, G4) are designed for ML workloads, and checkpointing allows resuming training after interruptions. Reserved Instances don't make sense for short workloads."
+      },
+      {
+        question: "A startup needs to understand EBS volume limits and best practices. What should they know about EBS volume management?",
+        type: "checkbox",
+        scenario: "EBS Management",
+        options: [
+          "EBS volumes can only be attached to instances in the same Availability Zone",
+          "You can increase EBS volume size without stopping the instance",
+          "EBS volumes can be detached and attached to different instances",
+          "Instance store volumes provide persistent storage like EBS",
+          "EBS gp3 volumes allow independent IOPS and throughput provisioning"
+        ],
+        correct: ["EBS volumes can only be attached to instances in the same Availability Zone", "You can increase EBS volume size without stopping the instance", "EBS volumes can be detached and attached to different instances", "EBS gp3 volumes allow independent IOPS and throughput provisioning"],
+        explanation: "EBS volumes are AZ-specific, can be resized online, detached/attached to different instances, and gp3 volumes offer independent performance tuning. Instance store provides temporary storage that's lost when instances stop."
+      },
+      {
+        question: "An enterprise needs to migrate their on-premises file server that's shared by 100+ users to AWS. The file system needs to support concurrent access and traditional file permissions. What's the best solution?",
+        type: "radio",
+        scenario: "File Server Migration",
+        options: [
+          "Create multiple EBS volumes and sync them across instances",
+          "Use EFS with POSIX compliance for traditional file system behavior",
+          "Use S3 with a file gateway for object storage access",
+          "Use EBS Multi-Attach with a cluster-aware file system"
+        ],
+        correct: ["Use EFS with POSIX compliance for traditional file system behavior"],
+        explanation: "EFS provides POSIX-compliant shared file storage that supports traditional file permissions and concurrent access from multiple instances, making it ideal for migrating shared file servers to AWS."
+      },
+      {
+        question: "A DevOps engineer is troubleshooting performance issues with an application. They suspect the EBS volume is the bottleneck. What factors affect EBS performance?",
+        type: "checkbox",
+        scenario: "Performance Troubleshooting",
+        options: [
+          "Volume type (gp3, io2, etc.) determines baseline performance",
+          "Instance type affects maximum EBS bandwidth available",
+          "EBS-optimized instances provide dedicated bandwidth for storage",
+          "Volume size affects performance for gp2 volumes only",
+          "All EBS volumes perform the same regardless of configuration"
+        ],
+        correct: ["Volume type (gp3, io2, etc.) determines baseline performance", "Instance type affects maximum EBS bandwidth available", "EBS-optimized instances provide dedicated bandwidth for storage"],
+        explanation: "EBS performance depends on volume type (each has different performance characteristics), instance type (which determines max EBS bandwidth), and whether EBS optimization is enabled. Volume size affects gp2 performance, but gp3 allows independent performance tuning."
+      },
+      {
+        question: "A system administrator needs to understand AMI (Amazon Machine Image) management for their organization. What are the key benefits and best practices for using custom AMIs?",
+        type: "checkbox",
+        scenario: "AMI Management",
+        options: [
+          "Custom AMIs enable faster instance launches with pre-configured software",
+          "AMIs can be shared across regions by copying them",
+          "Custom AMIs should be regularly updated with security patches",
+          "AMIs include all attached EBS volumes in the template",
+          "You can create AMIs from both running and stopped instances"
+        ],
+        correct: ["Custom AMIs enable faster instance launches with pre-configured software", "AMIs can be shared across regions by copying them", "Custom AMIs should be regularly updated with security patches"],
+        explanation: "Custom AMIs speed up deployments with pre-installed software, can be copied between regions, and should be regularly updated for security. AMIs only include the root volume by default, and it's best practice to stop instances before creating AMIs for consistency."
+      }
+    ];
+
+    // Application state
+    let currentCard = 0;
+    let isFlipped = false;
+    let userAnswers = {};
+    
+    // Timer state
+    let quizTimer = null;
+    let timeRemaining = 30 * 60; // 30 minutes in seconds
+    let totalTime = 30 * 60;
+    let isPaused = false;
+    let isQuizActive = false;
+
+    // Initialize the application
+    function init() {
+      loadCard(currentCard);
+      generateQuiz();
+      
+      // Add keyboard navigation
+      document.addEventListener('keydown', handleKeyPress);
+    }
+
+    // Load a specific flashcard
+    function loadCard(index) {
+      const card = flashcards[index];
+      
+      // Update difficulty indicator
+      updateDifficultyIndicator(card.level);
+      
+      // Update card content
+      document.getElementById('frontCategory').textContent = card.category;
+      document.getElementById('frontTitle').textContent = card.front;
+      document.getElementById('backText').innerHTML = card.back;
+      
+      // Reset scroll position for both sides of the card
+      const frontSide = document.querySelector('.front');
+      const backSide = document.querySelector('.back');
+      if (frontSide) frontSide.scrollTop = 0;
+      if (backSide) backSide.scrollTop = 0;
+      
+      // Update progress
+      document.getElementById('progressText').textContent = `Card ${index + 1} of ${flashcards.length}`;
+      
+      // Update button states
+      document.getElementById('prevBtn').disabled = index === 0;
+      document.getElementById('nextBtn').disabled = index === flashcards.length - 1;
+      
+      // Reset flip state
+      if (isFlipped) {
+        flipCard();
+      }
+    }
+
+    // Update difficulty indicator
+    function updateDifficultyIndicator(level) {
+      const dots = [
+        document.getElementById('diff1'),
+        document.getElementById('diff2'), 
+        document.getElementById('diff3')
+      ];
+      const label = document.getElementById('diffLabel');
+      
+      // Reset all dots
+      dots.forEach(dot => {
+        dot.className = 'difficulty-dot';
+      });
+      
+      // Set active dots based on level
+      for (let i = 0; i < level; i++) {
+        if (i === 0) dots[i].classList.add('active');
+        else if (i === 1) dots[i].classList.add('medium');
+        else dots[i].classList.add('hard');
+      }
+      
+      // Update label
+      const labels = ['Foundation', 'Intermediate', 'Advanced'];
+      label.textContent = labels[level - 1];
+    }
+
+    // Flip card animation
+    function flipCard() {
+      const card = document.getElementById('flashcard');
+      card.classList.toggle('flip');
+      isFlipped = !isFlipped;
+    }
+
+    // Navigation functions
+    function nextCard() {
+      if (currentCard < flashcards.length - 1) {
+        currentCard++;
+        loadCard(currentCard);
+      }
+    }
+
+    function prevCard() {
+      if (currentCard > 0) {
+        currentCard--;
+        loadCard(currentCard);
+      }
+    }
+
+    // Keyboard navigation
+    function handleKeyPress(e) {
+      switch(e.code) {
+        case 'ArrowLeft':
+          e.preventDefault();
+          prevCard();
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          nextCard();
+          break;
+        case 'Space':
+          e.preventDefault();
+          flipCard();
+          break;
+      }
+    }
+
+    // Tab switching
+    function showTab(tabName, tabButton) {
+      // Hide all tab contents
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // Remove active class from all tab buttons
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      // Show selected tab and mark button as active
+      document.getElementById(tabName).classList.add('active');
+      tabButton.classList.add('active');
+      
+      // Start timer when switching to quiz tab
+      if (tabName === 'quiz' && !isQuizActive) {
+        startQuizTimer();
+      }
+      
+      // Pause timer when switching away from quiz
+      if (tabName !== 'quiz' && isQuizActive) {
+        pauseTimer();
+      }
+    }
+    
+    // Timer Functions
+    function startQuizTimer() {
+      if (isQuizActive) return; // Prevent multiple timers
+      
+      isQuizActive = true;
+      isPaused = false;
+      document.getElementById('quizTimer').style.display = 'block';
+      
+      quizTimer = setInterval(() => {
+        if (!isPaused && timeRemaining > 0) {
+          timeRemaining--;
+          updateTimerDisplay();
+          
+          // Auto-submit when time runs out
+          if (timeRemaining <= 0) {
+            timeExpired();
+          }
+        }
+      }, 1000);
+      
+      updateTimerDisplay();
+    }
+    
+    function pauseTimer() {
+      isPaused = !isPaused;
+      const pauseBtn = document.getElementById('pauseBtn');
+      
+      if (isPaused) {
+        pauseBtn.innerHTML = '▶ Resume';
+        pauseBtn.style.backgroundColor = '#1b660f';
+        pauseBtn.style.color = 'white';
+      } else {
+        pauseBtn.innerHTML = '⏸ Pause';
+        pauseBtn.style.backgroundColor = '';
+        pauseBtn.style.color = '';
+      }
+    }
+    
+    function resetTimer() {
+      clearInterval(quizTimer);
+      timeRemaining = totalTime;
+      isPaused = false;
+      isQuizActive = false;
+      
+      // Reset UI
+      document.getElementById('pauseBtn').innerHTML = '⏸ Pause';
+      document.getElementById('pauseBtn').style.backgroundColor = '';
+      document.getElementById('pauseBtn').style.color = '';
+      document.getElementById('quizTimer').style.display = 'none';
+      
+      // Clear quiz selections
+      resetQuiz();
+    }
+    
+    function updateTimerDisplay() {
+      const minutes = Math.floor(timeRemaining / 60);
+      const seconds = timeRemaining % 60;
+      const display = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      
+      const timerDisplay = document.getElementById('timerDisplay');
+      const progressBar = document.getElementById('timerProgressBar');
+      
+      timerDisplay.textContent = display;
+      
+      // Update progress bar
+      const progress = (timeRemaining / totalTime) * 100;
+      progressBar.style.width = progress + '%';
+      
+      // Update timer colors based on time remaining
+      timerDisplay.className = 'timer-display';
+      if (timeRemaining <= 120) { // Less than 2 minutes
+        timerDisplay.classList.add('critical');
+      } else if (timeRemaining <= 300) { // Less than 5 minutes
+        timerDisplay.classList.add('warning');
+      }
+    }
+    
+    function timeExpired() {
+      clearInterval(quizTimer);
+      
+      // Show expiration message
+      const quizContainer = document.getElementById('quizContainer');
+      quizContainer.insertAdjacentHTML('afterbegin', `
+        <div class="quiz-expired">
+          <h3>⏰ Time's Up!</h3>
+          <p>The assessment has been automatically submitted. Review your results below.</p>
+        </div>
+      `);
+      
+      // Auto-submit quiz
+      checkAnswers();
+      
+      // Disable further interactions
+      document.querySelectorAll('.option').forEach(option => {
+        option.style.pointerEvents = 'none';
+        option.style.opacity = '0.6';
+      });
+      
+      document.querySelector('.btn-submit').disabled = true;
+      document.querySelector('.btn-submit').textContent = 'Assessment Completed';
+    }
+
+    // Generate quiz HTML
+    function generateQuiz() {
+      const container = document.getElementById('quizContainer');
+      
+      questions.forEach((q, index) => {
+        const questionDiv = document.createElement('div');
+        questionDiv.className = 'question-container';
+        
+        questionDiv.innerHTML = `
+          <div class="question-header">
+            <div class="scenario-tag">${q.scenario}</div>
+            <div class="question-title">${index + 1}. ${q.question}</div>
+          </div>
+          <div class="question-body">
+            <div class="option-group">
+              ${q.options.map((option, optIndex) => `
+                <div class="option" onclick="selectOption(${index}, ${optIndex}, this)">
+                  <input type="${q.type}" name="q${index}" value="${option}" id="q${index}_${optIndex}">
+                  <label for="q${index}_${optIndex}">${option}</label>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+        
+        container.appendChild(questionDiv);
+      });
+    }
+
+    // Handle option selection
+    function selectOption(questionIndex, optionIndex, element) {
+      // Clear previous selections for this question
+      const questionContainer = element.closest('.question-container');
+      const inputType = element.querySelector('input').type;
+      
+      if (inputType === 'radio') {
+        questionContainer.querySelectorAll('.option').forEach(opt => {
+          opt.classList.remove('selected');
+        });
+      }
+      
+      // Mark selected option
+      element.classList.toggle('selected');
+      element.querySelector('input').checked = element.classList.contains('selected');
+    }
+
+    // Check quiz answers
+    function checkAnswers() {
+      let score = 0;
+      const results = [];
+      
+      questions.forEach((q, index) => {
+        const selectedInputs = document.querySelectorAll(`input[name='q${index}']:checked`);
+        const selectedAnswers = Array.from(selectedInputs).map(input => input.value);
+        
+        let isCorrect = false;
+        
+        if (q.type === "radio") {
+          isCorrect = selectedAnswers.length === 1 && selectedAnswers[0] === q.correct[0];
+        } else {
+          const correctSet = new Set(q.correct);
+          const selectedSet = new Set(selectedAnswers);
+          isCorrect = correctSet.size === selectedSet.size && 
+                     Array.from(correctSet).every(answer => selectedSet.has(answer));
+        }
+        
+        if (isCorrect) {
+          score++;
+        }
+        
+        results.push({
+          question: q.question,
+          correct: isCorrect,
+          explanation: q.explanation,
+          userAnswers: selectedAnswers,
+          correctAnswers: q.correct,
+          scenario: q.scenario
+        });
+      });
+      
+      displayResults(score, results);
+    }
+
+    // Display quiz results
+    function displayResults(score, results) {
+      const percentage = Math.round((score / questions.length) * 100);
+      let performanceMessage = "";
+      let scoreColor = "";
+      
+      if (percentage >= 90) {
+        performanceMessage = "🚀 Outstanding! You've mastered compute and storage fundamentals!";
+        scoreColor = "#1b660f";
+      } else if (percentage >= 70) {
+        performanceMessage = "💻 Great job! You have solid understanding of AWS compute and storage.";
+        scoreColor = "#1b660f";
+      } else if (percentage >= 50) {
+        performanceMessage = "📚 Good foundation! Review the flashcards for deeper understanding.";
+        scoreColor = "#ff9900";
+      } else {
+        performanceMessage = "🔄 Keep learning! Focus on EC2 and storage fundamentals.";
+        scoreColor = "#d13212";
+      }
+      
+      let detailedResults = results.map((result, idx) => {
+        const statusClass = result.correct ? 'correct' : 'incorrect';
+        const icon = result.correct ? "✅" : "❌";
+        return `
+          <div class="result-item ${statusClass}">
+            <div class="result-item-header">${icon} ${result.scenario} - Question ${idx + 1}</div>
+            <div class="result-item-explanation">${result.explanation}</div>
+          </div>
+        `;
+      }).join('');
+      
+      const resultBox = document.getElementById("resultBox");
+      resultBox.innerHTML = `
+        <div class="score-circle" style="background-color: ${scoreColor};">
+          ${score}/${questions.length}
+        </div>
+        <div class="result-title">${performanceMessage}</div>
+        <div class="result-subtitle">Your Score: ${percentage}%</div>
+        <div class="result-details">
+          <h4 style="margin-bottom: 16px; color: #232f3e;">📊 Detailed Results:</h4>
+          ${detailedResults}
+        </div>
+        <button class="btn-reset" onclick="resetQuiz()">🔄 Retake Assessment</button>
+      `;
+      
+      resultBox.classList.add("show");
+      resultBox.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Reset quiz
+    function resetQuiz() {
+      // Clear all selections
+      document.querySelectorAll('.option').forEach(opt => {
+        opt.classList.remove('selected');
+        opt.style.pointerEvents = '';
+        opt.style.opacity = '';
+      });
+      document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
+        input.checked = false;
+      });
+      
+      // Remove expiration message if it exists
+      const expiredMsg = document.querySelector('.quiz-expired');
+      if (expiredMsg) {
+        expiredMsg.remove();
+      }
+      
+      // Reset submit button
+      const submitBtn = document.querySelector('.btn-submit');
+      submitBtn.disabled = false;
+      submitBtn.textContent = '🚀 Submit Assessment';
+      
+      // Hide results
+      document.getElementById('resultBox').classList.remove('show');
+      
+      // Reset timer if needed
+      if (isQuizActive) {
+        resetTimer();
+      }
+      
+      // Scroll to top of quiz
+      document.getElementById('quiz').scrollIntoView({ behavior: 'smooth' });
+      
+      userAnswers = {};
+    }
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
