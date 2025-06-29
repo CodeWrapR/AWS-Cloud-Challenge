@@ -647,9 +647,45 @@
       font-size: 18px;
     }
     
-    .quiz-expired p {
-      color: #687078;
-      margin-bottom: 16px;
+    /* Quiz Navigation */
+    .quiz-navigation {
+      margin: 24px 0;
+      padding: 16px;
+      background-color: #fafafa;
+      border-radius: 4px;
+      border: 1px solid #d5dbdb;
+    }
+    
+    .quiz-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .quiz-progress {
+      text-align: center;
+      flex: 1;
+      margin: 0 16px;
+    }
+    
+    .quiz-progress-text {
+      font-weight: 500;
+      color: #232f3e;
+      font-size: 14px;
+    }
+    
+    .question-container.hidden {
+      display: none;
+    }
+    
+    .question-container.active {
+      display: block;
+      animation: slideInQuestion 0.3s ease;
+    }
+    
+    @keyframes slideInQuestion {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
     }
     
     /* Mobile Responsiveness */
@@ -737,7 +773,7 @@
       <div class="content-header">
         <h2 class="content-title">Interactive Compute & Storage Learning</h2>
         <p class="content-subtitle">
-          Comprehensive training with 22 detailed flashcards covering EC2, IP addressing, EBS, EFS, and storage optimization strategies.
+          Comprehensive training with 24 detailed flashcards covering EC2, IP addressing, EBS, EFS, and storage optimization strategies.
         </p>
       </div>
       
@@ -812,8 +848,27 @@
         </div>
         
         <div id="quizContainer"></div>
+        
+        <!-- Quiz Navigation -->
+        <div class="quiz-navigation" id="quizNavigation" style="display: none;">
+          <div class="quiz-controls">
+            <button class="btn-aws btn-secondary" onclick="prevQuestion()" id="prevQuestionBtn">
+              ← Previous Question
+            </button>
+            <div class="quiz-progress">
+              <div class="quiz-progress-text" id="quizProgressText"></div>
+              <div style="font-size: 12px; color: #687078; margin-top: 4px;">
+                Select your answer(s) and navigate through questions
+              </div>
+            </div>
+            <button class="btn-aws" onclick="nextQuestion()" id="nextQuestionBtn">
+              Next Question →
+            </button>
+          </div>
+        </div>
+        
         <div class="quiz-submit">
-          <button class="btn-submit" onclick="checkAnswers()">
+          <button class="btn-submit" onclick="checkAnswers()" id="submitBtn" style="display: none;">
             🚀 Submit Assessment
           </button>
         </div>
@@ -926,6 +981,48 @@
         front: "EFS vs EBS: When to Use Each",
         back: "<strong>Definition:</strong> EFS and EBS serve different storage needs - EFS provides shared file storage while EBS provides block storage for individual instances.\n\n<strong>Detailed Comparison:</strong>\n\n<strong>Amazon EFS (Elastic File System):</strong>\n• <strong>Type:</strong> Network File System (NFS)\n• <strong>Access:</strong> Multiple instances simultaneously\n• <strong>Scope:</strong> Regional (spans multiple AZs)\n• <strong>Capacity:</strong> Automatically scales (no pre-provisioning)\n• <strong>Performance:</strong> Shared performance across all clients\n• <strong>Use Cases:</strong> Shared application data, content repositories, web serving\n• <strong>Cost:</strong> Pay for storage used + throughput\n\n<strong>Amazon EBS (Elastic Block Store):</strong>\n• <strong>Type:</strong> Block Storage\n• <strong>Access:</strong> Single instance at a time (except Multi-Attach)\n• <strong>Scope:</strong> Availability Zone specific\n• <strong>Capacity:</strong> Fixed size (can be increased)\n• <strong>Performance:</strong> Dedicated to attached instance\n• <strong>Use Cases:</strong> Boot volumes, databases, individual application storage\n• <strong>Cost:</strong> Pay for provisioned storage\n\n<strong>When to Choose EFS:</strong>\n\n<strong>✅ Multiple EC2 instances need shared access</strong>\n• Web servers sharing common assets\n• Application clusters requiring shared data\n• Development teams sharing code repositories\n\n<strong>✅ Need high availability across AZs</strong>\n• Applications spanning multiple AZs\n• Disaster recovery scenarios\n• Regional data sharing\n\n<strong>✅ Variable storage requirements</strong>\n• Unpredictable storage growth\n• Want automatic scaling\n• Don't want to manage capacity\n\n<strong>When to Choose EBS:</strong>\n\n<strong>✅ Single instance applications</strong>\n• Database storage (MySQL, PostgreSQL)\n• Operating system boot volumes\n• Application-specific storage\n\n<strong>✅ High performance requirements</strong>\n• I/O intensive applications\n• Low latency requirements\n• Consistent performance needed\n\n<strong>✅ Specific volume control</strong>\n• Need to manage volume size\n• Snapshot requirements\n• Encryption with specific keys\n\n<strong>Cost Considerations:</strong>\n• <strong>EFS:</strong> Higher per GB cost, pay for actual usage\n• <strong>EBS:</strong> Lower per GB cost, pay for provisioned capacity\n\n<strong>Hybrid Approach:</strong>\n• Use EBS for boot volumes and databases\n• Use EFS for shared application data and assets",
         category: "Storage Comparison"
+      },
+      {
+        level: 1,
+        front: "EC2 Instance Lifecycle Management",
+        back: "<strong>Definition:</strong> EC2 Instance Lifecycle refers to the different states an EC2 instance goes through from launch to termination, each with specific characteristics and billing implications.\n\n<strong>Instance States:</strong>\n\n<strong>Pending:</strong>\n• Instance is being launched\n• No charges apply\n• Bootstrapping and initialization occurring\n\n<strong>Running:</strong>\n• Instance is fully operational\n• Full hourly charges apply\n• Can receive and process requests\n\n<strong>Stopping:</strong>\n• Instance is gracefully shutting down\n• Charges continue until fully stopped\n• Applications have time to clean up\n\n<strong>Stopped:</strong>\n• Instance is shut down\n• No compute charges (storage charges continue for EBS)\n• Can be restarted (may move to different physical host)\n• Public IP address is released\n\n<strong>Rebooting:</strong>\n• Restart without stopping\n• Stays on same physical host\n• Keeps public IP address\n• No additional charges\n\n<strong>Terminating:</strong>\n• Instance is being permanently destroyed\n• Charges continue until termination complete\n\n<strong>Terminated:</strong>\n• Instance permanently destroyed\n• No charges apply\n• Cannot be restarted\n• EBS root volume deleted by default (unless configured otherwise)\n\n<strong>Key Differences:</strong>\n• <strong>Stop vs Terminate:</strong> Stop preserves instance for restart, terminate permanently destroys\n• <strong>Stop vs Reboot:</strong> Stop releases public IP, reboot keeps it\n• <strong>Billing:</strong> Only charged when in 'Running' state",
+        category: "Instance Management"
+      },
+      {
+        level: 2,
+        front: "EC2 Instance Store vs EBS Storage",
+        back: "<strong>Definition:</strong> Instance Store and EBS represent two fundamentally different storage architectures - directly attached temporary storage versus network-attached persistent storage.\n\n<strong>Instance Store (Ephemeral Storage):</strong>\n• <strong>Physical Location:</strong> Directly attached to EC2 host machine\n• <strong>Performance:</strong> Very high IOPS and throughput (NVMe SSD)\n• <strong>Persistence:</strong> Data lost on stop, terminate, or hardware failure\n• <strong>Cost:</strong> Included with instance type, no additional charges\n• <strong>Size:</strong> Fixed size based on instance type\n• <strong>Use Cases:</strong> Temporary data, caches, buffers, scratch space\n\n<strong>EBS (Elastic Block Store):</strong>\n• <strong>Physical Location:</strong> Network-attached storage\n• <strong>Performance:</strong> Configurable IOPS and throughput\n• <strong>Persistence:</strong> Data survives stop/start/reboot\n• <strong>Cost:</strong> Separate charges for storage and IOPS\n• <strong>Size:</strong> Configurable and expandable\n• <strong>Use Cases:</strong> Boot volumes, databases, file systems\n\n<strong>Performance Comparison:</strong>\n• <strong>Instance Store:</strong> Up to 3.3M IOPS, 14 GB/s throughput\n• <strong>EBS:</strong> Up to 64,000 IOPS, 1 GB/s throughput\n\n<strong>When to Use Instance Store:</strong>\n• High-performance computing (HPC)\n• Distributed databases (Cassandra, MongoDB)\n• Temporary processing workflows\n• Applications designed for data loss tolerance\n\n<strong>When to Use EBS:</strong>\n• Boot volumes (operating system)\n• Database storage requiring persistence\n• File systems needing backup capability\n• Any data that must survive instance lifecycle events\n\n<strong>Best Practice:</strong>\nUse both together - EBS for persistent data and instance store for high-performance temporary operations.",
+        category: "Storage Architecture"
+      },
+      {
+        level: 3,
+        front: "EBS Volume Performance Optimization",
+        back: "<strong>Definition:</strong> EBS Performance Optimization involves understanding and configuring various factors that affect storage performance to meet application requirements efficiently.\n\n<strong>Performance Metrics:</strong>\n• <strong>IOPS:</strong> Input/Output operations per second\n• <strong>Throughput:</strong> Data transfer rate (MB/s)\n• <strong>Latency:</strong> Response time for I/O operations\n• <strong>Queue Depth:</strong> Number of pending I/O requests\n\n<strong>Instance-Level Optimization:</strong>\n\n<strong>EBS-Optimized Instances:</strong>\n• Dedicated bandwidth for EBS traffic\n• Prevents network contention\n• Available on most modern instance types\n• Essential for consistent performance\n\n<strong>Instance Size Impact:</strong>\n• Larger instances = more EBS bandwidth\n• Example: m5.large (up to 4,750 Mbps) vs m5.24xlarge (19,000 Mbps)\n• Choose instance size based on storage requirements\n\n<strong>Volume-Level Optimization:</strong>\n\n<strong>Volume Type Selection:</strong>\n• <strong>gp3:</strong> Baseline 3,000 IOPS, configurable up to 16,000\n• <strong>io2:</strong> Up to 64,000 IOPS with sub-millisecond latency\n• <strong>st1:</strong> Up to 500 MB/s throughput for sequential workloads\n\n<strong>Pre-warming Strategies:</strong>\n• New volumes from snapshots have performance penalty initially\n• Read all blocks once to achieve full performance\n• Use Fast Snapshot Restore for immediate performance\n\n<strong>Application-Level Optimization:</strong>\n• <strong>I/O Size:</strong> Larger I/O operations more efficient\n• <strong>Sequential vs Random:</strong> Sequential I/O performs better\n• <strong>Queue Depth:</strong> Optimize for workload characteristics\n• <strong>Multi-threading:</strong> Parallel I/O operations\n\n<strong>Monitoring and Tuning:</strong>\n• <strong>CloudWatch Metrics:</strong> VolumeReadOps, VolumeWriteOps, VolumeThroughputPercentage\n• <strong>Queue Depth Monitoring:</strong> Optimize based on workload\n• <strong>Performance Testing:</strong> Use tools like fio for benchmarking\n\n<strong>Common Performance Issues:</strong>\n• Instance bandwidth limits\n• Incorrect volume type for workload\n• Poor application I/O patterns\n• Network bottlenecks",
+        category: "Performance Tuning"
+      },
+      {
+        level: 2,
+        front: "Auto Scaling with EC2 Best Practices",
+        back: "<strong>Definition:</strong> Auto Scaling automatically adjusts the number of EC2 instances in response to demand, ensuring applications maintain performance while optimizing costs.\n\n<strong>Auto Scaling Components:</strong>\n• <strong>Launch Template:</strong> Defines instance configuration (AMI, instance type, security groups)\n• <strong>Auto Scaling Group:</strong> Manages collection of instances\n• <strong>Scaling Policies:</strong> Rules for when to scale in/out\n• <strong>Health Checks:</strong> Monitors instance and application health\n\n<strong>Scaling Policy Types:</strong>\n\n<strong>1. Target Tracking Scaling:</strong>\n• Maintains specific metric at target value\n• Example: Keep CPU utilization at 50%\n• Automatically calculates scaling actions\n• Simplest and most common approach\n\n<strong>2. Step Scaling:</strong>\n• Different scaling actions based on alarm breach size\n• More granular control than simple scaling\n• Faster response to large demand changes\n\n<strong>3. Scheduled Scaling:</strong>\n• Scale based on predictable patterns\n• Example: Scale up before business hours\n• Proactive rather than reactive\n\n<strong>Health Check Types:</strong>\n• <strong>EC2 Health Checks:</strong> Instance-level health (default)\n• <strong>ELB Health Checks:</strong> Application-level health\n• <strong>Custom Health Checks:</strong> Application-specific metrics\n\n<strong>Best Practices:</strong>\n\n<strong>Instance Configuration:</strong>\n• Use launch templates (not launch configurations)\n• Design stateless applications\n• Store session data externally (ElastiCache, DynamoDB)\n• Use AMIs with pre-installed applications for faster launches\n\n<strong>Scaling Strategy:</strong>\n• Set appropriate minimum and maximum instance counts\n• Use multiple Availability Zones for reliability\n• Implement graceful shutdown procedures\n• Configure health check grace periods\n\n<strong>Monitoring and Optimization:</strong>\n• Monitor scaling activities in CloudWatch\n• Adjust scaling policies based on application behavior\n• Use predictive scaling for forecastable patterns\n• Implement cost optimization with mixed instance types\n\n<strong>Common Anti-Patterns:</strong>\n• Scaling too aggressively (thrashing)\n• Not considering application startup time\n• Ignoring data persistence requirements\n• Poor health check configuration",
+        category: "Auto Scaling"
+      },
+      {
+        level: 3,
+        front: "Advanced EFS Performance and Storage Classes",
+        back: "<strong>Definition:</strong> Amazon EFS provides multiple performance modes and storage classes to optimize cost and performance for different file system usage patterns.\n\n<strong>EFS Performance Modes:</strong>\n\n<strong>General Purpose Mode:</strong>\n• <strong>Latency:</strong> Lowest latency per operation\n• <strong>Performance:</strong> Up to 7,000 file operations per second\n• <strong>Scalability:</strong> Automatic scaling of throughput with file system size\n• <strong>Use Case:</strong> Latency-sensitive applications\n• <strong>Default Choice:</strong> Recommended for most workloads\n\n<strong>Max I/O Mode:</strong>\n• <strong>Latency:</strong> Slightly higher latency per operation\n• <strong>Performance:</strong> Higher levels of aggregate throughput and operations per second\n• <strong>Scalability:</strong> Can scale beyond 7,000 operations per second\n• <strong>Use Case:</strong> Applications that need higher performance and can tolerate higher latencies\n\n<strong>EFS Throughput Modes:</strong>\n\n<strong>Bursting Throughput (Default):</strong>\n• <strong>Baseline:</strong> 50 MB/s per TB of storage\n• <strong>Burst Capability:</strong> Up to 100 MB/s for file systems under 1 TB\n• <strong>Burst Credits:</strong> Earned when operating below baseline\n• <strong>Cost:</strong> No additional charges\n\n<strong>Provisioned Throughput:</strong>\n• <strong>Fixed Performance:</strong> Specify required throughput independent of storage size\n• <strong>Range:</strong> 1 MB/s to 1 GB/s\n• <strong>Cost:</strong> Additional charges for provisioned throughput above baseline\n• <strong>Use Case:</strong> Applications requiring consistent high throughput\n\n<strong>EFS Storage Classes:</strong>\n\n<strong>Standard Storage Class:</strong>\n• <strong>Use Case:</strong> Frequently accessed files\n• <strong>Availability:</strong> Regional (replicated across multiple AZs)\n• <strong>Cost:</strong> Higher storage cost, no retrieval fees\n\n<strong>Infrequent Access (IA):</strong>\n• <strong>Cost Savings:</strong> Up to 92% lower cost than Standard\n• <strong>Retrieval Fees:</strong> Charged per GB retrieved\n• <strong>Use Case:</strong> Files accessed less frequently\n• <strong>Automatic Transition:</strong> Based on lifecycle policies (7, 14, 30, 60, or 90 days)\n\n<strong>One Zone Storage Classes:</strong>\n• <strong>Standard One Zone:</strong> Single AZ storage for frequently accessed files\n• <strong>One Zone-IA:</strong> Single AZ storage for infrequently accessed files\n• <strong>Cost Savings:</strong> 47% lower cost than regional storage classes\n• <strong>Trade-off:</strong> Lower availability and durability\n\n<strong>Lifecycle Management:</strong>\n• <strong>Automatic Transition:</strong> Move files between storage classes based on access patterns\n• <strong>Policies:</strong> Configure transition timelines (7-90 days)\n• <strong>Monitoring:</strong> CloudWatch metrics track storage class usage\n• <strong>Cost Optimization:</strong> Significant savings for infrequently accessed data",
+        category: "Advanced File Systems"
+      },
+      {
+        level: 2,
+        front: "EC2 Security Best Practices and Hardening",
+        back: "<strong>Definition:</strong> EC2 Security Best Practices encompass comprehensive measures to protect instances from threats, ensure compliance, and maintain secure access control throughout the instance lifecycle.\n\n<strong>Network Security:</strong>\n\n<strong>Security Groups Configuration:</strong>\n• <strong>Principle of Least Privilege:</strong> Only open required ports\n• <strong>Source Restrictions:</strong> Specify exact IP ranges, not 0.0.0.0/0\n• <strong>Application-Specific Rules:</strong> Create separate security groups per application tier\n• <strong>Regular Audits:</strong> Review and remove unnecessary rules\n\n<strong>Network ACLs:</strong>\n• <strong>Subnet-Level Protection:</strong> Additional layer of security\n• <strong>Stateless Rules:</strong> Must explicitly allow return traffic\n• <strong>Defense in Depth:</strong> Use with security groups for layered security\n\n<strong>Access Control:</strong>\n\n<strong>Key Management:</strong>\n• <strong>SSH Key Security:</strong> Use strong key pairs, rotate regularly\n• <strong>Key Distribution:</strong> Never share private keys\n• <strong>Alternative Access:</strong> Use AWS Systems Manager Session Manager\n• <strong>Key Rotation:</strong> Implement regular key rotation policies\n\n<strong>IAM Integration:</strong>\n• <strong>Instance Profiles:</strong> Use IAM roles instead of access keys\n• <strong>Temporary Credentials:</strong> Avoid hardcoded credentials\n• <strong>Least Privilege:</strong> Grant minimum required permissions\n• <strong>Regular Review:</strong> Audit and update IAM policies\n\n<strong>Instance Hardening:</strong>\n\n<strong>Operating System Security:</strong>\n• <strong>Patch Management:</strong> Keep OS and software updated\n• <strong>Unnecessary Services:</strong> Disable unused services and ports\n• <strong>User Accounts:</strong> Remove default accounts, use principle of least privilege\n• <strong>Logging:</strong> Enable comprehensive logging and monitoring\n\n<strong>Application Security:</strong>\n• <strong>Secure Configuration:</strong> Follow security best practices for applications\n• <strong>Data Encryption:</strong> Encrypt sensitive data at rest and in transit\n• <strong>Input Validation:</strong> Implement proper input sanitization\n• <strong>Error Handling:</strong> Avoid exposing sensitive information in errors\n\n<strong>Monitoring and Compliance:</strong>\n\n<strong>Security Monitoring:</strong>\n• <strong>CloudTrail:</strong> Log all API calls and administrative actions\n• <strong>VPC Flow Logs:</strong> Monitor network traffic patterns\n• <strong>GuardDuty:</strong> Threat detection and monitoring\n• <strong>Config Rules:</strong> Ensure compliance with security standards\n\n<strong>Incident Response:</strong>\n• <strong>Isolation Procedures:</strong> Quickly isolate compromised instances\n• <strong>Forensic Readiness:</strong> Enable detailed logging for investigation\n• <strong>Backup and Recovery:</strong> Maintain secure backups for rapid recovery\n• <strong>Communication Plan:</strong> Define escalation and notification procedures",
+        category: "Security Best Practices"
+      },
+      {
+        level: 1,
+        front: "EC2 User Data and Metadata Services",
+        back: "<strong>Definition:</strong> EC2 User Data and Metadata Services provide mechanisms for instances to access configuration information and bootstrap themselves during launch.\n\n<strong>EC2 User Data:</strong>\n• <strong>Purpose:</strong> Run scripts automatically when instance first starts\n• <strong>Execution:</strong> Runs only on first boot (unless configured otherwise)\n• <strong>User Context:</strong> Executes as root user\n• <strong>Format:</strong> Shell scripts, cloud-init directives, or PowerShell (Windows)\n• <strong>Size Limit:</strong> 16 KB maximum\n• <strong>Common Uses:</strong> Install software, configure services, download application code\n\n<strong>User Data Examples:</strong>\n\n<strong>Linux (Bash Script):</strong>\n#!/bin/bash\nyum update -y\nyum install -y httpd\nsystemctl start httpd\nsystemctl enable httpd\necho \"<h1>Hello from EC2!</h1>\" > /var/www/html/index.html\n\n<strong>Windows (PowerShell):</strong>\n<powershell>\nInstall-WindowsFeature -name Web-Server -IncludeManagementTools\nSet-Content -Path \"C:\\inetpub\\wwwroot\\index.html\" -Value \"<h1>Hello from Windows EC2!</h1>\"\n</powershell>\n\n<strong>EC2 Instance Metadata Service (IMDS):</strong>\n• <strong>Purpose:</strong> Provides instance information to running applications\n• <strong>Access Method:</strong> HTTP requests to 169.254.169.254\n• <strong>No Authentication:</strong> Available from within instance only\n• <strong>Dynamic Updates:</strong> Some metadata updates during instance lifecycle\n\n<strong>Metadata Categories:</strong>\n• <strong>Instance Identity:</strong> Instance ID, type, AMI ID\n• <strong>Network Information:</strong> Private/public IP addresses, DNS names\n• <strong>Security:</strong> IAM role credentials, security groups\n• <strong>Block Device Mapping:</strong> Attached storage information\n• <strong>User Data:</strong> Access to user data script\n\n<strong>IMDS Versions:</strong>\n• <strong>IMDSv1:</strong> Request/response method (less secure)\n• <strong>IMDSv2:</strong> Session-oriented, requires token (more secure)\n• <strong>Best Practice:</strong> Use IMDSv2 for enhanced security\n\n<strong>Security Considerations:</strong>\n• <strong>Sensitive Data:</strong> Avoid putting secrets in user data\n• <strong>IMDS Access:</strong> Consider restricting IMDS access in security groups\n• <strong>Token Usage:</strong> Use IMDSv2 tokens for secure metadata access\n• <strong>Logging:</strong> User data execution is logged in system logs",
+        category: "Instance Configuration"
       }
     ];
 
@@ -1209,6 +1306,10 @@
     let isFlipped = false;
     let userAnswers = {};
     
+    // Quiz state
+    let currentQuestion = 0;
+    let quizAnswers = {};
+    
     // Timer state
     let quizTimer = null;
     let timeRemaining = 30 * 60; // 30 minutes in seconds
@@ -1441,7 +1542,8 @@
       // Auto-submit quiz
       checkAnswers();
       
-      // Disable further interactions
+      // Hide navigation and disable interactions
+      document.getElementById('quizNavigation').style.display = 'none';
       document.querySelectorAll('.option').forEach(option => {
         option.style.pointerEvents = 'none';
         option.style.opacity = '0.6';
@@ -1457,7 +1559,8 @@
       
       questions.forEach((q, index) => {
         const questionDiv = document.createElement('div');
-        questionDiv.className = 'question-container';
+        questionDiv.className = index === 0 ? 'question-container active' : 'question-container hidden';
+        questionDiv.id = `question-${index}`;
         
         questionDiv.innerHTML = `
           <div class="question-header">
@@ -1467,7 +1570,7 @@
           <div class="question-body">
             <div class="option-group">
               ${q.options.map((option, optIndex) => `
-                <div class="option" onclick="selectOption(${index}, ${optIndex}, this)">
+                <div class="option" onclick="selectQuizOption(${index}, ${optIndex}, this)">
                   <input type="${q.type}" name="q${index}" value="${option}" id="q${index}_${optIndex}">
                   <label for="q${index}_${optIndex}">${option}</label>
                 </div>
@@ -1478,23 +1581,102 @@
         
         container.appendChild(questionDiv);
       });
+      
+      // Show navigation and update progress
+      document.getElementById('quizNavigation').style.display = 'block';
+      updateQuizProgress();
     }
 
-    // Handle option selection
-    function selectOption(questionIndex, optionIndex, element) {
-      // Clear previous selections for this question
+    // Handle quiz option selection
+    function selectQuizOption(questionIndex, optionIndex, element) {
+      const question = questions[questionIndex];
       const questionContainer = element.closest('.question-container');
       const inputType = element.querySelector('input').type;
       
       if (inputType === 'radio') {
+        // Clear previous selections for radio buttons
         questionContainer.querySelectorAll('.option').forEach(opt => {
           opt.classList.remove('selected');
         });
+        element.classList.add('selected');
+        element.querySelector('input').checked = true;
+        
+        // Store single answer for radio
+        quizAnswers[questionIndex] = [element.querySelector('input').value];
+      } else {
+        // Handle checkbox selections
+        element.classList.toggle('selected');
+        const input = element.querySelector('input');
+        input.checked = element.classList.contains('selected');
+        
+        // Store multiple answers for checkbox
+        if (!quizAnswers[questionIndex]) {
+          quizAnswers[questionIndex] = [];
+        }
+        
+        if (input.checked) {
+          quizAnswers[questionIndex].push(input.value);
+        } else {
+          quizAnswers[questionIndex] = quizAnswers[questionIndex].filter(answer => answer !== input.value);
+        }
       }
+    }
+
+    // Navigate to next question
+    function nextQuestion() {
+      if (currentQuestion < questions.length - 1) {
+        // Hide current question
+        document.getElementById(`question-${currentQuestion}`).className = 'question-container hidden';
+        
+        // Show next question
+        currentQuestion++;
+        document.getElementById(`question-${currentQuestion}`).className = 'question-container active';
+        
+        updateQuizProgress();
+        updateQuizNavigation();
+      }
+    }
+
+    // Navigate to previous question
+    function prevQuestion() {
+      if (currentQuestion > 0) {
+        // Hide current question
+        document.getElementById(`question-${currentQuestion}`).className = 'question-container hidden';
+        
+        // Show previous question
+        currentQuestion--;
+        document.getElementById(`question-${currentQuestion}`).className = 'question-container active';
+        
+        updateQuizProgress();
+        updateQuizNavigation();
+      }
+    }
+
+    // Update quiz progress display
+    function updateQuizProgress() {
+      const progressText = document.getElementById('quizProgressText');
+      const answeredCount = Object.keys(quizAnswers).length;
+      progressText.textContent = `Question ${currentQuestion + 1} of ${questions.length} (${answeredCount} answered)`;
+    }
+
+    // Update navigation button states
+    function updateQuizNavigation() {
+      const prevBtn = document.getElementById('prevQuestionBtn');
+      const nextBtn = document.getElementById('nextQuestionBtn');
+      const submitBtn = document.getElementById('submitBtn');
       
-      // Mark selected option
-      element.classList.toggle('selected');
-      element.querySelector('input').checked = element.classList.contains('selected');
+      // Update previous button
+      prevBtn.disabled = currentQuestion === 0;
+      
+      // Update next button and show submit on last question
+      if (currentQuestion === questions.length - 1) {
+        nextBtn.style.display = 'none';
+        submitBtn.style.display = 'inline-block';
+      } else {
+        nextBtn.style.display = 'inline-flex';
+        submitBtn.style.display = 'none';
+        nextBtn.disabled = false;
+      }
     }
 
     // Check quiz answers
@@ -1503,16 +1685,15 @@
       const results = [];
       
       questions.forEach((q, index) => {
-        const selectedInputs = document.querySelectorAll(`input[name='q${index}']:checked`);
-        const selectedAnswers = Array.from(selectedInputs).map(input => input.value);
+        const userAnswers = quizAnswers[index] || [];
         
         let isCorrect = false;
         
         if (q.type === "radio") {
-          isCorrect = selectedAnswers.length === 1 && selectedAnswers[0] === q.correct[0];
+          isCorrect = userAnswers.length === 1 && userAnswers[0] === q.correct[0];
         } else {
           const correctSet = new Set(q.correct);
-          const selectedSet = new Set(selectedAnswers);
+          const selectedSet = new Set(userAnswers);
           isCorrect = correctSet.size === selectedSet.size && 
                      Array.from(correctSet).every(answer => selectedSet.has(answer));
         }
@@ -1525,7 +1706,7 @@
           question: q.question,
           correct: isCorrect,
           explanation: q.explanation,
-          userAnswers: selectedAnswers,
+          userAnswers: userAnswers,
           correctAnswers: q.correct,
           scenario: q.scenario
         });
@@ -1585,6 +1766,10 @@
 
     // Reset quiz
     function resetQuiz() {
+      // Reset quiz state
+      currentQuestion = 0;
+      quizAnswers = {};
+      
       // Clear all selections
       document.querySelectorAll('.option').forEach(opt => {
         opt.classList.remove('selected');
@@ -1595,16 +1780,33 @@
         input.checked = false;
       });
       
+      // Show first question, hide others
+      questions.forEach((_, index) => {
+        const questionEl = document.getElementById(`question-${index}`);
+        if (questionEl) {
+          questionEl.className = index === 0 ? 'question-container active' : 'question-container hidden';
+        }
+      });
+      
       // Remove expiration message if it exists
       const expiredMsg = document.querySelector('.quiz-expired');
       if (expiredMsg) {
         expiredMsg.remove();
       }
       
-      // Reset submit button
+      // Reset submit button and navigation
       const submitBtn = document.querySelector('.btn-submit');
       submitBtn.disabled = false;
       submitBtn.textContent = '🚀 Submit Assessment';
+      submitBtn.style.display = 'none';
+      
+      // Show navigation
+      document.getElementById('quizNavigation').style.display = 'block';
+      document.getElementById('nextQuestionBtn').style.display = 'inline-flex';
+      
+      // Update progress and navigation
+      updateQuizProgress();
+      updateQuizNavigation();
       
       // Hide results
       document.getElementById('resultBox').classList.remove('show');
@@ -1620,8 +1822,15 @@
       userAnswers = {};
     }
 
-    // Initialize when page loads
+      // Initialize when page loads
     document.addEventListener('DOMContentLoaded', init);
+    
+    // Make sure navigation is updated on load
+    window.addEventListener('load', function() {
+      if (document.getElementById('quizNavigation').style.display === 'block') {
+        updateQuizNavigation();
+      }
+    });
   </script>
 </body>
 </html>
