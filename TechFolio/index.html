@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vamshi | Cloud DevOps Architect</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-green: #00ff41;
+            --secondary-blue: #00d4ff;
+            --accent-red: #ff6b6b;
+            --dark-bg: #000000;
+            --card-bg: rgba(0, 0, 0, 0.8);
+        }
+
+        body {
+            font-family: 'JetBrains Mono', 'SF Mono', 'Monaco', monospace;
+            background: var(--dark-bg);
+            color: var(--primary-green);
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, var(--primary-green), transparent);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transition: transform 0.1s ease;
+        }
+
+        .cursor.active {
+            transform: scale(2);
+        }
+
+        /* Boot Sequence */
+        .boot-sequence {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, #000000 0%, #001a00 50%, #000000 100%);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: bootComplete 1s ease-in-out 6s forwards;
+        }
+
+        .boot-logo {
+            font-size: 4rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--primary-green), var(--secondary-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2rem;
+            animation: logoGlow 2s ease-in-out infinite alternate;
+        }
+
+        .boot-progress {
+            width: 600px;
+            height: 4px;
+            background: rgba(0, 255, 65, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .boot-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-green), var(--secondary-blue));
+            width: 0%;
+            animation: bootProgress 5s ease-out forwards;
+        }
+
+        .boot-text {
+            font-size: 1.2rem;
+            color: var(--primary-green);
+            text-align: center;
+            line-height: 1.8;
+        }
+
+        .boot-line {
+            opacity: 0;
+            animation: bootLine 0.3s ease-out forwards;
+        }
+
+        .boot-line:nth-child(1) { animation-delay: 0.5s; }
+        .boot-line:nth-child(2) { animation-delay: 1s; }
+        .boot-line:nth-child(3) { animation-delay: 1.5s; }
+        .boot-line:nth-child(4) { animation-delay: 2s; }
+        .boot-line:nth-child(5) { animation-delay: 2.5s; }
+        .boot-line:nth-child(6) { animation-delay: 3s; }
+
+        /* Particle System */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--primary-green);
+            border-radius: 50%;
+            animation: particleFloat 15s linear infinite;
+        }
+
+        /* Neural Network Background */
+        .neural-network {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.1;
+        }
+
+        .neural-node {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--primary-green);
+            border-radius: 50%;
+            animation: neuralPulse 3s ease-in-out infinite;
+        }
+
+        .neural-connection {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary-green), transparent);
+            animation: dataFlow 2s linear infinite;
+        }
+
+        /* Main Container */
+        .main-container {
+            opacity: 0;
+            transform: translateY(100px);
+            animation: mainAppear 2s ease-out 6s forwards;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 255, 65, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                linear-gradient(135deg, #000000 0%, #001a00 100%);
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 10;
+            max-width: 1000px;
+            padding: 0 2rem;
+        }
+
+        .hero-title {
+            font-size: 8rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--primary-green), var(--secondary-blue), var(--accent-red));
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 4s ease-in-out infinite;
+            position: relative;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-title::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, var(--primary-green), var(--secondary-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: blur(20px);
+            opacity: 0.5;
+            z-index: -1;
+        }
+
+        .hero-subtitle {
+            font-size: 2.5rem;
+            color: var(--secondary-blue);
+            margin-bottom: 2rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .hero-description {
+            font-size: 1.5rem;
+            color: var(--primary-green);
+            margin-bottom: 3rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        .cta-button {
+            background: linear-gradient(45deg, var(--primary-green), var(--secondary-blue));
+            border: none;
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            font-family: inherit;
+            color: #000;
+            border-radius: 50px;
+            cursor: none;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 0.1em;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 255, 65, 0.3);
+        }
+
+        /* Floating Tech Icons */
+        .tech-constellation {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .tech-icon {
+            position: absolute;
+            font-size: 3rem;
+            opacity: 0.2;
+            animation: techFloat 10s ease-in-out infinite;
+            transition: all 0.3s ease;
+        }
+
+        .tech-icon:hover {
+            opacity: 0.8;
+            transform: scale(1.5);
+            filter: drop-shadow(0 0 20px currentColor);
+        }
+
+        .tech-icon.aws { color: #ff9900; top: 20%; left: 10%; animation-delay: 0s; }
+        .tech-icon.azure { color: #0078d4; top: 70%; left: 15%; animation-delay: 2s; }
+        .tech-icon.gcp { color: #4285f4; top: 30%; right: 20%; animation-delay: 4s; }
+        .tech-icon.docker { color: #2496ed; top: 80%; right: 10%; animation-delay: 6s; }
+        .tech-icon.k8s { color: #326ce5; top: 15%; right: 15%; animation-delay: 8s; }
+
+        /* Skills Section */
+        .skills-section {
+            min-height: 100vh;
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, #000000 0%, #001a00 100%);
+        }
+
+        .section-title {
+            font-size: 4rem;
+            text-align: center;
+            margin-bottom: 4rem;
+            background: linear-gradient(45deg, var(--primary-green), var(--secondary-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .skill-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skill-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .skill-card:hover::before {
+            left: 100%;
+        }
+
+        .skill-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary-green);
+            box-shadow: 0 20px 40px rgba(0, 255, 65, 0.2);
+        }
+
+        .skill-card h3 {
+            color: var(--secondary-blue);
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .skill-card i {
+            font-size: 2rem;
+            filter: drop-shadow(0 0 10px currentColor);
+        }
+
+        .skill-list {
+            list-style: none;
+        }
+
+        .skill-list li {
+            padding: 0.8rem 0;
+            border-bottom: 1px solid rgba(0, 255, 65, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        .skill-list li::before {
+            content: '▶';
+            position: absolute;
+            left: 0;
+            color: var(--primary-green);
+            transition: all 0.3s ease;
+        }
+
+        .skill-list li:hover {
+            color: var(--secondary-blue);
+            padding-left: 2rem;
+        }
+
+        .skill-list li:hover::before {
+            color: var(--secondary-blue);
+            transform: scale(1.2);
+        }
+
+        /* Experience Timeline */
+        .experience-section {
+            min-height: 100vh;
+            padding: 5rem 2rem;
+            background: var(--dark-bg);
+        }
+
+        .timeline {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--primary-green), var(--secondary-blue), var(--accent-red));
+            transform: translateX(-50%);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin: 3rem 0;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.6s ease;
+        }
+
+        .timeline-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .timeline-item:nth-child(odd) .timeline-content {
+            margin-right: 55%;
+        }
+
+        .timeline-item:nth-child(even) .timeline-content {
+            margin-left: 55%;
+        }
+
+        .timeline-content {
+            background: var(--card-bg);
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            border-radius: 15px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: 50%;
+            top: 2rem;
+            width: 15px;
+            height: 15px;
+            background: var(--primary-green);
+            border-radius: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 20px var(--primary-green);
+        }
+
+        .job-title {
+            color: var(--secondary-blue);
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .company {
+            color: var(--accent-red);
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .duration {
+            color: #888;
+            margin-bottom: 1rem;
+        }
+
+        .achievements {
+            list-style: none;
+        }
+
+        .achievements li {
+            padding: 0.5rem 0;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        .achievements li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: var(--primary-green);
+        }
+
+        /* Animations */
+        @keyframes bootComplete {
+            to { opacity: 0; visibility: hidden; }
+        }
+
+        @keyframes logoGlow {
+            0% { filter: brightness(1); }
+            100% { filter: brightness(1.2) drop-shadow(0 0 20px rgba(0, 255, 65, 0.5)); }
+        }
+
+        @keyframes bootProgress {
+            0% { width: 0%; }
+            20% { width: 30%; }
+            40% { width: 60%; }
+            60% { width: 85%; }
+            100% { width: 100%; }
+        }
+
+        @keyframes bootLine {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes mainAppear {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes techFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        @keyframes particleFloat {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+
+        @keyframes neuralPulse {
+            0%, 100% { opacity: 0.1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.5); }
+        }
+
+        @keyframes dataFlow {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 4rem; }
+            .hero-subtitle { font-size: 1.8rem; }
+            .hero-description { font-size: 1.2rem; }
+            .skills-grid { grid-template-columns: 1fr; }
+            .timeline::before { left: 20px; }
+            .timeline-item:nth-child(odd) .timeline-content,
+            .timeline-item:nth-child(even) .timeline-content {
+                margin: 0 0 0 40px;
+            }
+            .timeline-dot { left: 20px; }
+            .cursor { display: none; }
+            body { cursor: auto; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor"></div>
+
+    <!-- Particle System -->
+    <div class="particles"></div>
+
+    <!-- Neural Network Background -->
+    <div class="neural-network"></div>
+
+    <!-- Boot Sequence -->
+    <div class="boot-sequence">
+        <div class="boot-logo">SYSTEM.INIT</div>
+        <div class="boot-progress">
+            <div class="boot-bar"></div>
+        </div>
+        <div class="boot-text">
+            <div class="boot-line">▶ Initializing Cloud Architecture Framework...</div>
+            <div class="boot-line">▶ Loading DevOps Credentials...</div>
+            <div class="boot-line">▶ Connecting to Multi-Cloud Infrastructure...</div>
+            <div class="boot-line">▶ Validating Security Protocols...</div>
+            <div class="boot-line">▶ Optimizing System Performance...</div>
+            <div class="boot-line">🚀 VAMSHI.PORTFOLIO.READY</div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="tech-constellation">
+                <div class="tech-icon aws"><i class="fab fa-aws"></i></div>
+                <div class="tech-icon azure"><i class="fab fa-microsoft"></i></div>
+                <div class="tech-icon gcp"><i class="fab fa-google"></i></div>
+                <div class="tech-icon docker"><i class="fab fa-docker"></i></div>
+                <div class="tech-icon k8s"><i class="fas fa-dharmachakra"></i></div>
+            </div>
+            <div class="hero-content">
+                <h1 class="hero-title">VAMSHI</h1>
+                <h2 class="hero-subtitle">CLOUD DEVOPS ARCHITECT</h2>
+                <p class="hero-description">
+                    Transforming Infrastructure | Scaling Solutions | Architecting Tomorrow
+                </p>
+                <button class="cta-button" onclick="scrollToSkills()">EXPLORE EXPERTISE</button>
+            </div>
+        </section>
+
+        <!-- Skills Section -->
+        <section class="skills-section" id="skills">
+            <h2 class="section-title">TECHNICAL ARSENAL</h2>
+            <div class="skills-grid">
+                <div class="skill-card">
+                    <h3><i class="fas fa-cloud"></i> Cloud Architecture</h3>
+                    <ul class="skill-list">
+                        <li>AWS Solutions Architecture</li>
+                        <li>Azure Enterprise Integration</li>
+                        <li>Google Cloud Platform</li>
+                        <li>Multi-Cloud Strategies</li>
+                        <li>Serverless Computing</li>
+                        <li>Event-Driven Systems</li>
+                    </ul>
+                </div>
+                <div class="skill-card">
+                    <h3><i class="fas fa-dharmachakra"></i> Platform Engineering</h3>
+                    <ul class="skill-list">
+                        <li>Kubernetes (EKS, GKE, AKS)</li>
+                        <li>Docker Containerization</li>
+                        <li>Service Mesh Architecture</li>
+                        <li>Microservices Patterns</li>
+                        <li>Container Orchestration</li>
+                        <li>Auto-scaling Solutions</li>
+                    </ul>
+                </div>
+                <div class="skill-card">
+                    <h3><i class="fas fa-code-branch"></i> Infrastructure & Automation</h3>
+                    <ul class="skill-list">
+                        <li>Terraform (HashiCorp Certified)</li>
+                        <li>CloudFormation Templates</li>
+                        <li>Ansible Playbooks</li>
+                        <li>Python/Bash Scripting</li>
+                        <li>GitOps Workflows</li>
+                        <li>Infrastructure as Code</li>
+                    </ul>
+                </div>
+                <div class="skill-card">
+                    <h3><i class="fas fa-shield-alt"></i> DevSecOps & Monitoring</h3>
+                    <ul class="skill-list">
+                        <li>GitHub Actions & Jenkins</li>
+                        <li>ArgoCD & GitOps</li>
+                        <li>Prometheus & Grafana</li>
+                        <li>ELK Stack & Observability</li>
+                        <li>Security Scanning & Compliance</li>
+                        <li>Site Reliability Engineering</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Experience Section -->
+        <section class="experience-section">
+            <h2 class="section-title">PROFESSIONAL JOURNEY</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h3 class="job-title">Lead/Solutions Architect</h3>
+                        <div class="company">Searce | Hyderabad</div>
+                        <div class="duration">06/2024 - Current</div>
+                        <ul class="achievements">
+                            <li>Architected Azure-to-AWS migration achieving 45% cost reduction</li>
+                            <li>Led microservices modernization supporting 100M+ daily transactions</li>
+                            <li>Designed observability stack adopted by 10+ enterprise clients</li>
+                            <li>Implemented GitOps-based CI/CD with automated security scanning</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h3 class="job-title">Cloud DevOps Consultant</h3>
+                        <div class="company">Deloitte USI | Hyderabad</div>
+                        <div class="duration">11/2020 - 06/2024</div>
+                        <ul class="achievements">
+                            <li>Scaled Kubernetes clusters supporting 200+ applications</li>
+                            <li>Reduced infrastructure provisioning time by 80%</li>
+                            <li>Implemented ELK stack reducing incident response to 15 minutes</li>
+                            <li>Achieved 100% audit compliance through automation</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h3 class="job-title">Cloud Platform Engineer</h3>
+                        <div class="company">NTT Data Global | Bangalore</div>
+                        <div class="duration">06/2018 - 11/2020</div>
+                        <ul class="achievements">
+                            <li>Achieved 99.8% uptime serving 10M+ monthly transactions</li>
+                            <li>Built microservices architecture improving performance by 65%</li>
+                            <li>Developed CI/CD pipelines supporting 100+ microservices</li>
+                            <li>Created serverless functions processing 1M+ events daily</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h3 class="job-title">Systems Engineer</h3>
+                        <div class="company">Onmobile Global | Bangalore</div>
+                        <div class="duration">07/2015 - 05/2018</div>
+                        <ul class="achievements">
+                            <li>Automated systems hardening across 500+ servers</li>
+                            <li>Developed 50+ Ansible playbooks for configuration management</li>
+                            <li>Implemented production changes in large-scale AWS environments</li>
+                            <li>Created Lambda functions for task automation</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Custom Cursor
+        const cursor = document.querySelector('.cursor');
+        let mouseX = 0, mouseY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function animateCursor() {
+            cursor.style.left = mouseX + 'px';
+            cursor.style.top = mouseY + 'px';
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        // Cursor interactions
+        document.querySelectorAll('button, .skill-card, .timeline-item').forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('active'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('active'));
+        });
+
+        // Particle System
+        function createParticles() {
+            const particlesContainer = document.querySelector('.particles');
+            setInterval(() => {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                particlesContainer.appendChild(particle);
+                
+                setTimeout(() => particle.remove(), 15000);
+            }, 500);
+        }
+
+        // Neural Network
+        function createNeuralNetwork() {
+            const network = document.querySelector('.neural-network');
+            for (let i = 0; i < 20; i++) {
+                const node = document.createElement('div');
+                node.className = 'neural-node';
+                node.style.left = Math.random() * 100 + '%';
+                node.style.top = Math.random() * 100 + '%';
+                node.style.animationDelay = Math.random() * 3 + 's';
+                network.appendChild(node);
+                
+                if (i > 0) {
+                    const connection = document.createElement('div');
+                    connection.className = 'neural-connection';
+                    connection.style.left = Math.random() * 100 + '%';
+                    connection.style.top = Math.random() * 100 + '%';
+                    connection.style.width = Math.random() * 200 + 50 + 'px';
+                    connection.style.transform = `rotate(${Math.random() * 360}deg)`;
+                    network.appendChild(connection);
+                }
+            }
+        }
+
+        // Auto-scroll to hero after boot
+        function autoScrollToHero() {
+            setTimeout(() => {
+                document.querySelector('.hero').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            }, 6500);
+        }
+
+        // Smooth scroll to skills
+        function scrollToSkills() {
+            document.getElementById('skills').scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+
+        // Timeline animation on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.timeline-item').forEach(item => {
+            observer.observe(item);
+        });
+
+        // Initialize
+        createParticles();
+        createNeuralNetwork();
+        autoScrollToHero();
+
+        // Tech icons hover effects
+        document.querySelectorAll('.tech-icon').forEach(icon => {
+            icon.addEventListener('mouseenter', () => {
+                icon.style.animationPlayState = 'paused';
+            });
+            icon.addEventListener('mouseleave', () => {
+                icon.style.animationPlayState = 'running';
+            });
+        });
+    </script>
+</body>
+</html>
