@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AWS Day 4: ELB & Auto Scaling</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Amazon Ember', 'Helvetica Neue', Roboto, Arial, sans-serif;
+      background-color: #f2f3f3;
+      color: #232f3e;
+      line-height: 1.6;
+    }
+    
+    .aws-header {
+      background-color: #000000;
+      color: white;
+      padding: 0;
+    }
+    
+    .aws-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      height: 48px;
+      background-color: #232f3e;
+    }
+    
+    .aws-logo-section {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    
+    .aws-logo {
+      background-color: #ff9900;
+      color: #000000;
+      padding: 8px 16px;
+      font-size: 18px;
+      font-weight: 700;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .page-title-header {
+      font-size: 16px;
+      font-weight: 400;
+      color: white;
+    }
+    
+    .linkedin-button {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background-color: transparent;
+      color: #ff9900;
+      border: 1px solid #ff9900;
+      padding: 6px 14px;
+      border-radius: 2px;
+      font-size: 13px;
+      font-weight: 400;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    
+    .linkedin-button:hover {
+      background-color: #ff9900;
+      color: #000000;
+    }
+    
+    .linkedin-icon {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+    
+    .aws-breadcrumb {
+      background-color: #f9f9f9;
+      padding: 12px 20px;
+      border-bottom: 1px solid #d5dbdb;
+      font-size: 14px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    
+    .page-header {
+      margin-bottom: 32px;
+    }
+    
+    .page-title {
+      font-size: 28px;
+      font-weight: 300;
+      color: #232f3e;
+      margin-bottom: 8px;
+    }
+    
+    .page-description {
+      font-size: 14px;
+      color: #687078;
+      line-height: 1.5;
+    }
+    
+    .tab-container {
+      border-bottom: 1px solid #d5dbdb;
+      margin-bottom: 24px;
+      display: flex;
+    }
+    
+    .tab-button {
+      background: none;
+      border: none;
+      padding: 16px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #687078;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s ease;
+    }
+    
+    .tab-button:hover {
+      color: #232f3e;
+      background-color: #fafafa;
+    }
+    
+    .tab-button.active {
+      color: #d13212;
+      border-bottom-color: #d13212;
+      background-color: white;
+    }
+    
+    .tab-content {
+      display: none;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .content-header {
+      background-color: #fafafa;
+      padding: 20px 24px;
+      border-bottom: 1px solid #d5dbdb;
+    }
+    
+    .content-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-bottom: 8px;
+    }
+    
+    .content-subtitle {
+      font-size: 14px;
+      color: #687078;
+    }
+    
+    .content-body {
+      padding: 24px;
+    }
+    
+    .difficulty-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      padding: 12px 16px;
+      background-color: #f9f9f9;
+      border-radius: 4px;
+      border-left: 4px solid #d13212;
+    }
+    
+    .difficulty-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-right: 12px;
+    }
+    
+    .difficulty-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #d5dbdb;
+    }
+    
+    .difficulty-dot.active { background: #1b660f; }
+    .difficulty-dot.medium { background: #ff9900; }
+    .difficulty-dot.hard { background: #d13212; }
+    
+    .difficulty-text {
+      font-size: 14px;
+      color: #687078;
+      margin-left: 8px;
+    }
+    
+    .flashcard-container {
+      perspective: 1000px;
+      margin: 24px 0;
+    }
+    
+    .flashcard {
+      width: 100%;
+      height: 450px;
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+      position: relative;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .flashcard:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .flip {
+      transform: rotateY(180deg);
+    }
+    
+    .front, .back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+    
+    .front {
+      background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+      color: #232f3e;
+    }
+    
+    .back {
+      background: linear-gradient(135deg, #fff4e6 0%, #ffe6cc 100%);
+      color: #232f3e;
+      transform: rotateY(180deg);
+    }
+    
+    .card-category {
+      font-size: 12px;
+      font-weight: 500;
+      color: #d13212;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+      padding: 4px 12px;
+      background-color: rgba(209, 50, 18, 0.1);
+      border-radius: 12px;
+    }
+    
+    .card-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+    
+    .card-content {
+      font-size: 15px;
+      line-height: 1.6;
+      color: #232f3e;
+      text-align: left;
+      width: 100%;
+    }
+    
+    .card-content strong {
+      color: #d13212;
+      font-weight: 600;
+    }
+    
+    .card-content ul {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+    
+    .card-content li {
+      margin: 8px 0;
+      list-style-type: none;
+      position: relative;
+      padding-left: 20px;
+    }
+    
+    .card-content li:before {
+      content: "▸";
+      position: absolute;
+      left: 0;
+      color: #d13212;
+      font-weight: bold;
+    }
+    
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+      padding: 16px;
+      background-color: #fafafa;
+      border-radius: 4px;
+    }
+    
+    .btn-aws {
+      background-color: #d13212;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    
+    .btn-aws:hover {
+      background-color: #b12a1a;
+    }
+    
+    .btn-aws:disabled {
+      background-color: #d5dbdb;
+      color: #687078;
+      cursor: not-allowed;
+    }
+    
+    .btn-secondary {
+      background-color: #fafafa;
+      color: #232f3e;
+      border: 1px solid #d5dbdb;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #f2f3f3;
+    }
+    
+    .progress-info {
+      font-size: 14px;
+      color: #687078;
+      text-align: center;
+      flex: 1;
+      margin: 0 16px;
+    }
+    
+    .progress-text {
+      font-weight: 500;
+      color: #232f3e;
+    }
+    
+    /* Assessment Timer and Progress */
+    .assessment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding: 16px;
+      background-color: #fafafa;
+      border-radius: 8px;
+      border: 1px solid #d5dbdb;
+    }
+    
+    .timer-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 16px;
+      font-weight: 500;
+    }
+    
+    .timer {
+      color: #d13212;
+      font-size: 20px;
+      font-weight: 600;
+      min-width: 60px;
+    }
+    
+    .timer.warning {
+      color: #ff9900;
+      animation: pulse 1s infinite;
+    }
+    
+    .timer.danger {
+      color: #d13212;
+      animation: pulse 0.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+    
+    .progress-container {
+      flex: 1;
+      margin: 0 24px;
+    }
+    
+    .progress-bar-wrapper {
+      background-color: #e6e6e6;
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background-color: #d13212;
+      transition: width 0.3s ease;
+      border-radius: 4px;
+    }
+    
+    .progress-label {
+      font-size: 14px;
+      color: #687078;
+      text-align: center;
+    }
+    
+    /* Question Navigation */
+    .question-nav-container {
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    
+    .current-question {
+      display: block;
+    }
+    
+    .question-container {
+      display: none;
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    
+    .question-container.active {
+      display: block;
+    }
+    
+    .question-header {
+      background-color: #f9f9f9;
+      padding: 16px 20px;
+      border-bottom: 1px solid #d5dbdb;
+    }
+    
+    .scenario-tag {
+      display: inline-block;
+      background-color: #d13212;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    
+    .question-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: #232f3e;
+      line-height: 1.5;
+    }
+    
+    .question-body {
+      padding: 20px;
+    }
+    
+    .option-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .option {
+      display: flex;
+      align-items: flex-start;
+      padding: 12px 16px;
+      background: #fafafa;
+      border: 1px solid #d5dbdb;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .option:hover {
+      background-color: #f2f3f3;
+      border-color: #d13212;
+    }
+    
+    .option.selected {
+      background-color: #fff4e6;
+      border-color: #d13212;
+    }
+    
+    .option input {
+      margin-right: 12px;
+      margin-top: 2px;
+    }
+    
+    .option label {
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1.5;
+      flex: 1;
+    }
+    
+    .quiz-navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+      padding: 16px;
+      background-color: #fafafa;
+      border-radius: 8px;
+    }
+    
+    .nav-button {
+      background-color: #687078;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    
+    .nav-button:hover:not(:disabled) {
+      background-color: #232f3e;
+    }
+    
+    .nav-button:disabled {
+      background-color: #d5dbdb;
+      cursor: not-allowed;
+    }
+    
+    .nav-button.primary {
+      background-color: #d13212;
+    }
+    
+    .nav-button.primary:hover {
+      background-color: #b12a1a;
+    }
+    
+    .quiz-submit {
+      text-align: center;
+      margin: 32px 0;
+    }
+    
+    .btn-submit {
+      background-color: #d13212;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    
+    .btn-submit:hover {
+      background-color: #b12a1a;
+    }
+    
+    .result {
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      padding: 24px;
+      margin-top: 24px;
+      display: none;
+      text-align: center;
+    }
+    
+    .result.show {
+      display: block;
+    }
+    
+    .score-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background-color: #d13212;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 600;
+      margin: 0 auto 24px;
+      box-shadow: 0 4px 12px rgba(209, 50, 18, 0.3);
+    }
+    
+    .result-title {
+      font-size: 24px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-bottom: 12px;
+    }
+    
+    .result-subtitle {
+      font-size: 18px;
+      color: #687078;
+      margin-bottom: 24px;
+    }
+    
+    .result-details {
+      text-align: left;
+      margin-top: 32px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    
+    .result-item {
+      margin: 12px 0;
+      padding: 16px;
+      border-radius: 4px;
+      border-left: 4px solid;
+    }
+    
+    .result-item.correct {
+      background-color: #f0f8f0;
+      border-color: #1b660f;
+    }
+    
+    .result-item.incorrect {
+      background-color: #fdf2f2;
+      border-color: #d13212;
+    }
+    
+    .result-item-header {
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #232f3e;
+    }
+    
+    .result-item-explanation {
+      font-size: 14px;
+      color: #687078;
+      line-height: 1.6;
+    }
+    
+    .btn-reset {
+      background-color: #687078;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 16px;
+    }
+    
+    .btn-reset:hover {
+      background-color: #232f3e;
+    }
+  </style>
+</head>
+<body>
+  <div class="aws-header">
+    <div class="aws-nav">
+      <div class="aws-logo-section">
+        <div class="aws-logo">AWS</div>
+        <div class="page-title-header">ELB & Auto Scaling Training</div>
+      </div>
+      <a href="https://www.linkedin.com/in/vamshi-majhi-a59727102/" target="_blank" class="linkedin-button">
+        <svg class="linkedin-icon" viewBox="0 0 24 24">
+          <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+        </svg>
+        LinkedIn
+      </a>
+    </div>
+  </div>
+  
+  <div class="aws-breadcrumb">
+    <span><a href="https://codewrapr.github.io/AWS-Cloud-Challenge/index.html" style="color: #0073bb; font-weight: bold; text-decoration: none;">AWS Training</a> > Day 4: ELB & Auto Scaling</span>
+  </div>
+  
+  <div class="container">
+    <div class="page-header">
+      <h1 class="page-title">AWS Elastic Load Balancer & Auto Scaling</h1>
+      <p class="page-description">
+        Master AWS load balancing and auto scaling fundamentals including ALB, NLB, CLB features, target groups, health checks, 
+        auto scaling policies, and building highly available, scalable architectures.
+      </p>
+    </div>
+    
+    <div class="tab-container">
+      <button class="tab-button active" onclick="showTab('learn')">ELB & Auto Scaling</button>
+      <button class="tab-button" onclick="showTab('assessment')">Assessment (20 Questions)</button>
+    </div>
+
+    <div id="learn" class="tab-content active">
+      <div class="content-header">
+        <h2 class="content-title">Interactive ELB & Auto Scaling Mastery</h2>
+        <p class="content-subtitle">
+          Comprehensive training with 24 detailed flashcards covering all load balancer types, auto scaling strategies, 
+          health checks, and high availability architectures for production workloads.
+        </p>
+      </div>
+      
+      <div class="content-body">
+        <div class="difficulty-indicator">
+          <span class="difficulty-label">Complexity Level:</span>
+          <div class="difficulty-dot" id="diff1"></div>
+          <div class="difficulty-dot" id="diff2"></div>
+          <div class="difficulty-dot" id="diff3"></div>
+          <span class="difficulty-text" id="diffLabel">Foundation</span>
+        </div>
+        
+        <div class="flashcard-container">
+          <div id="flashcard" class="flashcard" onclick="flipCard()">
+            <div class="front">
+              <div class="card-category" id="frontCategory"></div>
+              <div class="card-title" id="frontTitle"></div>
+            </div>
+            <div class="back">
+              <div class="card-category">Explanation</div>
+              <div class="card-title">Detailed Solution</div>
+              <div class="card-content" id="backText"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="controls">
+          <button class="btn-aws btn-secondary" onclick="prevCard()" id="prevBtn">Previous</button>
+          <div class="progress-info">
+            <div class="progress-text" id="progressText"></div>
+            <div style="font-size: 12px; color: #687078; margin-top: 4px;">
+              Click card to flip • Use arrow keys to navigate
+            </div>
+          </div>
+          <button class="btn-aws" onclick="nextCard()" id="nextBtn">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="assessment" class="tab-content">
+      <div class="content-header">
+        <h2 class="content-title">Real-World ELB & Auto Scaling Assessment</h2>
+        <p class="content-subtitle">
+          Test your expertise with 20 comprehensive scenarios covering load balancer selection, auto scaling optimization, 
+          health check configuration, and high availability architecture design.
+        </p>
+      </div>
+      
+      <div class="content-body">
+        <div class="assessment-header">
+          <div class="timer-container">
+            <span>Time Remaining:</span>
+            <span class="timer" id="timer">30:00</span>
+          </div>
+          <div class="progress-container">
+            <div class="progress-bar-wrapper">
+              <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+            </div>
+            <div class="progress-label">
+              Question <span id="currentQuestion">1</span> of <span id="totalQuestions">20</span>
+            </div>
+          </div>
+          <button class="nav-button primary" onclick="submitQuiz()">Submit Assessment</button>
+        </div>
+        
+        <div class="question-nav-container">
+          <div id="quiz-questions"></div>
+          <div class="quiz-navigation">
+            <button class="nav-button" onclick="previousQuestion()" id="prevQuestionBtn">Previous Question</button>
+            <button class="nav-button" onclick="nextQuestion()" id="nextQuestionBtn">Next Question</button>
+          </div>
+        </div>
+        
+        <div class="result" id="resultBox"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var currentCard = 0;
+    var isFlipped = false;
+    var currentQuestionIndex = 0;
+    var timerInterval;
+    var timeRemaining = 1800; // 30 minutes in seconds
+    
+    var flashcards = [
+      {
+        level: 1,
+        front: "Why Use a Load Balancer?",
+        back: "<strong>Definition:</strong> A load balancer is a device that distributes network traffic across multiple servers to ensure no single server bears too much demand.<br><br><strong>Key Benefits:</strong><ul><li><strong>Distribute traffic</strong> across multiple servers</li><li><strong>High availability</strong> - automatic failover when servers fail</li><li><strong>SSL termination</strong> - offload encryption/decryption processing</li><li><strong>Zero-downtime deployments</strong> - route traffic during updates</li><li><strong>Health monitoring</strong> - route only to healthy instances</li><li><strong>Session stickiness</strong> - maintain user sessions with same server</li><li><strong>Single DNS endpoint</strong> - hide backend complexity from users</li><li><strong>Separate public/private traffic</strong> - security isolation</li></ul>",
+        category: "Load Balancer Benefits"
+      },
+      {
+        level: 1,
+        front: "Why Use AWS Elastic Load Balancer?",
+        back: "<strong>Definition:</strong> AWS ELB is a fully managed load balancing service that automatically distributes incoming application traffic across multiple targets in AWS.<br><br><strong>AWS ELB Advantages:</strong><ul><li><strong>Fully managed service</strong> - no maintenance required</li><li><strong>Guaranteed uptime</strong> - AWS handles availability (99.99% SLA)</li><li><strong>Cost savings</strong> - 40-60% less than self-managed</li><li><strong>Deep AWS integration:</strong><ul><li>EC2 Auto Scaling Groups</li><li>ECS/EKS containers</li><li>Lambda functions</li><li>AWS Certificate Manager</li></ul></li><li><strong>CloudWatch monitoring</strong> built-in</li><li><strong>Instant deployment</strong> - no infrastructure setup</li></ul>",
+        category: "AWS ELB Advantages"
+      },
+      {
+        level: 1,
+        front: "What is Elastic Load Balancing (ELB)?",
+        back: "<strong>Definition:</strong> ELB automatically distributes incoming application traffic across multiple targets, such as EC2 instances, containers, and IP addresses.<br><br><strong>Core Components:</strong><ul><li><strong>Load Balancer</strong> - The resource that receives incoming requests</li><li><strong>Listener</strong> - Process that checks for connection requests on configured port/protocol</li><li><strong>Target Group</strong> - Logical grouping of targets that receive routed requests</li><li><strong>Target</strong> - Destination resource (EC2, container, IP, Lambda)</li><li><strong>Health Check</strong> - Periodic test to verify target availability</li></ul><strong>Load Balancer Types:</strong><ul><li><strong>ALB</strong> - Application Load Balancer (Layer 7 - HTTP/HTTPS)</li><li><strong>NLB</strong> - Network Load Balancer (Layer 4 - TCP/UDP)</li><li><strong>GLB</strong> - Gateway Load Balancer (Layer 3 - Network)</li><li><strong>CLB</strong> - Classic Load Balancer (Legacy - Layer 4/7)</li></ul>",
+        category: "ELB Fundamentals"
+      },
+      {
+        level: 1,
+        front: "Load Balancer Types Comparison",
+        back: "<strong>Application Load Balancer (ALB):</strong><ul><li><strong>Definition:</strong> Layer 7 load balancer for HTTP/HTTPS traffic</li><li>Path and host-based routing</li><li>WebSocket & HTTP/2 support</li><li>Lambda function targets</li><li>Authentication integration</li></ul><strong>Network Load Balancer (NLB):</strong><ul><li><strong>Definition:</strong> Layer 4 load balancer for TCP/UDP traffic</li><li>Ultra-low latency (~100 microseconds)</li><li>Static IP addresses per AZ</li><li>Millions of requests per second</li><li>Source IP preservation</li></ul><strong>Gateway Load Balancer (GLB):</strong><ul><li><strong>Definition:</strong> Layer 3 load balancer for third-party virtual appliances</li><li>GENEVE protocol support (port 6081)</li><li>Transparent network gateway</li></ul>",
+        category: "Load Balancer Types"
+      },
+      {
+        level: 2,
+        front: "Application Load Balancer (ALB) Advanced Features",
+        back: "<strong>Routing Capabilities:</strong><ul><li><strong>Path-based routing</strong> - Route based on URL path (/api/* → API servers)</li><li><strong>Host-based routing</strong> - Route based on hostname (api.example.com)</li><li><strong>HTTP header routing</strong> - Route based on custom headers</li><li><strong>HTTP method routing</strong> - Route based on GET, POST, etc.</li><li><strong>Query string routing</strong> - Route based on parameters (?version=2)</li></ul><strong>Advanced Features:</strong><ul><li><strong>WebSocket</strong> - Full-duplex communication channels</li><li><strong>HTTP/2</strong> - Multiplexed streams over single connection</li><li><strong>Authentication</strong> - OIDC, SAML, Amazon Cognito</li><li><strong>SSL/TLS termination</strong> - Decrypt at load balancer</li><li><strong>SNI (Server Name Indication)</strong> - Multiple SSL certificates</li><li><strong>Target types:</strong> EC2 instances, IP addresses, Lambda functions</li></ul>",
+        category: "ALB Features"
+      },
+      {
+        level: 2,
+        front: "Network Load Balancer (NLB) Deep Dive",
+        back: "<strong>Performance Characteristics:</strong><ul><li><strong>Ultra-low latency</strong> - ~100 microseconds vs ALB's milliseconds</li><li><strong>Extreme throughput</strong> - Millions of requests per second</li><li><strong>Static IP per AZ</strong> - Firewall-friendly, doesn't change</li><li><strong>Elastic IP support</strong> - Bring your own IP addresses</li></ul><strong>Key Features:</strong><ul><li><strong>Source IP preservation</strong> - See real client IPs without headers</li><li><strong>Flow hash algorithm</strong> - 5-tuple (source IP/port, dest IP/port, protocol)</li><li><strong>Cross-zone load balancing</strong> - Distribute across AZs (optional, costs extra)</li><li><strong>SSL/TLS support:</strong><ul><li><strong>Termination</strong> - Decrypt at NLB</li><li><strong>Passthrough</strong> - End-to-end encryption</li></ul></li><li><strong>Protocol support:</strong> TCP, UDP, TLS</li></ul>",
+        category: "NLB Features"
+      },
+      {
+        level: 1,
+        front: "Health Checks Fundamentals",
+        back: "<strong>Definition:</strong> Health checks are periodic tests performed by the load balancer to determine if targets are available to handle requests.<br><br><strong>Health Check Types:</strong><ul><li><strong>HTTP</strong> - Expects 200-399 status codes</li><li><strong>HTTPS</strong> - Encrypted health checks</li><li><strong>TCP</strong> - Basic connection test</li></ul><strong>Configuration Parameters:</strong><ul><li><strong>Interval</strong> - Time between health checks (5-300 seconds)</li><li><strong>Timeout</strong> - Time to wait for response (2-120 seconds)</li><li><strong>Healthy threshold</strong> - Consecutive successes to mark healthy (2-10)</li><li><strong>Unhealthy threshold</strong> - Consecutive failures to mark unhealthy (2-10)</li></ul><strong>Best Practices:</strong><ul><li>Use lightweight health endpoints (/health)</li><li>Check critical dependencies</li><li>Avoid complex processing</li></ul>",
+        category: "Health Checks"
+      },
+      {
+        level: 2,
+        front: "Target Groups and Registration",
+        back: "<strong>Definition:</strong> Target groups route requests to one or more registered targets using specified protocol and port number.<br><br><strong>Target Types:</strong><ul><li><strong>Instance</strong> - EC2 instances registered by instance ID</li><li><strong>IP</strong> - IP addresses (for on-premises or other clouds)</li><li><strong>Lambda</strong> - Serverless functions for request processing</li></ul><strong>Key Attributes:</strong><ul><li><strong>Deregistration delay</strong> - Time to complete in-flight requests (0-3600s)<ul><li>Definition: Grace period before removing target</li><li>Default: 300 seconds</li></ul></li><li><strong>Stickiness</strong> - Route requests from same client to same target<ul><li>Duration-based (1 sec - 7 days)</li><li>Application-based cookies</li></ul></li><li><strong>Slow start mode</strong> - Gradually increase traffic (30-900s)<ul><li>Definition: Time for new targets to warm up</li><li>Prevents overwhelming new instances</li></ul></li></ul>",
+        category: "Target Groups"
+      },
+      {
+        level: 1,
+        front: "Auto Scaling Groups (ASG) Overview",
+        back: "<strong>Definition:</strong> Auto Scaling Groups automatically adjust the number of EC2 instances based on demand or a defined schedule.<br><br><strong>Core Components:</strong><ul><li><strong>Launch Template</strong> - Blueprint for instance configuration<ul><li>AMI ID, instance type</li><li>Security groups, key pair</li><li>User data, IAM role</li></ul></li><li><strong>Scaling Boundaries:</strong><ul><li><strong>Minimum capacity</strong> - Lowest number of instances</li><li><strong>Desired capacity</strong> - Target number of instances</li><li><strong>Maximum capacity</strong> - Highest number of instances</li></ul></li><li><strong>Health Check Types:</strong><ul><li><strong>EC2</strong> - Basic instance status checks</li><li><strong>ELB</strong> - Application-level health via load balancer</li></ul></li></ul><strong>Key Benefits:</strong><ul><li><strong>High availability</strong> - Replace unhealthy instances automatically</li><li><strong>Cost optimization</strong> - Scale down during low demand</li><li><strong>Multi-AZ distribution</strong> - Spread across availability zones</li></ul>",
+        category: "Auto Scaling Basics"
+      },
+      {
+        level: 2,
+        front: "Auto Scaling Policies Deep Dive",
+        back: "<strong>Policy Types:</strong><ul><li><strong>Target Tracking (Recommended)</strong><ul><li>Definition: Maintains a metric at target value</li><li>Automatic scale in/out decisions</li><li>Examples: 70% CPU, 1000 requests/target</li></ul></li><li><strong>Step Scaling</strong><ul><li>Definition: Different actions based on alarm breach size</li><li>More granular control but complex setup</li></ul></li><li><strong>Scheduled Scaling</strong><ul><li>Definition: Scale based on known schedule</li><li>Good for predictable patterns</li></ul></li><li><strong>Predictive Scaling</strong><ul><li>Definition: ML-based forecast of future demand</li><li>Requires 14+ days of historical data</li></ul></li></ul><strong>Configuration Terms:</strong><ul><li><strong>Cooldown period</strong> - Pause between scaling activities (default 300s)</li><li><strong>Instance warmup</strong> - Time before including in metrics</li><li><strong>Scale-in protection</strong> - Prevent specific instance termination</li></ul>",
+        category: "Scaling Policies"
+      },
+      {
+        level: 2,
+        front: "Horizontal vs Vertical Scaling",
+        back: "<strong>Definitions:</strong><br><strong>Horizontal Scaling:</strong> Adding more instances (Scale Out)<br><strong>Vertical Scaling:</strong> Increasing instance size (Scale Up)<br><br><strong>Horizontal Scaling (Scale Out):</strong><ul><li><strong>Advantages:</strong><ul><li>No downtime required</li><li>Unlimited scaling potential</li><li>Fault tolerance improved</li><li>Load distribution</li></ul></li><li><strong>Challenges:</strong><ul><li>Application must be stateless</li><li>More complex architecture</li><li>Data consistency concerns</li></ul></li></ul><strong>Vertical Scaling (Scale Up):</strong><ul><li><strong>Advantages:</strong><ul><li>Simple implementation</li><li>No architecture changes</li><li>Works with any application</li></ul></li><li><strong>Limitations:</strong><ul><li>Downtime required</li><li>Hardware limits (max instance size)</li><li>Single point of failure</li></ul></li></ul>",
+        category: "Scaling Strategies"
+      },
+      {
+        level: 2,
+        front: "ELB and Auto Scaling Integration",
+        back: "<strong>Integration Benefits:</strong><ul><li><strong>Automatic registration</strong> - New instances added to load balancer</li><li><strong>Health check integration</strong> - Unhealthy instances replaced</li><li><strong>Connection draining</strong> - Graceful request completion<ul><li>Definition: Complete in-flight requests before termination</li></ul></li><li><strong>Multi-AZ deployment</strong> - Distribute across availability zones</li></ul><strong>Scaling Triggers:</strong><ul><li><strong>ALB metrics:</strong><ul><li><strong>RequestCountPerTarget</strong> - Requests per registered target</li><li><strong>TargetResponseTime</strong> - Response latency</li></ul></li><li><strong>System metrics:</strong><ul><li>CPU utilization</li><li>Memory usage (requires CloudWatch agent)</li><li>Network I/O</li></ul></li></ul><strong>Best Practices:</strong><ul><li>Use multiple metrics for decisions</li><li>Set appropriate thresholds</li><li>Test scaling behavior under load</li></ul>",
+        category: "ELB-ASG Integration"
+      },
+      {
+        level: 3,
+        front: "ALB Advanced Routing Rules",
+        back: "<strong>Routing Conditions:</strong><ul><li><strong>Host headers</strong> - Route by domain (api.example.com)</li><li><strong>Path patterns</strong> - URL path matching (/api/v2/*)</li><li><strong>HTTP headers</strong> - Custom header values (X-Custom-Header: value)</li><li><strong>HTTP methods</strong> - GET, POST, PUT, DELETE</li><li><strong>Query strings</strong> - URL parameters (?version=2&debug=true)</li><li><strong>Source IP</strong> - Client IP ranges (CIDR blocks)</li></ul><strong>Actions Available:</strong><ul><li><strong>Forward</strong> - Route to target groups<ul><li>Single target group</li><li>Weighted distribution (percentage-based)</li></ul></li><li><strong>Redirect</strong> - URL redirection (HTTP to HTTPS)</li><li><strong>Fixed response</strong> - Return static content</li><li><strong>Authenticate</strong> - Verify identity before routing</li></ul><strong>Rule Evaluation:</strong><ul><li><strong>Priority</strong> - Rules evaluated in order (1-50000)</li><li><strong>Default rule</strong> - Catch-all, evaluated last</li></ul>",
+        category: "Advanced Routing"
+      },
+      {
+        level: 3,
+        front: "NLB Advanced Configuration",
+        back: "<strong>Cross-Zone Load Balancing:</strong><ul><li><strong>Definition:</strong> Distribute traffic evenly across all targets in all enabled AZs</li><li><strong>Default:</strong> Disabled for NLB (enabled for ALB)</li><li><strong>Cost:</strong> $0.01/GB for cross-AZ data transfer</li><li><strong>Benefit:</strong> Even distribution regardless of targets per AZ</li><li><strong>Trade-off:</strong> Latency (1-5ms) vs even distribution</li></ul><strong>IP Preservation Options:</strong><ul><li><strong>Client IP preservation</strong> - See original source IP</li><li><strong>Proxy Protocol v2</strong> - Preserve client info for TCP/TLS</li><li><strong>Static IP assignment</strong> - One elastic IP per AZ</li></ul><strong>Advanced Features:</strong><ul><li><strong>Flow hash algorithm</strong> - Consistent routing using 5-tuple<ul><li>Source IP/port + Destination IP/port + Protocol</li></ul></li><li><strong>Zone affinity</strong> - Keep traffic within same AZ</li></ul>",
+        category: "Advanced NLB"
+      },
+      {
+        level: 2,
+        front: "SSL/TLS Termination and Certificate Management",
+        back: "<strong>Definitions:</strong><br><strong>SSL Termination:</strong> Decrypting HTTPS traffic at the load balancer<br><strong>SSL Passthrough:</strong> Forwarding encrypted traffic to targets<br><br><strong>SSL/TLS Options:</strong><ul><li><strong>SSL Termination at LB</strong><ul><li>Decrypt at load balancer level</li><li>Send HTTP to backend servers</li><li>Reduces backend CPU load</li></ul></li><li><strong>End-to-End SSL</strong><ul><li>Re-encrypt traffic to backends</li><li>HTTPS throughout entire path</li><li>Maximum security</li></ul></li><li><strong>SSL Passthrough (NLB only)</strong><ul><li>No decryption at load balancer</li><li>Backend handles all SSL/TLS</li><li>Preserves client certificates</li></ul></li></ul><strong>Certificate Management:</strong><ul><li><strong>AWS Certificate Manager (ACM)</strong><ul><li>Free SSL/TLS certificates</li><li>Automatic renewal</li><li>Wildcard support (*.example.com)</li></ul></li><li><strong>SNI (Server Name Indication)</strong><ul><li>Definition: Host multiple SSL certificates on one LB</li><li>Support different domains</li></ul></li></ul>",
+        category: "SSL/TLS Management"
+      },
+      {
+        level: 2,
+        front: "Auto Scaling Lifecycle Hooks",
+        back: "<strong>Definition:</strong> Lifecycle hooks pause Auto Scaling actions to perform custom actions on instances during launch or termination.<br><br><strong>Hook Types:</strong><ul><li><strong>Launch Hooks</strong><ul><li>State: <strong>Pending:Wait</strong></li><li>Use cases:<ul><li>Software installation</li><li>Configuration management</li><li>Register with monitoring</li></ul></li></ul></li><li><strong>Termination Hooks</strong><ul><li>State: <strong>Terminating:Wait</strong></li><li>Use cases:<ul><li>Graceful application shutdown</li><li>Log collection/backup</li><li>Deregister from services</li></ul></li></ul></li></ul><strong>Configuration:</strong><ul><li><strong>Heartbeat timeout</strong> - Max time for custom action (30s-2hrs)</li><li><strong>Default result</strong> - Action if timeout (CONTINUE/ABANDON)</li><li><strong>Notifications</strong> - SNS, SQS, EventBridge</li><li><strong>IAM role</strong> - Permissions for notifications</li></ul>",
+        category: "Lifecycle Management"
+      },
+      {
+        level: 3,
+        front: "Mixed Instance Types and Spot Integration",
+        back: "<strong>Definition:</strong> Mixed instances allow combining multiple instance types and purchase options (On-Demand, Spot) in a single Auto Scaling group.<br><br><strong>Configuration:</strong><ul><li><strong>Instance types</strong> - Up to 20 different types</li><li><strong>On-Demand base</strong> - Guaranteed minimum capacity</li><li><strong>Spot percentage</strong> - Portion above base as Spot</li></ul><strong>Spot Allocation Strategies:</strong><ul><li><strong>Capacity-optimized (Recommended)</strong><ul><li>Definition: Launch in pools with most available capacity</li><li>Lowest interruption probability</li></ul></li><li><strong>Lowest-price</strong><ul><li>Definition: Use cheapest Spot pools</li><li>Maximum savings, higher interruption risk</li></ul></li><li><strong>Diversified</strong><ul><li>Definition: Spread across all pools evenly</li><li>Balance between cost and availability</li></ul></li></ul><strong>Benefits:</strong><ul><li><strong>Cost savings</strong> - Up to 90% with Spot</li><li><strong>Availability</strong> - Multiple instance types reduce shortage risk</li><li><strong>Flexibility</strong> - Adapt to capacity constraints</li></ul>",
+        category: "Mixed Instances"
+      },
+      {
+        level: 2,
+        front: "CloudWatch Metrics and Monitoring",
+        back: "<strong>ALB Metrics:</strong><ul><li><strong>RequestCount</strong> - Total number of requests</li><li><strong>TargetResponseTime</strong> - Time to receive response (latency)</li><li><strong>HTTPCode_Target_XXX</strong> - Response codes (2XX, 4XX, 5XX)</li><li><strong>HealthyHostCount</strong> - Number of healthy targets</li><li><strong>UnHealthyHostCount</strong> - Number of failed targets</li></ul><strong>NLB Metrics:</strong><ul><li><strong>ActiveFlowCount</strong> - Concurrent TCP/UDP flows</li><li><strong>NewFlowCount</strong> - New connections per second</li><li><strong>ProcessedBytes</strong> - Total data transferred</li><li><strong>TCP_Client_Reset_Count</strong> - Client connection resets</li></ul><strong>ASG Metrics:</strong><ul><li><strong>GroupInServiceInstances</strong> - Running healthy instances</li><li><strong>GroupDesiredCapacity</strong> - Target instance count</li><li><strong>GroupPendingInstances</strong> - Instances launching</li><li><strong>GroupTerminatingInstances</strong> - Instances shutting down</li></ul><strong>Key Alarms to Set:</strong><ul><li>High response time (>1s)</li><li>Error rate (5XX > 1%)</li><li>Unhealthy target count</li></ul>",
+        category: "Monitoring"
+      },
+      {
+        level: 3,
+        front: "Predictive Scaling and Warm Pools",
+        back: "<strong>Predictive Scaling:</strong><br><strong>Definition:</strong> Uses machine learning to forecast traffic patterns and scale proactively.<ul><li><strong>Requirements:</strong><ul><li>14+ days of historical data</li><li>CloudWatch metrics enabled</li><li>Regular traffic patterns</li></ul></li><li><strong>Features:</strong><ul><li>48-hour forecast window</li><li>ML-based predictions</li><li>Proactive scaling before demand</li></ul></li><li><strong>Best for:</strong><ul><li>Recurring daily/weekly patterns</li><li>Business hours traffic</li><li>Seasonal variations</li></ul></li></ul><strong>Warm Pools:</strong><br><strong>Definition:</strong> Pre-initialized EC2 instances kept ready for faster scaling.<ul><li><strong>Instance States:</strong><ul><li><strong>Stopped</strong> - Lowest cost, slower to start</li><li><strong>Running</strong> - Highest cost, instant availability</li><li><strong>Hibernated</strong> - Memory preserved, faster than stopped</li></ul></li><li><strong>Configuration:</strong><ul><li>Min/max pool size</li><li>Instance reuse policy</li><li>Warmup time settings</li></ul></li><li><strong>Benefits:</strong><ul><li>Reduce scaling latency (seconds vs minutes)</li><li>Pre-installed software ready</li><li>Cost optimization vs cold starts</li></ul></li></ul>",
+        category: "Advanced Scaling"
+      },
+      {
+        level: 2,
+        front: "ELB Security Features",
+        back: "<strong>Security Layers:</strong><ul><li><strong>Security Groups</strong><ul><li>Definition: Virtual firewall for load balancer</li><li>Control inbound traffic rules</li><li>Port and protocol restrictions</li><li>Source IP/security group rules</li></ul></li><li><strong>Network ACLs</strong><ul><li>Definition: Subnet-level firewall</li><li>Stateless rules (both directions)</li><li>Additional defense layer</li></ul></li></ul><strong>ALB Security Features:</strong><ul><li><strong>AWS WAF (Web Application Firewall)</strong><ul><li>Protect against common exploits</li><li>SQL injection, XSS protection</li><li>Rate limiting, IP blocking</li></ul></li><li><strong>Authentication Options:</strong><ul><li><strong>Amazon Cognito</strong> - User pools</li><li><strong>OIDC</strong> - OpenID Connect providers</li><li><strong>SAML 2.0</strong> - Enterprise identity</li></ul></li></ul><strong>Monitoring & Protection:</strong><ul><li><strong>Access logs</strong> - Detailed request logs to S3</li><li><strong>CloudTrail</strong> - API call logging</li><li><strong>AWS Shield Standard</strong> - Basic DDoS protection (free)</li><li><strong>AWS Shield Advanced</strong> - Enhanced DDoS protection</li></ul>",
+        category: "Security"
+      },
+      {
+        level: 1,
+        front: "ELB vs Auto Scaling: When to Use Each",
+        back: "<strong>Use ELB When:</strong><ul><li><strong>High availability</strong> needed across multiple servers</li><li><strong>SSL termination</strong> required at edge</li><li><strong>Advanced routing</strong> based on content (Layer 7)</li><li><strong>Health monitoring</strong> of applications critical</li><li><strong>Fixed capacity</strong> is acceptable for workload</li></ul><strong>Use Auto Scaling When:</strong><ul><li><strong>Variable demand</strong> patterns exist</li><li><strong>Cost optimization</strong> is important</li><li><strong>Automatic replacement</strong> of failed instances needed</li><li><strong>Scheduled patterns</strong> in traffic (day/night)</li></ul><strong>Use Both Together For:</strong><ul><li><strong>Production applications</strong> requiring HA and elasticity</li><li><strong>Microservices architectures</strong> with varying loads</li><li><strong>Maximum fault tolerance</strong> across AZs</li><li><strong>Cost-performance optimization</strong></li><li><strong>Zero-downtime deployments</strong> with rolling updates</li></ul><strong>Architecture Pattern:</strong> ELB → Auto Scaling Group → EC2 Instances",
+        category: "Architecture Decisions"
+      },
+      {
+        level: 2,
+        front: "Cross-Zone Load Balancing",
+        back: "<strong>Definition:</strong> Cross-zone load balancing distributes traffic evenly across all registered targets in all enabled Availability Zones.<br><br><strong>How It Works:</strong><ul><li>Without: Each LB node routes only to targets in its AZ</li><li>With: Each LB node routes to targets in all AZs</li><li>Results in more even distribution</li></ul><strong>Load Balancer Defaults:</strong><ul><li><strong>ALB:</strong><ul><li>Enabled by default</li><li>No additional charges</li><li>Can be disabled per target group</li></ul></li><li><strong>NLB:</strong><ul><li>Disabled by default</li><li>Charges: $0.01/GB for cross-AZ traffic</li><li>Must enable manually</li></ul></li><li><strong>CLB:</strong><ul><li>Disabled by default</li><li>No additional charges when enabled</li></ul></li></ul><strong>Considerations:</strong><ul><li><strong>Latency:</strong> Adds 1-5ms for cross-AZ hops</li><li><strong>Cost:</strong> NLB incurs data transfer charges</li><li><strong>Distribution:</strong> More even load across all targets</li><li><strong>Availability:</strong> Better fault tolerance</li></ul>",
+        category: "Load Distribution"
+      },
+      {
+        level: 3,
+        front: "ELB Troubleshooting and Performance",
+        back: "<strong>Common HTTP Error Codes:</strong><ul><li><strong>502 Bad Gateway</strong><ul><li>Definition: LB received invalid response from target</li><li>Causes: Target crashed, malformed response</li><li>Fix: Check target application logs</li></ul></li><li><strong>503 Service Unavailable</strong><ul><li>Definition: No healthy targets available</li><li>Causes: All targets failing health checks</li><li>Fix: Verify health check configuration</li></ul></li><li><strong>504 Gateway Timeout</strong><ul><li>Definition: Target didn't respond within timeout</li><li>Causes: Slow application, timeout too short</li><li>Fix: Increase timeout or optimize app</li></ul></li></ul><strong>Performance Optimization:</strong><ul><li><strong>Connection settings:</strong><ul><li><strong>Idle timeout</strong> - Time before closing idle connections (1-4000s)</li><li><strong>Keep-alive</strong> - Reuse TCP connections</li><li><strong>Connection pooling</strong> - Reduce connection overhead</li></ul></li><li><strong>Health check tuning:</strong><ul><li>Use simple endpoint (/health)</li><li>Balance interval vs detection speed</li><li>Set thresholds based on app startup</li></ul></li></ul><strong>Monitoring Tools:</strong><ul><li><strong>Access logs</strong> - Detailed request analysis in S3</li><li><strong>CloudWatch</strong> - Real-time metrics and alarms</li><li><strong>X-Ray</strong> - Distributed request tracing</li></ul>",
+        category: "Troubleshooting"
+      },
+      {
+        level: 2,
+        front: "Auto Scaling Best Practices",
+        back: "<strong>Application Design:</strong><ul><li><strong>Stateless architecture</strong><ul><li>Definition: No local session/data storage</li><li>Store session in ElastiCache/DynamoDB</li><li>Enable horizontal scaling</li></ul></li><li><strong>Fast startup times</strong><ul><li>Pre-bake AMIs with software</li><li>Use user data for dynamic config</li><li>Implement lazy initialization</li></ul></li></ul><strong>Configuration Best Practices:</strong><ul><li><strong>Launch templates</strong> over launch configurations<ul><li>Definition: Newer, more features, versioning support</li></ul></li><li><strong>Multiple instance types</strong> for flexibility</li><li><strong>Appropriate cooldowns</strong> prevent flapping (300s default)</li><li><strong>Health check grace period</strong> matches startup time</li></ul><strong>Operational Excellence:</strong><ul><li><strong>Test scaling policies</strong> with load testing</li><li><strong>Monitor key metrics</strong> with CloudWatch dashboards</li><li><strong>Use lifecycle hooks</strong> for graceful operations</li><li><strong>Right-size instances</strong> with Compute Optimizer</li><li><strong>Regular AMI updates</strong> for security patches</li><li><strong>Enable detailed monitoring</strong> for 1-minute metrics</li></ul>",
+        category: "Best Practices"
+      },
+      {
+        level: 2,
+        front: "EC2 Capacity Reservations",
+        back: "<strong>Definition:</strong> EC2 Capacity Reservations allow you to reserve On-Demand instance capacity in a specific Availability Zone for any duration.<br><br><strong>Key Features:</strong><ul><li><strong>Guaranteed capacity</strong> - Always have access to EC2 capacity when needed</li><li><strong>No time commitment</strong> - Create or cancel anytime</li><li><strong>No billing discounts</strong> - Charged at On-Demand rates</li><li><strong>AZ-specific</strong> - Reserve capacity in a specific Availability Zone</li></ul><strong>Billing:</strong><ul><li>Charged at <strong>On-Demand rate</strong> whether you run instances or not</li><li>Can combine with <strong>Regional Reserved Instances</strong> and <strong>Savings Plans</strong> for discounts</li></ul><strong>Use Cases:</strong><ul><li><strong>Short-term workloads</strong> that need guaranteed capacity</li><li><strong>Uninterrupted workloads</strong> in specific AZ</li><li><strong>Disaster recovery</strong> capacity assurance</li><li><strong>Regulatory compliance</strong> requiring specific AZ placement</li></ul>",
+        category: "Additional EC2 Features"
+      },
+      {
+        level: 2,
+        front: "How to Terminate Spot Instances",
+        back: '<strong>Spot Instance Request Lifecycle:</strong><br><br><div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;"><div style="display: flex; align-items: flex-start; gap: 40px;"><div style="flex: 1;"><div style="border: 2px solid #232f3e; padding: 15px; border-radius: 6px; background: white; margin-bottom: 20px;"><div style="font-weight: bold; margin-bottom: 10px; color: #232f3e;">Spot Request</div><div style="font-size: 13px; line-height: 1.6;"><div>• Maximum price</div><div>• Desired number of instances</div><div>• Launch specification</div><div>• Request type: one-time | persistent</div><div>• Valid from, Valid until</div></div></div><div style="text-align: center; color: #666; font-size: 12px; margin-top: 10px;">↓ Request failed</div></div><div style="flex: 2;"><div style="text-align: center; margin-bottom: 20px;"><span style="display: inline-block; padding: 8px 16px; border: 2px solid #ff9900; border-radius: 20px; background: white; font-weight: 500;">Create request</span></div><div style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center;"><div style="padding: 8px 16px; border: 2px solid #232f3e; border-radius: 20px; background: white;">open</div><div style="padding: 8px 16px; border: 2px solid #232f3e; border-radius: 20px; background: #e7f3ff;">active</div><div style="padding: 8px 16px; border: 2px solid #232f3e; border-radius: 20px; background: white;">failed</div><div style="padding: 8px 16px; border: 2px solid #232f3e; border-radius: 20px; background: white;">cancelled</div><div style="padding: 8px 16px; border: 2px solid #232f3e; border-radius: 20px; background: white;">disabled</div><div style="padding: 8px 16px; border: 2px solid #232f3e; border-radius: 20px; background: white;">closed</div></div><div style="margin-top: 20px; font-size: 13px; color: #666;"><div>→ Launch instances (when active)</div><div>→ Persistent: Start/Stop/Interrupt cycles</div><div>→ One-time: Interrupt → closed</div></div></div></div></div><div style="background: #e3f2fd; padding: 15px; border-radius: 6px; margin-top: 20px; border-left: 4px solid #1976d2;"><div style="font-weight: bold; color: #1976d2; margin-bottom: 8px;">⚠️ Important:</div><div style="font-size: 14px; line-height: 1.6;">• You can only cancel Spot Instance requests that are <strong>open</strong>, <strong>active</strong>, or <strong>disabled</strong><br>• <strong>Cancelling a Spot Request does NOT terminate instances</strong><br>• You must: 1) Cancel the Spot Request, then 2) Manually terminate the associated instances</div></div><strong>Request Types:</strong><ul><li><strong>One-time</strong> - Request fulfilled once, then moves to "closed" state</li><li><strong>Persistent</strong> - Request remains active after interruption<ul><li>Automatically requests new instances if interrupted</li><li>Can Start/Stop instances (maintains request)</li><li>Must cancel request to prevent new launches</li></ul></li></ul>',
+        category: "Spot Instances"
+      },
+      {
+        level: 3,
+        front: "EBS Multi-Attach (io1/io2 family)",
+        back: '<strong>Definition:</strong> EBS Multi-Attach allows you to attach the same EBS volume to multiple EC2 instances within the same Availability Zone.<br><br><div style="background: #f5f5f5; padding: 25px; border-radius: 8px; margin: 20px 0;"><div style="border: 2px dashed #2196f3; padding: 30px; border-radius: 8px; background: #e3f2fd;"><div style="text-align: center; color: #1976d2; font-weight: bold; margin-bottom: 25px; font-size: 18px;">Availability Zone 1</div><div style="display: flex; justify-content: space-around; align-items: center; margin-bottom: 30px;"><div style="width: 60px; height: 60px; background: #ff9900; border: 3px solid #e88100; border-radius: 4px; display: flex; align-items: center; justify-content: center; position: relative;"><div style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 2px; height: 15px; background: #666;"></div><div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); width: 8px; height: 8px; background: #666; border-radius: 50%;"></div><div style="color: white; font-weight: bold; font-size: 12px;">EC2</div></div><div style="width: 60px; height: 60px; background: #ff9900; border: 3px solid #e88100; border-radius: 4px; display: flex; align-items: center; justify-content: center; position: relative;"><div style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 2px; height: 15px; background: #666;"></div><div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); width: 8px; height: 8px; background: #666; border-radius: 50%;"></div><div style="color: white; font-weight: bold; font-size: 12px;">EC2</div></div><div style="width: 60px; height: 60px; background: #ff9900; border: 3px solid #e88100; border-radius: 4px; display: flex; align-items: center; justify-content: center; position: relative;"><div style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 2px; height: 15px; background: #666;"></div><div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); width: 8px; height: 8px; background: #666; border-radius: 50%;"></div><div style="color: white; font-weight: bold; font-size: 12px;">EC2</div></div></div><div style="text-align: center;"><div style="display: inline-block; width: 80px; height: 80px; background: #4caf50; border: 3px solid #388e3c; border-radius: 8px; position: relative;"><div style="color: white; font-weight: bold; padding-top: 20px; font-size: 14px;">io2</div><div style="color: white; font-size: 11px;">Multi-Attach</div><div style="position: absolute; top: -30px; left: 50%; transform: translateX(-50%); width: 200px;"><div style="height: 30px; border-left: 2px solid #666; border-right: 2px solid #666; border-top: 2px solid #666;"></div></div></div></div></div></div><strong>Key Features:</strong><ul><li><strong>Same AZ only</strong> - All instances must be in the same Availability Zone</li><li><strong>Full read/write permissions</strong> - Each instance has complete access</li><li><strong>Up to 16 instances</strong> - Maximum concurrent attachments</li><li><strong>io1/io2 volumes only</strong> - Only available for Provisioned IOPS SSD</li></ul><strong>Requirements:</strong><ul><li><strong>Cluster-aware file system</strong> required<ul><li>Must handle concurrent writes</li><li>NOT compatible with XFS, EXT4, etc.</li><li>Use GFS2, OCFS2, or similar</li></ul></li></ul><strong>Use Cases:</strong><ul><li><strong>Clustered Linux applications</strong> (e.g., Teradata, Oracle RAC)</li><li><strong>High availability</strong> for clustered applications</li><li><strong>Concurrent write operations</strong> across multiple nodes</li><li><strong>Shared storage</strong> for application clusters</li></ul>',
+        category: "EBS Advanced Features"
+      }
+    ];
+
+    var questions = [
+      {
+        question: "Your company needs to deploy a web application that can handle millions of requests per second with ultra-low latency. The application uses TCP protocol and requires static IP addresses for firewall whitelisting. Which load balancer should you choose?",
+        type: "radio",
+        scenario: "High Performance",
+        options: [
+          "Application Load Balancer (ALB) for HTTP/HTTPS optimization",
+          "Network Load Balancer (NLB) for Layer 4 performance and static IPs",
+          "Classic Load Balancer (CLB) for simple load balancing",
+          "Gateway Load Balancer (GLB) for network appliances"
+        ],
+        correct: ["Network Load Balancer (NLB) for Layer 4 performance and static IPs"],
+        explanation: "NLB operates at Layer 4, can handle millions of requests per second with ultra-low latency, provides static IP addresses per AZ, and is perfect for TCP-based applications requiring extreme performance."
+      },
+      {
+        question: "A microservices application needs intelligent routing where requests to /api/users/* go to user services, /api/orders/* go to order services, and different versions based on headers. What load balancer features should you use?",
+        type: "checkbox",
+        scenario: "Microservices Routing",
+        options: [
+          "Application Load Balancer (ALB) for Layer 7 routing",
+          "Path-based routing rules for different microservices",
+          "Header-based routing for version management",
+          "Multiple target groups for different services",
+          "Network Load Balancer for better performance"
+        ],
+        correct: ["Application Load Balancer (ALB) for Layer 7 routing", "Path-based routing rules for different microservices", "Header-based routing for version management", "Multiple target groups for different services"],
+        explanation: "ALB provides advanced Layer 7 routing capabilities including path-based and header-based routing, perfect for microservices architectures. Multiple target groups allow routing to different services. NLB doesn't support content-based routing."
+      },
+      {
+        question: "Your Auto Scaling Group needs to handle predictable traffic spikes every weekday from 9 AM to 5 PM, with occasional unexpected spikes. What scaling strategies should you implement?",
+        type: "checkbox",
+        scenario: "Predictable Traffic",
+        options: [
+          "Scheduled scaling for predictable daily patterns",
+          "Target tracking scaling for unexpected spikes",
+          "Step scaling for granular control during high load",
+          "Predictive scaling using machine learning",
+          "Simple scaling with basic alarms"
+        ],
+        correct: ["Scheduled scaling for predictable daily patterns", "Target tracking scaling for unexpected spikes", "Predictive scaling using machine learning"],
+        explanation: "Scheduled scaling handles predictable patterns, target tracking scaling automatically responds to unexpected demand, and predictive scaling uses ML to anticipate demand. Simple scaling is less responsive than target tracking."
+      },
+      {
+        question: "A financial application requires end-to-end encryption, client certificate authentication, and needs to see the original client IP addresses. How should you configure your load balancer?",
+        type: "radio",
+        scenario: "Security Requirements",
+        options: [
+          "ALB with SSL termination and X-Forwarded-For headers",
+          "NLB with SSL passthrough and source IP preservation",
+          "CLB with SSL termination and proxy protocol",
+          "Multiple ALBs with different SSL configurations"
+        ],
+        correct: ["NLB with SSL passthrough and source IP preservation"],
+        explanation: "For client certificate authentication and original IP preservation, NLB with SSL passthrough is ideal. It preserves the original client IP and allows backend servers to handle SSL/TLS including client certificates."
+      },
+      {
+        question: "Your application experiences sudden traffic spikes that can increase load by 10x within minutes. You need instances ready immediately. What Auto Scaling features should you use?",
+        type: "checkbox",
+        scenario: "Sudden Spikes",
+        options: [
+          "Warm pools with pre-initialized instances",
+          "Lifecycle hooks for faster instance preparation",
+          "Target tracking scaling for automatic response",
+          "Predictive scaling to anticipate spikes",
+          "Spot instances for cost optimization"
+        ],
+        correct: ["Warm pools with pre-initialized instances", "Lifecycle hooks for faster instance preparation", "Target tracking scaling for automatic response"],
+        explanation: "Warm pools provide pre-initialized instances for immediate availability, lifecycle hooks optimize preparation time, and target tracking scaling automatically responds to demand. Predictive scaling requires historical patterns, and spot instances may not be immediately available."
+      },
+      {
+        question: "A gaming application needs extremely low latency and high throughput. Users connect via UDP protocol and the application is sensitive to any network delays. Which load balancer configuration is optimal?",
+        type: "radio",
+        scenario: "Gaming Application",
+        options: [
+          "ALB with WebSocket support for real-time communication",
+          "NLB with cross-zone load balancing disabled for lowest latency",
+          "CLB with TCP protocol for compatibility",
+          "GLB for advanced traffic management"
+        ],
+        correct: ["NLB with cross-zone load balancing disabled for lowest latency"],
+        explanation: "For gaming applications requiring ultra-low latency UDP support, NLB is ideal. Disabling cross-zone load balancing keeps traffic within the same AZ, minimizing latency. ALB doesn't support UDP, and GLB is for network appliances."
+      },
+      {
+        question: "Your Auto Scaling Group manages web servers that take 5 minutes to fully initialize. Health checks are failing because the load balancer marks instances unhealthy before they're ready. How should you configure this?",
+        type: "checkbox",
+        scenario: "Instance Initialization",
+        options: [
+          "Set health check grace period to 300 seconds (5 minutes)",
+          "Use ELB health checks instead of EC2 health checks",
+          "Create a lightweight health check endpoint",
+          "Increase health check timeout and interval",
+          "Use lifecycle hooks to signal when instances are ready"
+        ],
+        correct: ["Set health check grace period to 300 seconds (5 minutes)", "Use ELB health checks instead of EC2 health checks", "Create a lightweight health check endpoint"],
+        explanation: "Health check grace period prevents premature health checks, ELB health checks verify application readiness, and a lightweight health endpoint reduces initialization load. Lifecycle hooks are separate from health checks."
+      },
+      {
+        question: "Your startup wants to minimize costs while maintaining high availability. The application can tolerate instance interruptions and traffic is variable throughout the day. What Auto Scaling configuration optimizes costs?",
+        type: "checkbox",
+        scenario: "Cost Optimization",
+        options: [
+          "Mixed instance types with multiple families",
+          "Spot instances with On-Demand base capacity",
+          "Scheduled scaling to reduce instances during low traffic",
+          "Target tracking scaling to match actual demand",
+          "Reserved instances for predictable baseline"
+        ],
+        correct: ["Mixed instance types with multiple families", "Spot instances with On-Demand base capacity", "Scheduled scaling to reduce instances during low traffic", "Target tracking scaling to match actual demand"],
+        explanation: "Mixed instance types increase Spot availability, Spot instances provide up to 90% savings, scheduled scaling reduces capacity during known low periods, and target tracking automatically matches demand. Reserved instances require predictable usage patterns."
+      },
+      {
+        question: "A company runs a TCP-based application that requires client IP preservation and needs to distribute traffic evenly across all instances regardless of Availability Zone. What configuration balances these requirements?",
+        type: "radio",
+        scenario: "IP Preservation",
+        options: [
+          "NLB with cross-zone load balancing enabled (additional cost)",
+          "ALB with X-Forwarded-For headers",
+          "NLB with cross-zone load balancing disabled (uneven distribution)",
+          "Multiple NLBs in each AZ"
+        ],
+        correct: ["NLB with cross-zone load balancing enabled (additional cost)"],
+        explanation: "NLB preserves client IP addresses and cross-zone load balancing ensures even distribution across all instances. While this incurs additional cross-AZ data transfer costs, it meets both requirements. ALB doesn't preserve client IP for TCP applications."
+      },
+      {
+        question: "Your application health checks are failing intermittently, causing healthy instances to be marked unhealthy and removed from service. How do you optimize health check configuration?",
+        type: "checkbox",
+        scenario: "Health Check Optimization",
+        options: [
+          "Increase healthy threshold to require more consecutive successes",
+          "Increase health check interval to reduce frequency",
+          "Create a dedicated health check endpoint that's lightweight",
+          "Increase unhealthy threshold to allow more failures",
+          "Use custom health check port separate from application traffic"
+        ],
+        correct: ["Increase healthy threshold to require more consecutive successes", "Create a dedicated health check endpoint that's lightweight", "Increase unhealthy threshold to allow more failures"],
+        explanation: "Higher thresholds reduce sensitivity to intermittent issues, a dedicated lightweight endpoint reduces load and improves reliability, and allowing more failures before marking unhealthy improves stability. Increasing interval slows detection of real issues."
+      },
+      {
+        question: "A SaaS application needs to route customers to different backend pools based on their subscription tier (Basic, Pro, Enterprise) identified in the JWT token. Which ALB feature enables this?",
+        type: "radio",
+        scenario: "Multi-Tenancy",
+        options: [
+          "Path-based routing rules for different tiers",
+          "Host-based routing with different subdomains",
+          "HTTP header-based routing rules with JWT claims",
+          "Query string parameter routing"
+        ],
+        correct: ["HTTP header-based routing rules with JWT claims"],
+        explanation: "ALB can route based on HTTP headers, including custom headers containing JWT tokens. This allows routing to different target groups based on subscription tier information in the JWT claims without requiring different paths or hosts."
+      },
+      {
+        question: "Your application needs to maintain WebSocket connections for real-time updates while also serving REST APIs. The WebSocket connections can last hours. What load balancer configuration is required?",
+        type: "checkbox",
+        scenario: "WebSocket Support",
+        options: [
+          "Application Load Balancer with WebSocket support enabled",
+          "Increase idle timeout to 4000 seconds (maximum)",
+          "Enable sticky sessions for WebSocket connections",
+          "Use NLB for better long-connection performance",
+          "Configure health checks to test WebSocket endpoints"
+        ],
+        correct: ["Application Load Balancer with WebSocket support enabled", "Increase idle timeout to 4000 seconds (maximum)", "Enable sticky sessions for WebSocket connections"],
+        explanation: "ALB natively supports WebSocket connections. Increasing idle timeout prevents connection drops, and sticky sessions ensure clients connect to the same backend. NLB doesn't understand WebSocket protocol. Health checks should use HTTP endpoints, not WebSocket."
+      },
+      {
+        question: "An e-commerce site experiences 50x traffic during Black Friday sales. The site needs to pre-warm capacity while minimizing costs during normal operations. What's the optimal Auto Scaling strategy?",
+        type: "checkbox",
+        scenario: "Extreme Scaling Events",
+        options: [
+          "Predictive scaling with custom metrics for sales events",
+          "Warm pools with maximum prepared capacity before events",
+          "Scheduled scaling to increase capacity before known events",
+          "Step scaling with aggressive scale-out policies",
+          "Mixed instances with high Spot percentage for cost savings"
+        ],
+        correct: ["Warm pools with maximum prepared capacity before events", "Scheduled scaling to increase capacity before known events", "Step scaling with aggressive scale-out policies"],
+        explanation: "Warm pools allow pre-staging instances, scheduled scaling prepares for known events, and step scaling handles rapid increases. Predictive scaling may not handle 50x spikes well. High Spot percentage risks availability during peak demand."
+      },
+      {
+        question: "Your application requires zero-downtime deployments with gradual traffic shifting to new versions. Currently using ALB with Auto Scaling. What additional features enable this?",
+        type: "checkbox",
+        scenario: "Blue-Green Deployment",
+        options: [
+          "ALB weighted target groups for traffic distribution",
+          "ASG instance refresh with minimum healthy percentage",
+          "Connection draining with appropriate timeout",
+          "Multiple Auto Scaling Groups with gradual shift",
+          "Lifecycle hooks for deployment validation"
+        ],
+        correct: ["ALB weighted target groups for traffic distribution", "Connection draining with appropriate timeout", "Multiple Auto Scaling Groups with gradual shift"],
+        explanation: "Weighted target groups allow gradual traffic shifting between versions, connection draining ensures graceful termination, and multiple ASGs enable blue-green deployments. Instance refresh replaces instances but doesn't provide traffic control."
+      },
+      {
+        question: "A video streaming application serves large files and needs to minimize data transfer costs between Availability Zones while maintaining high availability. What's the best approach?",
+        type: "radio",
+        scenario: "Data Transfer Costs",
+        options: [
+          "NLB with cross-zone load balancing disabled",
+          "ALB with sticky sessions to keep users in same AZ",
+          "Multiple independent load balancers per AZ",
+          "CloudFront distribution with ALB origin"
+        ],
+        correct: ["CloudFront distribution with ALB origin"],
+        explanation: "CloudFront caches content at edge locations, dramatically reducing origin traffic and cross-AZ data transfer costs while improving performance. NLB without cross-zone balancing creates uneven distribution. Multiple LBs complicate architecture."
+      },
+      {
+        question: "Your API gateway application needs to authenticate requests using corporate Active Directory before routing to backend services. Which load balancer configuration supports this?",
+        type: "checkbox",
+        scenario: "Corporate Authentication",
+        options: [
+          "ALB with OIDC authentication provider",
+          "ALB with SAML authentication integration",
+          "ALB rules to verify authentication headers",
+          "Cognito User Pools with AD federation",
+          "NLB with authentication at application layer"
+        ],
+        correct: ["ALB with OIDC authentication provider", "ALB with SAML authentication integration", "Cognito User Pools with AD federation"],
+        explanation: "ALB supports both OIDC and SAML authentication, allowing AD integration. Cognito can federate with AD and integrate with ALB. ALB can't directly verify custom auth headers. NLB doesn't provide authentication features."
+      },
+      {
+        question: "A machine learning inference service has varying response times (100ms to 10s) depending on model complexity. How should you configure health checks to avoid false positives?",
+        type: "checkbox",
+        scenario: "Variable Response Times",
+        options: [
+          "Set health check timeout to 60 seconds",
+          "Use a dedicated lightweight health endpoint",
+          "Configure deep health checks testing all models",
+          "Increase unhealthy threshold to 5 checks",
+          "Use TCP health checks instead of HTTP"
+        ],
+        correct: ["Use a dedicated lightweight health endpoint", "Increase unhealthy threshold to 5 checks"],
+        explanation: "A lightweight health endpoint ensures quick responses without invoking models. Higher unhealthy threshold prevents transient issues from marking instances unhealthy. Deep health checks would timeout. TCP checks don't verify application health."
+      },
+      {
+        question: "Your global application needs to route traffic to the nearest regional deployment while handling region failures automatically. Users should maintain sessions during failovers. What architecture works best?",
+        type: "checkbox",
+        scenario: "Multi-Region HA",
+        options: [
+          "Route 53 with geolocation routing to regional ALBs",
+          "Global Accelerator with regional ALB endpoints",
+          "Cross-region replication of session data",
+          "Route 53 health checks with automatic failover",
+          "Single global NLB with anycast IPs"
+        ],
+        correct: ["Global Accelerator with regional ALB endpoints", "Cross-region replication of session data", "Route 53 health checks with automatic failover"],
+        explanation: "Global Accelerator provides anycast IPs and automatic failover. Session replication ensures continuity during failovers. Route 53 health checks enable DNS-based failover. Single NLB can't span regions."
+      },
+      {
+        question: "An IoT platform receives millions of small messages per second over TCP/TLS. The backend can process messages in any order but needs source device IPs for analytics. What's the optimal configuration?",
+        type: "radio",
+        scenario: "IoT Scale",
+        options: [
+          "NLB with TLS termination and proxy protocol",
+          "NLB with TLS passthrough preserving source IPs",
+          "ALB with sticky sessions for device affinity",
+          "Multiple NLBs with DNS round-robin"
+        ],
+        correct: ["NLB with TLS termination and proxy protocol"],
+        explanation: "NLB with TLS termination handles millions of connections efficiently while proxy protocol preserves source IPs. TLS passthrough would burden backends with TLS processing. ALB has higher latency for simple TCP messages."
+      },
+      {
+        question: "Your Auto Scaling Group runs batch processing jobs that take 45 minutes to complete. You need to ensure instances aren't terminated mid-job during scale-in events. What's the solution?",
+        type: "checkbox",
+        scenario: "Long-Running Tasks",
+        options: [
+          "Enable scale-in protection on instances running jobs",
+          "Set termination policy to OldestInstance",
+          "Implement lifecycle hooks with 1-hour timeout",
+          "Use SQS to track job completion before allowing termination",
+          "Increase cooldown period to 45 minutes"
+        ],
+        correct: ["Enable scale-in protection on instances running jobs", "Implement lifecycle hooks with 1-hour timeout", "Use SQS to track job completion before allowing termination"],
+        explanation: "Scale-in protection prevents termination of specific instances. Lifecycle hooks allow graceful shutdown with job completion. SQS enables job tracking and coordination. Cooldown periods don't prevent termination of running jobs."
+      }
+    ];
+    
+    function showTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(function(tab) {
+        tab.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-button').forEach(function(btn) {
+        btn.classList.remove('active');
+      });
+      
+      document.getElementById(tabName).classList.add('active');
+      event.target.classList.add('active');
+      
+      if (tabName === 'assessment') {
+        generateQuiz();
+        startTimer();
+      } else {
+        stopTimer();
+      }
+    }
+    
+    function loadCard() {
+      var card = flashcards[currentCard];
+      
+      updateDifficultyIndicator(card.level);
+      
+      document.getElementById('frontCategory').textContent = card.category;
+      document.getElementById('frontTitle').textContent = card.front;
+      document.getElementById('backText').innerHTML = card.back;
+      
+      document.getElementById('progressText').textContent = "Card " + (currentCard + 1) + " of " + flashcards.length;
+      
+      document.getElementById('prevBtn').disabled = currentCard === 0;
+      document.getElementById('nextBtn').disabled = currentCard === flashcards.length - 1;
+    }
+    
+    function updateDifficultyIndicator(level) {
+      var dots = [
+        document.getElementById('diff1'),
+        document.getElementById('diff2'), 
+        document.getElementById('diff3')
+      ];
+      var label = document.getElementById('diffLabel');
+      
+      dots.forEach(function(dot) {
+        dot.className = 'difficulty-dot';
+      });
+      
+      for (var i = 0; i < level; i++) {
+        if (i === 0) dots[i].classList.add('active');
+        else if (i === 1) dots[i].classList.add('medium');
+        else dots[i].classList.add('hard');
+      }
+      
+      var labels = ['Foundation', 'Intermediate', 'Advanced'];
+      label.textContent = labels[level - 1];
+    }
+    
+    function flipCard() {
+      var card = document.getElementById('flashcard');
+      card.classList.toggle('flip');
+      isFlipped = !isFlipped;
+    }
+    
+    function nextCard() {
+      if (currentCard < flashcards.length - 1) {
+        currentCard++;
+        // Always show the front of the card when navigating
+        if (isFlipped) {
+          var card = document.getElementById('flashcard');
+          card.classList.remove('flip');
+          isFlipped = false;
+        }
+        loadCard();
+      }
+    }
+    
+    function prevCard() {
+      if (currentCard > 0) {
+        currentCard--;
+        // Always show the front of the card when navigating
+        if (isFlipped) {
+          var card = document.getElementById('flashcard');
+          card.classList.remove('flip');
+          isFlipped = false;
+        }
+        loadCard();
+      }
+    }
+    
+    function generateQuiz() {
+      var container = document.getElementById('quiz-questions');
+      if (container.innerHTML !== '') return; // Already generated
+      
+      container.innerHTML = '';
+      document.getElementById('totalQuestions').textContent = questions.length;
+      
+      questions.forEach(function(q, index) {
+        var questionDiv = document.createElement('div');
+        questionDiv.className = 'question-container' + (index === 0 ? ' active' : '');
+        questionDiv.id = 'question-' + index;
+        
+        var optionsHtml = q.options.map(function(option, optIndex) {
+          return '<div class="option" onclick="selectOption(' + index + ', ' + optIndex + ', this)">' +
+                 '<input type="' + q.type + '" name="q' + index + '" value="' + option + '" id="q' + index + '_' + optIndex + '">' +
+                 '<label for="q' + index + '_' + optIndex + '">' + option + '</label>' +
+                 '</div>';
+        }).join('');
+        
+        questionDiv.innerHTML = '<div class="question-header">' +
+          '<div class="scenario-tag">' + q.scenario + '</div>' +
+          '<div class="question-title">' + (index + 1) + '. ' + q.question + '</div>' +
+          '</div>' +
+          '<div class="question-body">' +
+          '<div class="option-group">' + optionsHtml + '</div>' +
+          '</div>';
+        
+        container.appendChild(questionDiv);
+      });
+      
+      updateQuestionNavigation();
+    }
+    
+    function selectOption(questionIndex, optionIndex, element) {
+      var questionContainer = element.closest('.question-container');
+      var inputType = element.querySelector('input').type;
+      
+      if (inputType === 'radio') {
+        questionContainer.querySelectorAll('.option').forEach(function(opt) {
+          opt.classList.remove('selected');
+        });
+        element.classList.add('selected');
+        element.querySelector('input').checked = true;
+      } else {
+        element.classList.toggle('selected');
+        var input = element.querySelector('input');
+        input.checked = element.classList.contains('selected');
+      }
+      
+      updateProgress();
+    }
+    
+    function updateProgress() {
+      var totalQuestions = questions.length;
+      var answeredQuestions = 0;
+      
+      questions.forEach(function(q, index) {
+        var questionContainer = document.getElementById('question-' + index);
+        if (questionContainer.querySelector('input:checked')) {
+          answeredQuestions++;
+        }
+      });
+      
+      var progressPercentage = (answeredQuestions / totalQuestions) * 100;
+      document.getElementById('progressBar').style.width = progressPercentage + '%';
+    }
+    
+    function nextQuestion() {
+      if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        showQuestion(currentQuestionIndex);
+      }
+    }
+    
+    function previousQuestion() {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        showQuestion(currentQuestionIndex);
+      }
+    }
+    
+    function showQuestion(index) {
+      document.querySelectorAll('.question-container').forEach(function(q) {
+        q.classList.remove('active');
+      });
+      
+      document.getElementById('question-' + index).classList.add('active');
+      document.getElementById('currentQuestion').textContent = index + 1;
+      
+      updateQuestionNavigation();
+    }
+    
+    function updateQuestionNavigation() {
+      document.getElementById('prevQuestionBtn').disabled = currentQuestionIndex === 0;
+      document.getElementById('nextQuestionBtn').disabled = currentQuestionIndex === questions.length - 1;
+    }
+    
+    function startTimer() {
+      stopTimer(); // Clear any existing timer
+      timeRemaining = 1800; // Reset to 30 minutes
+      
+      timerInterval = setInterval(function() {
+        timeRemaining--;
+        
+        var minutes = Math.floor(timeRemaining / 60);
+        var seconds = timeRemaining % 60;
+        var timerDisplay = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+        
+        var timerElement = document.getElementById('timer');
+        timerElement.textContent = timerDisplay;
+        
+        // Add warning colors
+        if (timeRemaining <= 300) { // 5 minutes
+          timerElement.classList.add('danger');
+        } else if (timeRemaining <= 600) { // 10 minutes
+          timerElement.classList.add('warning');
+        }
+        
+        if (timeRemaining <= 0) {
+          stopTimer();
+          submitQuiz();
+        }
+      }, 1000);
+    }
+    
+    function stopTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+    }
+    
+    function submitQuiz() {
+      stopTimer();
+      checkAnswers();
+    }
+    
+    function checkAnswers() {
+      var score = 0;
+      var results = [];
+      
+      questions.forEach(function(q, index) {
+        var questionContainer = document.getElementById('question-' + index);
+        var selectedOptions = Array.from(questionContainer.querySelectorAll('input:checked')).map(function(input) {
+          return input.value;
+        });
+        
+        var isCorrect = false;
+        
+        if (q.type === "radio") {
+          isCorrect = selectedOptions.length === 1 && selectedOptions[0] === q.correct[0];
+        } else {
+          var correctSet = new Set(q.correct);
+          var selectedSet = new Set(selectedOptions);
+          isCorrect = correctSet.size === selectedSet.size && 
+                     Array.from(correctSet).every(function(answer) { return selectedSet.has(answer); });
+        }
+        
+        if (isCorrect) score++;
+        
+        results.push({
+          question: q.question,
+          selected: selectedOptions,
+          correct: q.correct,
+          isCorrect: isCorrect,
+          explanation: q.explanation,
+          scenario: q.scenario
+        });
+      });
+      
+      displayResults(score, results);
+    }
+    
+    function displayResults(score, results) {
+      var resultBox = document.getElementById('resultBox');
+      var percentage = Math.round((score / questions.length) * 100);
+      
+      // Hide question navigation
+      document.querySelector('.question-nav-container').style.display = 'none';
+      document.querySelector('.assessment-header').style.display = 'none';
+      
+      var resultHTML = '<div class="score-circle">' + percentage + '%</div>' +
+        '<div class="result-title">ELB & Auto Scaling Assessment Complete</div>' +
+        '<div class="result-subtitle">You scored ' + score + ' out of ' + questions.length + ' questions correctly</div>';
+      
+      if (percentage >= 80) {
+        resultHTML += '<p style="color: #1b660f; font-weight: 500;">Outstanding! You have excellent AWS load balancing and auto scaling expertise.</p>';
+      } else if (percentage >= 60) {
+        resultHTML += '<p style="color: #ff9900; font-weight: 500;">Good foundation! Review flashcards for advanced ELB and ASG concepts.</p>';
+      } else {
+        resultHTML += '<p style="color: #d13212; font-weight: 500;">Keep studying! Focus on load balancing and auto scaling fundamentals.</p>';
+      }
+      
+      resultHTML += '<div class="result-details">';
+      
+      results.forEach(function(result, index) {
+        var statusClass = result.isCorrect ? 'correct' : 'incorrect';
+        var statusIcon = result.isCorrect ? '✓ Correct' : '✗ Incorrect';
+        
+        resultHTML += '<div class="result-item ' + statusClass + '">' +
+          '<div class="result-item-header">' + statusIcon + ' - ' + result.scenario + ' - Question ' + (index + 1) + '</div>' +
+          '<div class="result-item-explanation">' + result.explanation + '</div>' +
+          '</div>';
+      });
+      
+      resultHTML += '</div>';
+      resultHTML += '<button class="btn-reset" onclick="resetQuiz()">Retake Assessment</button>';
+      
+      resultBox.innerHTML = resultHTML;
+      resultBox.classList.add('show');
+      resultBox.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    function resetQuiz() {
+      // Reset all selections
+      document.querySelectorAll('.option').forEach(function(opt) {
+        opt.classList.remove('selected');
+      });
+      document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(function(input) {
+        input.checked = false;
+      });
+      
+      // Reset UI
+      document.getElementById('resultBox').classList.remove('show');
+      document.querySelector('.question-nav-container').style.display = 'block';
+      document.querySelector('.assessment-header').style.display = 'flex';
+      
+      // Reset progress
+      currentQuestionIndex = 0;
+      showQuestion(0);
+      updateProgress();
+      
+      // Restart timer
+      startTimer();
+      
+      // Scroll to top
+      document.getElementById('quiz-questions').scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Initialize
+    loadCard();
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+      var activeTab = document.querySelector('.tab-content.active').id;
+      
+      if (activeTab === 'learn') {
+        if (e.code === 'ArrowLeft') {
+          e.preventDefault();
+          prevCard();
+        } else if (e.code === 'ArrowRight') {
+          e.preventDefault();
+          nextCard();
+        } else if (e.code === 'Space') {
+          e.preventDefault();
+          flipCard();
+        }
+      } else if (activeTab === 'assessment') {
+        if (e.code === 'ArrowLeft') {
+          e.preventDefault();
+          previousQuestion();
+        } else if (e.code === 'ArrowRight') {
+          e.preventDefault();
+          nextQuestion();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
