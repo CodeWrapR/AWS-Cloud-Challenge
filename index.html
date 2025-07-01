@@ -242,6 +242,10 @@
     .card-header.day3 {
       background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
     }
+
+    .card-header.day4 {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    }
     
     .card-header::before {
       content: '';
@@ -910,6 +914,52 @@
             </div>
           </div>
         </div>
+
+        <!-- Day 4 Card -->
+        <div class="training-card" onclick="openDay4()">
+          <div class="card-header day4">
+            <div class="card-day">Day 4</div>
+            <h3 class="card-title">Load Balancing & Auto Scaling</h3>
+            <p class="card-subtitle">High Availability & Scalable Architectures</p>
+          </div>
+          <div class="card-body">
+            <p class="card-description">
+              Master AWS load balancing and auto scaling fundamentals. Learn about ALB, NLB, and CLB features, 
+              target groups, health checks, and auto scaling policies. Build highly available, fault-tolerant 
+              architectures that automatically scale based on demand.
+            </p>
+            <div class="card-topics">
+              <h4 class="topics-title">Key Topics</h4>
+              <div class="topic-list">
+                <span class="topic-tag">Application Load Balancer</span>
+                <span class="topic-tag">Network Load Balancer</span>
+                <span class="topic-tag">Target Groups</span>
+                <span class="topic-tag">Health Checks</span>
+                <span class="topic-tag">Auto Scaling Groups</span>
+                <span class="topic-tag">Scaling Policies</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-stats">
+            <div class="stats-row">
+              <div class="stat-item">
+                <span class="stat-icon">📚</span>
+                <span>27 Flashcards</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-icon">❓</span>
+                <span>20 Questions</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-icon">⏱️</span>
+                <span>35 min</span>
+              </div>
+            </div>
+            <div class="badge-row">
+              <div class="difficulty-badge difficulty-intermediate">Intermediate</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -937,7 +987,7 @@
     }
 
     function calculateStreak(data) {
-      const days = ['day1_completed', 'day2_completed', 'day3_completed'];
+      const days = ['day1_completed', 'day2_completed', 'day3_completed', 'day4_completed'];
       let streak = 0;
       const today = new Date();
       
@@ -968,21 +1018,25 @@
       const day1Done = data.day1_completed;
       const day2Done = data.day2_completed;
       const day3Done = data.day3_completed;
+      const day4Done = data.day4_completed;
       
       let progress = 0;
       let message = 'Ready to begin your AWS journey';
       
-      const completed = [day1Done, day2Done, day3Done].filter(Boolean).length;
+      const completed = [day1Done, day2Done, day3Done, day4Done].filter(Boolean).length;
       
-      if (completed === 3) {
+      if (completed === 4) {
         progress = 100;
         message = 'Congratulations! You\'ve completed all AWS topics! 🎉';
+      } else if (completed === 3) {
+        progress = 75;
+        message = `Excellent progress! ${completed}/4 topics completed. Almost there! 💪`;
       } else if (completed === 2) {
-        progress = 67;
-        message = `Excellent progress! ${completed}/3 topics completed. Keep going! 💪`;
+        progress = 50;
+        message = `Great progress! ${completed}/4 topics completed. Keep going! 🚀`;
       } else if (completed === 1) {
-        progress = 33;
-        message = `Great start! ${completed}/3 topics completed. You're on your way! 🌟`;
+        progress = 25;
+        message = `Good start! ${completed}/4 topics completed. Keep learning! 🌟`;
       }
       
       document.getElementById('progressBar').style.width = progress + '%';
@@ -996,6 +1050,7 @@
         if (day1Done) details += `✅ Day 1 completed on <span class="completion-date">${day1Done}</span><br>`;
         if (day2Done) details += `✅ Day 2 completed on <span class="completion-date">${day2Done}</span><br>`;
         if (day3Done) details += `✅ Day 3 completed on <span class="completion-date">${day3Done}</span><br>`;
+        if (day4Done) details += `✅ Day 4 completed on <span class="completion-date">${day4Done}</span><br>`;
         
         if (streak > 0) {
           details += `<br><span class="streak-info">🔥 Learning streak: ${streak} topic${streak > 1 ? 's' : ''} completed!</span>`;
@@ -1024,10 +1079,11 @@
       let history = `📚 ${data.userName}'s AWS Learning Journey\n\n`;
       history += `Day 1 (Cloud Fundamentals): ${data.day1_completed || 'Not completed'}\n`;
       history += `Day 2 (Security & Identity): ${data.day2_completed || 'Not completed'}\n`;
-      history += `Day 3 (Compute & Storage): ${data.day3_completed || 'Not completed'}\n\n`;
+      history += `Day 3 (Compute & Storage): ${data.day3_completed || 'Not completed'}\n`;
+      history += `Day 4 (Load Balancing & Auto Scaling): ${data.day4_completed || 'Not completed'}\n\n`;
       
-      const completed = [data.day1_completed, data.day2_completed, data.day3_completed].filter(Boolean).length;
-      history += `Total Progress: ${completed}/3 topics completed`;
+      const completed = [data.day1_completed, data.day2_completed, data.day3_completed, data.day4_completed].filter(Boolean).length;
+      history += `Total Progress: ${completed}/4 topics completed`;
 
       alert(history);
     }
@@ -1045,7 +1101,8 @@
         progress: {
           day1_completed: data.day1_completed || null,
           day2_completed: data.day2_completed || null,
-          day3_completed: data.day3_completed || null
+          day3_completed: data.day3_completed || null,
+          day4_completed: data.day4_completed || null
         }
       };
 
@@ -1100,7 +1157,8 @@
         joinDate: getCurrentDate(),
         day1_completed: null,
         day2_completed: null,
-        day3_completed: null
+        day3_completed: null,
+        day4_completed: null
       };
 
       saveProgress(data);
@@ -1121,6 +1179,11 @@
     function openDay3() {
       markDayComplete(3);
       window.location.href = 'https://codewrapr.github.io/AWS-Cloud-Challenge/Sol_Arch/Day3/';
+    }
+
+    function openDay4() {
+      markDayComplete(4);
+      window.location.href = 'https://codewrapr.github.io/AWS-Cloud-Challenge/Sol_Arch/Day4/';
     }
 
     function startAnimations() {
