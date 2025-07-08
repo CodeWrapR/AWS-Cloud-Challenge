@@ -246,6 +246,10 @@
     .card-header.day4 {
       background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
     }
+
+    .card-header.day5 {
+      background: linear-gradient(135deg, #6f42c1 0%, #8e44ad 100%);
+    }
     
     .card-header::before {
       content: '';
@@ -964,12 +968,58 @@
             </div>
           </div>
         </div>
+
+        <!-- Day 5 Card - NEW -->
+        <div class="training-card" onclick="openDay5()">
+          <div class="card-header day5">
+            <div class="card-day">Day 5</div>
+            <h3 class="card-title">RDS, Aurora & ElastiCache</h3>
+            <p class="card-subtitle">Database Services & Caching Solutions</p>
+          </div>
+          <div class="card-body">
+            <p class="card-description">
+              Master AWS database services including RDS engines, Aurora features, ElastiCache implementations, 
+              backup strategies, performance optimization, and cost-effective database architectures. Learn caching patterns and in-memory solutions.
+            </p>
+            <div class="card-topics">
+              <h4 class="topics-title">Key Topics</h4>
+              <div class="topic-list">
+                <span class="topic-tag">RDS Multi-AZ</span>
+                <span class="topic-tag">Aurora Architecture</span>
+                <span class="topic-tag">Read Replicas</span>
+                <span class="topic-tag">ElastiCache Redis</span>
+                <span class="topic-tag">MemoryDB</span>
+                <span class="topic-tag">Database Security</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-stats">
+            <div class="stats-row">
+              <div class="stat-item">
+                <span class="stat-icon">📚</span>
+                <span>18 Flashcards</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-icon">❓</span>
+                <span>35 Questions</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-icon">⏱️</span>
+                <span>40 min</span>
+              </div>
+            </div>
+            <div style="height: 20px;"></div>
+            <div class="badge-row">
+              <div class="difficulty-badge difficulty-advanced">Advanced</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
   <script>
-    // Enhanced progress tracking with user data
+    // Enhanced progress tracking with user data (updated for Day 5)
     function getStoredData() {
       const stored = localStorage.getItem('awsTrainingProgress');
       if (stored) {
@@ -991,7 +1041,7 @@
     }
 
     function calculateStreak(data) {
-      const days = ['day1_completed', 'day2_completed', 'day3_completed', 'day4_completed'];
+      const days = ['day1_completed', 'day2_completed', 'day3_completed', 'day4_completed', 'day5_completed'];
       let streak = 0;
       const today = new Date();
       
@@ -1023,24 +1073,28 @@
       const day2Done = data.day2_completed;
       const day3Done = data.day3_completed;
       const day4Done = data.day4_completed;
+      const day5Done = data.day5_completed;
       
       let progress = 0;
       let message = 'Ready to begin your AWS journey';
       
-      const completed = [day1Done, day2Done, day3Done, day4Done].filter(Boolean).length;
+      const completed = [day1Done, day2Done, day3Done, day4Done, day5Done].filter(Boolean).length;
       
-      if (completed === 4) {
+      if (completed === 5) {
         progress = 100;
         message = 'Congratulations! You\'ve completed all AWS topics! 🎉';
+      } else if (completed === 4) {
+        progress = 80;
+        message = `Outstanding! ${completed}/5 topics completed. One more to go! 💪`;
       } else if (completed === 3) {
-        progress = 75;
-        message = `Excellent progress! ${completed}/4 topics completed. Almost there! 💪`;
+        progress = 60;
+        message = `Great progress! ${completed}/5 topics completed. Keep going! 🚀`;
       } else if (completed === 2) {
-        progress = 50;
-        message = `Great progress! ${completed}/4 topics completed. Keep going! 🚀`;
+        progress = 40;
+        message = `Good momentum! ${completed}/5 topics completed. Keep learning! 🌟`;
       } else if (completed === 1) {
-        progress = 25;
-        message = `Good start! ${completed}/4 topics completed. Keep learning! 🌟`;
+        progress = 20;
+        message = `Good start! ${completed}/5 topics completed. Continue your journey! ⭐`;
       }
       
       document.getElementById('progressBar').style.width = progress + '%';
@@ -1055,6 +1109,7 @@
         if (day2Done) details += `✅ Day 2 completed on <span class="completion-date">${day2Done}</span><br>`;
         if (day3Done) details += `✅ Day 3 completed on <span class="completion-date">${day3Done}</span><br>`;
         if (day4Done) details += `✅ Day 4 completed on <span class="completion-date">${day4Done}</span><br>`;
+        if (day5Done) details += `✅ Day 5 completed on <span class="completion-date">${day5Done}</span><br>`;
         
         if (streak > 0) {
           details += `<br><span class="streak-info">🔥 Learning streak: ${streak} topic${streak > 1 ? 's' : ''} completed!</span>`;
@@ -1084,10 +1139,11 @@
       history += `Day 1 (Cloud Fundamentals): ${data.day1_completed || 'Not completed'}\n`;
       history += `Day 2 (Security & Identity): ${data.day2_completed || 'Not completed'}\n`;
       history += `Day 3 (Compute & Storage): ${data.day3_completed || 'Not completed'}\n`;
-      history += `Day 4 (Load Balancing & Auto Scaling): ${data.day4_completed || 'Not completed'}\n\n`;
+      history += `Day 4 (Load Balancing & Auto Scaling): ${data.day4_completed || 'Not completed'}\n`;
+      history += `Day 5 (RDS, Aurora & ElastiCache): ${data.day5_completed || 'Not completed'}\n\n`;
       
-      const completed = [data.day1_completed, data.day2_completed, data.day3_completed, data.day4_completed].filter(Boolean).length;
-      history += `Total Progress: ${completed}/4 topics completed`;
+      const completed = [data.day1_completed, data.day2_completed, data.day3_completed, data.day4_completed, data.day5_completed].filter(Boolean).length;
+      history += `Total Progress: ${completed}/5 topics completed`;
 
       alert(history);
     }
@@ -1106,7 +1162,8 @@
           day1_completed: data.day1_completed || null,
           day2_completed: data.day2_completed || null,
           day3_completed: data.day3_completed || null,
-          day4_completed: data.day4_completed || null
+          day4_completed: data.day4_completed || null,
+          day5_completed: data.day5_completed || null
         }
       };
 
@@ -1162,7 +1219,8 @@
         day1_completed: null,
         day2_completed: null,
         day3_completed: null,
-        day4_completed: null
+        day4_completed: null,
+        day5_completed: null
       };
 
       saveProgress(data);
@@ -1188,6 +1246,12 @@
     function openDay4() {
       markDayComplete(4);
       window.location.href = 'https://codewrapr.github.io/AWS-Cloud-Challenge/Sol_Arch/Day4/';
+    }
+
+    function openDay5() {
+      markDayComplete(5);
+      // Replace with actual Day 5 URL when deployed
+      window.open('data:text/html;charset=utf-8,' + encodeURIComponent(document.documentElement.outerHTML), '_blank');
     }
 
     function startAnimations() {
