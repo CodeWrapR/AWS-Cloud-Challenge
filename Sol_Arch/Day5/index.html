@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AWS Day 5: RDS, Aurora & ElastiCache</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Amazon Ember', 'Helvetica Neue', Roboto, Arial, sans-serif;
+      background-color: #f2f3f3;
+      color: #232f3e;
+      line-height: 1.6;
+    }
+    
+    .aws-header {
+      background-color: #000000;
+      color: white;
+      padding: 0;
+    }
+    
+    .aws-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      height: 48px;
+      background-color: #232f3e;
+    }
+    
+    .aws-logo-section {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    
+    .aws-breadcrumb {
+      background-color: #f9f9f9;
+      padding: 12px 20px;
+      border-bottom: 1px solid #d5dbdb;
+      font-size: 14px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    
+    .page-header {
+      margin-bottom: 32px;
+    }
+    
+    .page-title {
+      font-size: 28px;
+      font-weight: 300;
+      color: #232f3e;
+      margin-bottom: 8px;
+    }
+    
+    .page-description {
+      font-size: 14px;
+      color: #687078;
+      line-height: 1.5;
+    }
+    
+    .tab-container {
+      border-bottom: 1px solid #d5dbdb;
+      margin-bottom: 24px;
+      display: flex;
+    }
+    
+    .tab-button {
+      background: none;
+      border: none;
+      padding: 16px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #687078;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s ease;
+    }
+    
+    .tab-button:hover {
+      color: #232f3e;
+      background-color: #fafafa;
+    }
+    
+    .tab-button.active {
+      color: #d13212;
+      border-bottom-color: #d13212;
+      background-color: white;
+    }
+    
+    .tab-content {
+      display: none;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .content-header {
+      background-color: #fafafa;
+      padding: 20px 24px;
+      border-bottom: 1px solid #d5dbdb;
+    }
+    
+    .content-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-bottom: 8px;
+    }
+    
+    .content-subtitle {
+      font-size: 14px;
+      color: #687078;
+    }
+    
+    .content-body {
+      padding: 24px;
+    }
+    
+    .difficulty-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      padding: 12px 16px;
+      background-color: #f9f9f9;
+      border-radius: 4px;
+      border-left: 4px solid #d13212;
+    }
+    
+    .difficulty-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-right: 12px;
+    }
+    
+    .difficulty-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #d5dbdb;
+    }
+    
+    .difficulty-dot.active { background: #1b660f; }
+    .difficulty-dot.medium { background: #ff9900; }
+    .difficulty-dot.hard { background: #d13212; }
+    
+    .difficulty-text {
+      font-size: 14px;
+      color: #687078;
+      margin-left: 8px;
+    }
+    
+    .flashcard-container {
+      perspective: 1000px;
+      margin: 24px 0;
+    }
+    
+    .flashcard {
+      width: 100%;
+      height: 450px;
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+      position: relative;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .flashcard:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .flip {
+      transform: rotateY(180deg);
+    }
+    
+    .front, .back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+    
+    .front {
+      background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+      color: #232f3e;
+    }
+    
+    .back {
+      background: linear-gradient(135deg, #fff4e6 0%, #ffe6cc 100%);
+      color: #232f3e;
+      transform: rotateY(180deg);
+    }
+    
+    .card-category {
+      font-size: 12px;
+      font-weight: 500;
+      color: #d13212;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+      padding: 4px 12px;
+      background-color: rgba(209, 50, 18, 0.1);
+      border-radius: 12px;
+    }
+    
+    .card-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+    
+    .card-content {
+      font-size: 15px;
+      line-height: 1.6;
+      color: #232f3e;
+      text-align: left;
+      width: 100%;
+    }
+    
+    .card-content strong {
+      color: #d13212;
+      font-weight: 600;
+    }
+    
+    .card-content ul {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+    
+    .card-content li {
+      margin: 8px 0;
+      list-style-type: none;
+      position: relative;
+      padding-left: 20px;
+    }
+    
+    .card-content li:before {
+      content: "▸";
+      position: absolute;
+      left: 0;
+      color: #d13212;
+      font-weight: bold;
+    }
+    
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+      padding: 16px;
+      background-color: #fafafa;
+      border-radius: 4px;
+    }
+    
+    .btn-aws {
+      background-color: #d13212;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    
+    .btn-aws:hover {
+      background-color: #b12a1a;
+    }
+    
+    .btn-aws:disabled {
+      background-color: #d5dbdb;
+      color: #687078;
+      cursor: not-allowed;
+    }
+    
+    .btn-secondary {
+      background-color: #fafafa;
+      color: #232f3e;
+      border: 1px solid #d5dbdb;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #f2f3f3;
+    }
+    
+    .progress-info {
+      font-size: 14px;
+      color: #687078;
+      text-align: center;
+      flex: 1;
+      margin: 0 16px;
+    }
+    
+    .progress-text {
+      font-weight: 500;
+      color: #232f3e;
+    }
+
+    /* Assessment styles */
+    .assessment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding: 16px;
+      background-color: #fafafa;
+      border-radius: 8px;
+      border: 1px solid #d5dbdb;
+    }
+    
+    .timer-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 16px;
+      font-weight: 500;
+    }
+    
+    .timer {
+      color: #d13212;
+      font-size: 20px;
+      font-weight: 600;
+      min-width: 60px;
+    }
+    
+    .timer.warning {
+      color: #ff9900;
+      animation: pulse 1s infinite;
+    }
+    
+    .timer.danger {
+      color: #d13212;
+      animation: pulse 0.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+    
+    .progress-container {
+      flex: 1;
+      margin: 0 24px;
+    }
+    
+    .progress-bar-wrapper {
+      background-color: #e6e6e6;
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background-color: #d13212;
+      transition: width 0.3s ease;
+      border-radius: 4px;
+    }
+    
+    .progress-label {
+      font-size: 14px;
+      color: #687078;
+      text-align: center;
+    }
+    
+    .question-nav-container {
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    
+    .question-container {
+      display: none;
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    
+    .question-container.active {
+      display: block;
+    }
+    
+    .question-header {
+      background-color: #f9f9f9;
+      padding: 16px 20px;
+      border-bottom: 1px solid #d5dbdb;
+    }
+    
+    .scenario-tag {
+      display: inline-block;
+      background-color: #d13212;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    
+    .question-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: #232f3e;
+      line-height: 1.5;
+    }
+    
+    .question-body {
+      padding: 20px;
+    }
+    
+    .option-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .option {
+      display: flex;
+      align-items: flex-start;
+      padding: 12px 16px;
+      background: #fafafa;
+      border: 1px solid #d5dbdb;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .option:hover {
+      background-color: #f2f3f3;
+      border-color: #d13212;
+    }
+    
+    .option.selected {
+      background-color: #fff4e6;
+      border-color: #d13212;
+    }
+    
+    .option input {
+      margin-right: 12px;
+      margin-top: 2px;
+    }
+    
+    .option label {
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1.5;
+      flex: 1;
+    }
+    
+    .quiz-navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+      padding: 16px;
+      background-color: #fafafa;
+      border-radius: 8px;
+    }
+    
+    .nav-button {
+      background-color: #687078;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    
+    .nav-button:hover:not(:disabled) {
+      background-color: #232f3e;
+    }
+    
+    .nav-button:disabled {
+      background-color: #d5dbdb;
+      cursor: not-allowed;
+    }
+    
+    .nav-button.primary {
+      background-color: #d13212;
+    }
+    
+    .nav-button.primary:hover {
+      background-color: #b12a1a;
+    }
+    
+    .result {
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      padding: 24px;
+      margin-top: 24px;
+      display: none;
+      text-align: center;
+    }
+    
+    .result.show {
+      display: block;
+    }
+    
+    .score-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background-color: #d13212;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 600;
+      margin: 0 auto 24px;
+      box-shadow: 0 4px 12px rgba(209, 50, 18, 0.3);
+    }
+    
+    .result-title {
+      font-size: 24px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-bottom: 12px;
+    }
+    
+    .result-subtitle {
+      font-size: 18px;
+      color: #687078;
+      margin-bottom: 24px;
+    }
+    
+    .result-details {
+      text-align: left;
+      margin-top: 32px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    
+    .result-item {
+      margin: 12px 0;
+      padding: 16px;
+      border-radius: 4px;
+      border-left: 4px solid;
+    }
+    
+    .result-item.correct {
+      background-color: #f0f8f0;
+      border-color: #1b660f;
+    }
+    
+    .result-item.incorrect {
+      background-color: #fdf2f2;
+      border-color: #d13212;
+    }
+    
+    .result-item-header {
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #232f3e;
+    }
+    
+    .result-item-explanation {
+      font-size: 14px;
+      color: #687078;
+      line-height: 1.6;
+    }
+    
+    .btn-reset {
+      background-color: #687078;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 16px;
+    }
+    
+    .btn-reset:hover {
+      background-color: #232f3e;
+    }
+  </style>
+</head>
+<body>
+  <div class="aws-header">
+    <div class="aws-nav">
+      <div class="aws-logo-section">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 12px; height: 12px; background-color: #ff9900; border-radius: 50%;"></div>
+            <span style="color: white; font-size: 16px; font-weight: 400;">AWS</span>
+          </div>
+          <div style="width: 1px; height: 24px; background-color: #666; margin: 0 4px;"></div>
+          <span style="color: white; font-size: 16px; font-weight: 400;">Database Services Training</span>
+        </div>
+      </div>
+      <a href="https://www.linkedin.com/in/vamshi-majhi-a59727102/" target="_blank" style="display: flex; align-items: center; gap: 6px; color: #ff9900; text-decoration: none; font-size: 14px; font-weight: 400;">
+        <svg style="width: 14px; height: 14px; fill: currentColor;" viewBox="0 0 24 24">
+          <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+        </svg>
+        LinkedIn
+      </a>
+    </div>
+  </div>
+  
+  <div class="aws-breadcrumb">
+    <span><a href="#" style="color: #0073bb; font-weight: bold; text-decoration: none;">AWS Training</a> > Day 5: RDS, Aurora & ElastiCache</span>
+  </div>
+  
+  <div class="container">
+    <div class="page-header">
+      <h1 class="page-title">AWS RDS, Aurora & ElastiCache</h1>
+      <p class="page-description">
+        Master AWS database services including RDS engines, Aurora features, ElastiCache implementations, 
+        backup strategies, performance optimization, and cost-effective database architectures.
+      </p>
+    </div>
+    
+    <div class="tab-container">
+      <button class="tab-button active" onclick="showTab('learn')">RDS, Aurora & ElastiCache</button>
+      <button class="tab-button" onclick="showTab('assessment')">Assessment (35 Questions)</button>
+    </div>
+
+    <div id="learn" class="tab-content active">
+      <div class="content-header">
+        <h2 class="content-title">Interactive Database Services Mastery</h2>
+        <p class="content-subtitle">
+          Comprehensive training with detailed flashcards covering RDS advantages, Aurora architecture, 
+          ElastiCache patterns, MemoryDB features, and database optimization strategies.
+        </p>
+      </div>
+      
+      <div class="content-body">
+        <div class="difficulty-indicator">
+          <span class="difficulty-label">Complexity Level:</span>
+          <div class="difficulty-dot" id="diff1"></div>
+          <div class="difficulty-dot" id="diff2"></div>
+          <div class="difficulty-dot" id="diff3"></div>
+          <span class="difficulty-text" id="diffLabel">Foundation</span>
+        </div>
+        
+        <div class="flashcard-container">
+          <div id="flashcard" class="flashcard" onclick="flipCard()">
+            <div class="front">
+              <div class="card-category" id="frontCategory"></div>
+              <div class="card-title" id="frontTitle"></div>
+            </div>
+            <div class="back">
+              <div class="card-category">Explanation</div>
+              <div class="card-title">Detailed Solution</div>
+              <div class="card-content" id="backText"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="controls">
+          <button class="btn-aws btn-secondary" onclick="prevCard()" id="prevBtn">Previous</button>
+          <div class="progress-info">
+            <div class="progress-text" id="progressText"></div>
+            <div style="font-size: 12px; color: #687078; margin-top: 4px;">
+              Click card to flip • Use arrow keys to navigate
+            </div>
+          </div>
+          <button class="btn-aws" onclick="nextCard()" id="nextBtn">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="assessment" class="tab-content">
+      <div class="content-header">
+        <h2 class="content-title">Real-World Database Assessment</h2>
+        <p class="content-subtitle">
+          Test your expertise with 35 comprehensive scenarios covering database engine selection, 
+          performance optimization, backup strategies, and cost-effective database architectures.
+        </p>
+      </div>
+      
+      <div class="content-body">
+        <div class="assessment-header">
+          <div class="timer-container">
+            <span>Time Remaining:</span>
+            <span class="timer" id="timer">40:00</span>
+          </div>
+          <div class="progress-container">
+            <div class="progress-bar-wrapper">
+              <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+            </div>
+            <div class="progress-label">
+              Question <span id="currentQuestion">1</span> of <span id="totalQuestions">35</span>
+            </div>
+          </div>
+          <button class="nav-button primary" onclick="submitQuiz()">Submit Assessment</button>
+        </div>
+        
+        <div class="question-nav-container">
+          <div id="quiz-questions"></div>
+          <div class="quiz-navigation">
+            <button class="nav-button" onclick="previousQuestion()" id="prevQuestionBtn">Previous Question</button>
+            <button class="nav-button" onclick="nextQuestion()" id="nextQuestionBtn">Next Question</button>
+          </div>
+        </div>
+        
+        <div class="result" id="resultBox"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var currentCard = 0;
+    var isFlipped = false;
+    var currentQuestionIndex = 0;
+    var timerInterval;
+    var timeRemaining = 2400; // 40 minutes in seconds
+    
+    var flashcards = [
+      {
+        level: 1,
+        front: "Advantages of RDS over deploying DB on EC2",
+        back: "<strong>Definition:</strong> Amazon RDS (Relational Database Service) is a managed database service that automates database administration tasks, while EC2 database deployment requires manual management of the entire database stack.<br><br><strong>RDS Managed Benefits:</strong><ul><li><strong>Automated provisioning</strong> - No OS installation/configuration required</li><li><strong>Continuous backups</strong> - Automated point-in-time recovery (1-35 days retention)</li><li><strong>Monitoring dashboards</strong> - Built-in CloudWatch integration with performance metrics</li><li><strong>Read replicas</strong> - Horizontal scaling for read workloads with up to 15 replicas</li><li><strong>Multi-AZ setup</strong> - High availability deployment with automatic failover</li><li><strong>Maintenance windows</strong> - Scheduled OS and database engine upgrades</li><li><strong>Storage auto-scaling</strong> - Dynamic capacity management without downtime</li><li><strong>Security patches</strong> - Automatic security updates and vulnerability fixes</li></ul><strong>EC2 Database Limitations:</strong><ul><li><strong>Manual setup</strong> - Complete OS, database, and security patch management</li><li><strong>Backup management</strong> - Custom backup scripts and storage management</li><li><strong>High availability</strong> - Manual cluster setup and failover configuration</li><li><strong>Scaling</strong> - Complex read replica and sharding configuration</li><li><strong>Monitoring</strong> - Custom CloudWatch setup and alerting</li><li><strong>Security</strong> - Manual encryption, network, and access control setup</li></ul><strong>When to use EC2:</strong> Full database control needed, custom configurations, specific OS requirements, or unsupported database engines",
+        category: "RDS vs EC2"
+      },
+      {
+        level: 2,
+        front: "RDS Storage Auto Scaling",
+        back: "<strong>Definition:</strong> RDS Storage Auto Scaling is a feature that automatically increases storage capacity when your database is running out of free space, preventing downtime and eliminating the need for manual intervention.<br><br><strong>How it Works:</strong><ul><li><strong>Monitoring:</strong> Continuously monitors FreeStorageSpace CloudWatch metric</li><li><strong>Triggers:</strong><ul><li>Free storage drops below 10% of allocated storage</li><li>Low-storage condition persists for more than 5 minutes</li><li>At least 6 hours have passed since last storage modification</li></ul></li><li><strong>Scaling behavior:</strong><ul><li>Increases storage by greater of 10GB or 10% of current allocation</li><li>Maximum storage threshold prevents runaway costs</li><li>Zero downtime during scaling operations</li><li>Works with gp2, gp3, io1, and io2 storage types</li></ul></li></ul><strong>Configuration:</strong><ul><li><strong>Enable auto scaling</strong> during database creation or modification</li><li><strong>Set maximum storage threshold</strong> to control costs (up to 65,536 GiB)</li><li><strong>Monitor CloudWatch metrics</strong> like FreeStorageSpace and DatabaseConnections</li></ul><strong>Benefits:</strong><ul><li><strong>Prevents outages</strong> due to storage exhaustion</li><li><strong>Reduces operational overhead</strong> of capacity planning</li><li><strong>Cost-effective</strong> for unpredictable growth patterns</li><li><strong>Automatic scaling</strong> without application impact</li></ul><strong>Best Practices:</strong><ul><li>Set realistic maximum storage thresholds based on budget</li><li>Monitor usage patterns and costs regularly</li><li>Ideal for applications with unpredictable data growth</li></ul>",
+        category: "RDS Storage"
+      },
+      {
+        level: 2,
+        front: "RDS Read Replicas for Read Scalability",
+        back: "<strong>Definition:</strong> RDS Read Replicas create read-only copies of your database to scale read performance and reduce load on the primary database.<br><br><strong>Key Features:</strong><ul><li><strong>Up to 15 read replicas</strong> per primary database</li><li><strong>Asynchronous replication</strong> - Eventually consistent</li><li><strong>Cross-AZ and cross-region</strong> supported</li><li><strong>Can be promoted</strong> to standalone database</li><li><strong>Different instance types</strong> allowed</li></ul><strong>Replication Process:</strong><ul><li><strong>Async replication</strong> from primary to replicas</li><li><strong>No impact</strong> on primary database performance</li><li><strong>Applications</strong> must update connection strings</li><li><strong>Eventual consistency</strong> - slight lag possible</li></ul><strong>Use Cases:</strong><ul><li><strong>Read scaling</strong> - Distribute read traffic</li><li><strong>Reporting queries</strong> - Offload analytics</li><li><strong>Disaster recovery</strong> - Cross-region protection</li><li><strong>Geographic distribution</strong> - Reduce latency</li></ul><strong>Limitations:</strong><ul><li>Read-only access</li><li>Replication lag possible</li><li>Additional charges apply</li></ul>",
+        category: "Read Replicas"
+      },
+      {
+        level: 2,
+        front: "RDS Read Replicas Use Cases",
+        back: "<strong>Production Reporting:</strong><ul><li><strong>Business intelligence</strong> - Run reports without impacting production</li><li><strong>Analytics queries</strong> - Complex long-running queries</li><li><strong>Data warehousing</strong> - ETL processes on replica</li></ul><strong>Geographic Distribution:</strong><ul><li><strong>Multi-region applications</strong> - Local read performance</li><li><strong>Global user base</strong> - Reduce latency worldwide</li><li><strong>Data locality</strong> - Comply with regional requirements</li></ul><strong>Disaster Recovery:</strong><ul><li><strong>Cross-region backup</strong> - Regional failure protection</li><li><strong>Promotion capability</strong> - Quick recovery option</li><li><strong>Testing failover</strong> - Validate DR procedures</li></ul><strong>Development & Testing:</strong><ul><li><strong>Staging environments</strong> - Production-like data</li><li><strong>Performance testing</strong> - Without affecting production</li><li><strong>Data analysis</strong> - Safe experimentation environment</li></ul><strong>Scaling Patterns:</strong><ul><li><strong>Read-heavy workloads</strong> - 80/20 read/write ratio</li><li><strong>Microservices</strong> - Separate read/write services</li><li><strong>CDN integration</strong> - Database-backed content</li></ul>",
+        category: "Read Replica Patterns"
+      },
+      {
+        level: 2,
+        front: "RDS Read Replicas Network Cost",
+        back: "<strong>Same Region Replication:</strong><ul><li><strong>No additional charges</strong> for data transfer</li><li><strong>Multiple AZs</strong> - Free replication within region</li><li><strong>Instance charges</strong> - Pay for replica compute/storage</li></ul><strong>Cross-Region Replication:</strong><ul><li><strong>Data transfer charges</strong> apply for cross-region traffic</li><li><strong>$0.02/GB</strong> typical cross-region transfer cost</li><li><strong>Both regions</strong> charge for compute/storage</li></ul><strong>Cost Optimization Strategies:</strong><ul><li><strong>Same region replicas</strong> - Avoid transfer charges</li><li><strong>Smaller instance types</strong> - Right-size for read workload</li><li><strong>Selective replication</strong> - Only necessary databases</li><li><strong>Scheduled replicas</strong> - Create/destroy based on demand</li></ul><strong>Network Architecture:</strong><ul><li><strong>VPC peering</strong> - Secure cross-region connectivity</li><li><strong>Transit Gateway</strong> - Multi-region hub connectivity</li><li><strong>Direct Connect</strong> - Dedicated network connection</li></ul><strong>Monitoring Costs:</strong><ul><li>AWS Cost Explorer</li><li>Data transfer metrics</li><li>CloudWatch billing alarms</li></ul>",
+        category: "Network Costs"
+      },
+      {
+        level: 2,
+        front: "RDS Multi-AZ (Disaster Recovery)",
+        back: "<strong>Definition:</strong> Multi-AZ (Multi-Availability Zone) deployment is a high availability configuration that maintains a synchronous standby replica of your primary database in a different Availability Zone within the same region, providing automatic failover capabilities for disaster recovery.<br><br><strong>Architecture Components:</strong><ul><li><strong>Primary database instance</strong> - Active database handling all read/write operations</li><li><strong>Standby replica</strong> - Passive replica in different AZ, not accessible for reads</li><li><strong>Synchronous replication</strong> - Every write committed to both primary and standby</li><li><strong>Automatic failover</strong> - DNS endpoint switches to standby in 1-2 minutes</li><li><strong>Single DNS endpoint</strong> - Applications use same connection string</li></ul><strong>Failover Scenarios:</strong><ul><li><strong>Primary instance failure</strong> - Hardware or software issues</li><li><strong>Availability Zone outage</strong> - Entire AZ becomes unavailable</li><li><strong>Network connectivity loss</strong> - Primary instance becomes unreachable</li><li><strong>Planned maintenance</strong> - OS updates, database patches</li><li><strong>Storage failures</strong> - Primary storage becomes corrupted</li></ul><strong>Key Benefits:</strong><ul><li><strong>High availability</strong> - 99.95% uptime SLA with automatic failover</li><li><strong>Zero data loss</strong> - Synchronous replication ensures no data loss</li><li><strong>No manual intervention</strong> - Failover happens automatically</li><li><strong>Transparent to applications</strong> - Same DNS endpoint maintained</li><li><strong>Enhanced durability</strong> - Data replicated across multiple AZs</li></ul><strong>Differences from Read Replicas:</strong><ul><li><strong>Purpose:</strong> High availability/DR vs Read performance scaling</li><li><strong>Access:</strong> Standby not accessible vs Read-only access to replicas</li><li><strong>Replication:</strong> Synchronous vs Asynchronous replication</li><li><strong>Failover:</strong> Automatic vs Manual promotion required</li><li><strong>Cost:</strong> Approximately 2x primary cost vs Individual replica costs</li></ul>",
+        category: "Multi-AZ"
+      },
+      {
+        level: 2,
+        front: "RDS Single-AZ to Multi-AZ Migration",
+        back: "<strong>Migration Process:</strong><ul><li><strong>Zero downtime</strong> operation for most engines</li><li><strong>Snapshot-based</strong> creation of standby</li><li><strong>Synchronization</strong> catches up standby</li><li><strong>Automatic switch</strong> to Multi-AZ mode</li></ul><strong>Migration Steps:</strong><ul><li><strong>1. Take snapshot</strong> of primary database</li><li><strong>2. Restore snapshot</strong> in different AZ</li><li><strong>3. Enable synchronization</strong> between primary/standby</li><li><strong>4. Catch up</strong> standby with transaction logs</li><li><strong>5. Enable</strong> Multi-AZ configuration</li></ul><strong>Performance Impact:</strong><ul><li><strong>During migration:</strong> Slight performance impact</li><li><strong>I/O increase</strong> due to synchronous replication</li><li><strong>Network bandwidth</strong> usage between AZs</li><li><strong>After migration:</strong> Minimal ongoing impact</li></ul><strong>Best Practices:</strong><ul><li><strong>Schedule during maintenance window</strong></li><li><strong>Monitor performance metrics</strong></li><li><strong>Test application behavior</strong></li><li><strong>Verify failover procedures</strong></li></ul><strong>Rollback Options:</strong><ul><li>Disable Multi-AZ to return to Single-AZ</li><li>No data loss during rollback</li></ul>",
+        category: "Multi-AZ Migration"
+      },
+      {
+        level: 2,
+        front: "Amazon Aurora Overview",
+        back: "<strong>Definition:</strong> Amazon Aurora is a MySQL and PostgreSQL-compatible relational database built for the cloud, combining performance and availability of enterprise databases with simplicity and cost-effectiveness of open source.<br><br><strong>Architecture Innovations:</strong><div style='background: #f5f5f5; padding: 15px; border-radius: 6px; margin: 15px 0;'><div style='text-align: center; font-weight: bold; margin-bottom: 15px; color: #232f3e;'>Aurora DB Cluster</div><div style='display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 20px;'><div style='padding: 8px 12px; background: #4CAF50; color: white; border-radius: 4px; font-size: 12px;'>Writer Endpoint<br>Master (M)</div><div style='padding: 8px 12px; background: #ff9900; color: white; border-radius: 4px; font-size: 12px;'>Reader Endpoint<br>Read Replicas (R)</div></div><div style='text-align: center; padding: 10px; background: #232f3e; color: white; border-radius: 4px; font-size: 12px;'>Shared Storage Volume<br>Auto Expanding 10GB to 128TB</div></div><strong>Key Features:</strong><ul><li><strong>6 copies of data</strong> across 3 AZs</li><li><strong>Self-healing storage</strong> - Automatic error correction</li><li><strong>Up to 15 read replicas</strong></li><li><strong>Sub-10ms read replica lag</strong></li><li><strong>Continuous backup</strong> to S3</li><li><strong>Point-in-time recovery</strong></li></ul><strong>Performance Benefits:</strong><ul><li><strong>5x faster</strong> than MySQL</li><li><strong>3x faster</strong> than PostgreSQL</li><li><strong>Auto-scaling storage</strong></li></ul>",
+        category: "Aurora Architecture"
+      },
+      {
+        level: 3,
+        front: "Aurora High Availability and Read Scaling",
+        back: "<strong>High Availability Architecture:</strong><ul><li><strong>6 copies across 3 AZs</strong> - Survive loss of entire AZ</li><li><strong>2 copies for writes</strong> - Quorum-based writes</li><li><strong>3 copies for reads</strong> - Distributed read operations</li><li><strong>Self-healing storage</strong> - Automatic peer-to-peer repair</li><li><strong>Cross-AZ backups</strong> - No performance impact</li></ul><strong>Read Scaling Features:</strong><ul><li><strong>Writer endpoint</strong> - Points to master for read/write</li><li><strong>Reader endpoint</strong> - Connection load balancing across replicas</li><li><strong>Custom endpoints</strong> - Subset-based routing</li><li><strong>Auto Scaling</strong> - Dynamic replica scaling based on CPU/connections</li></ul><strong>Failover Process:</strong><ul><li><strong>Master failure</strong> - Promote read replica (< 30 seconds)</li><li><strong>Read replica failure</strong> - Remove from reader endpoint</li><li><strong>Self-healing</strong> - Storage blocks automatically repair</li></ul><strong>Scaling Benefits:</strong><ul><li><strong>Up to 15 read replicas</strong> vs 5 for RDS</li><li><strong>Sub-10ms lag</strong> vs seconds for RDS</li><li><strong>Shared storage</strong> - No replication overhead</li><li><strong>Instant failover</strong> - Faster than Multi-AZ</li></ul>",
+        category: "Aurora HA & Scaling"
+      },
+      {
+        level: 2,
+        front: "Features of Aurora",
+        back: "<strong>Performance Features:</strong><ul><li><strong>Aurora Parallel Query</strong> - Push down analytical queries to storage</li><li><strong>Aurora Serverless</strong> - Auto-scaling compute capacity</li><li><strong>Aurora Multi-Master</strong> - Multiple write nodes (MySQL only)</li><li><strong>Global Database</strong> - Cross-region replication <1 second</li></ul><strong>Backup & Recovery:</strong><ul><li><strong>Continuous backup</strong> to S3 (no performance impact)</li><li><strong>Backtrack</strong> - Rewind DB to specific time (MySQL only)</li><li><strong>Fast clone</strong> - Copy-on-write snapshot</li><li><strong>Cross-region backups</strong> for disaster recovery</li></ul><strong>Security Features:</strong><ul><li><strong>Encryption at rest</strong> using AWS KMS</li><li><strong>Encryption in transit</strong> using SSL</li><li><strong>IAM database authentication</strong></li><li><strong>VPC isolation</strong> and security groups</li></ul><strong>Monitoring & Management:</strong><ul><li><strong>Enhanced monitoring</strong> - OS-level metrics</li><li><strong>Performance Insights</strong> - Database performance tuning</li><li><strong>Database Activity Streams</strong> - Real-time audit</li><li><strong>CloudWatch integration</strong> - Automated alerting</li></ul><strong>Compatibility:</strong><ul><li>Drop-in replacement for MySQL 5.6, 5.7, 8.0</li><li>PostgreSQL 10, 11, 12, 13, 14 compatible</li></ul>",
+        category: "Aurora Features"
+      },
+      {
+        level: 2,
+        front: "RDS & Aurora Security",
+        back: "<strong>Encryption:</strong><ul><li><strong>At-rest encryption:</strong><ul><li>AWS KMS (AES-256)</li><li>Must be defined at launch time</li><li>Includes backups, snapshots, logs</li><li>Can't encrypt existing unencrypted DB</li></ul></li><li><strong>In-flight encryption:</strong><ul><li>TLS-ready by default</li><li>Use AWS TLS root certificates</li><li>Force SSL connections in parameter group</li></ul></li></ul><strong>Authentication & Authorization:</strong><ul><li><strong>IAM Database Authentication</strong><ul><li>Use IAM roles instead of passwords</li><li>Auth token valid for 15 minutes</li><li>Network in/out encrypted using SSL</li></ul></li><li><strong>Traditional authentication</strong><ul><li>Username and password</li><li>Database user management</li></ul></li></ul><strong>Network Security:</strong><ul><li><strong>VPC</strong> - Deploy in private subnets</li><li><strong>Security Groups</strong> - Control access at port level</li><li><strong>No SSH access</strong> - Managed service</li></ul><strong>Audit & Compliance:</strong><ul><li><strong>CloudTrail</strong> - Track API calls</li><li><strong>Database Activity Streams</strong> - Real-time monitoring</li><li><strong>CloudWatch Logs</strong> - Database logs</li></ul>",
+        category: "Database Security"
+      },
+      {
+        level: 3,
+        front: "Amazon RDS Proxy",
+        back: "<strong>Definition:</strong> Amazon RDS Proxy is a fully managed database proxy service that acts as an intermediary between your applications and RDS/Aurora databases, providing connection pooling, multiplexing, and enhanced security while improving application scalability and resilience.<br><br><strong>Core Functionality:</strong><ul><li><strong>Connection pooling</strong> - Maintains a pool of database connections shared across application instances</li><li><strong>Connection multiplexing</strong> - Multiple application connections share fewer database connections</li><li><strong>Intelligent routing</strong> - Automatically routes traffic to healthy database instances</li><li><strong>Failover acceleration</strong> - Reduces failover time by up to 66%</li><li><strong>Security enhancement</strong> - Centralized authentication and secrets management</li></ul><strong>Key Benefits:</strong><ul><li><strong>Massive connection reduction</strong> - Reduce database connections by up to 100x</li><li><strong>Improved scalability</strong> - Handle more concurrent application connections</li><li><strong>Enhanced security</strong> - IAM authentication and AWS Secrets Manager integration</li><li><strong>Faster failover</strong> - Preserves application connections during database failover</li><li><strong>Lambda optimization</strong> - Persistent connections ideal for serverless functions</li><li><strong>Prepared statement caching</strong> - Improves query performance and reduces latency</li></ul><strong>How Connection Pooling Works:</strong><ul><li><strong>Application layer</strong> - Applications connect to RDS Proxy endpoint</li><li><strong>Proxy layer</strong> - Proxy maintains pool of database connections</li><li><strong>Database layer</strong> - Proxy shares pooled connections among applications</li><li><strong>Connection reuse</strong> - Connections returned to pool when not in use</li></ul><strong>Best Use Cases:</strong><ul><li><strong>Serverless applications</strong> - AWS Lambda functions with unpredictable traffic</li><li><strong>Microservices architectures</strong> - Many services with short-lived connections</li><li><strong>Connection-intensive applications</strong> - Apps that create many database connections</li><li><strong>Legacy applications</strong> - Improve performance without code changes</li><li><strong>Auto-scaling applications</strong> - Applications that scale up/down frequently</li></ul><strong>Supported Database Engines:</strong><ul><li>Aurora MySQL and Aurora PostgreSQL</li><li>RDS MySQL and RDS PostgreSQL</li><li>MariaDB support available</li></ul><strong>Security Features:</strong><ul><li><strong>IAM authentication</strong> - Eliminate hardcoded database passwords</li><li><strong>AWS Secrets Manager</strong> - Automatic credential rotation</li><li><strong>VPC security</strong> - Deploy within your VPC for network isolation</li><li><strong>TLS encryption</strong> - Encrypted connections between proxy and database</li></ul>",
+        category: "RDS Proxy"
+      },
+      {
+        level: 2,
+        front: "ElastiCache Solution Architecture - DB Cache",
+        back: "<strong>Definition:</strong> Database caching with ElastiCache is an architectural pattern where frequently accessed data is stored in a high-speed, in-memory cache layer between your application and database to reduce database load and improve response times.<br><br><strong>Database Caching Pattern:</strong><div style='background: #f5f5f5; padding: 15px; border-radius: 6px; margin: 15px 0;'><div style='text-align: center; margin-bottom: 15px;'><div style='display: inline-block; padding: 8px 12px; background: #ff9900; color: white; border-radius: 4px; margin: 5px;'>Application Layer</div></div><div style='display: flex; justify-content: center; gap: 20px; align-items: center;'><div style='padding: 8px 12px; background: #d13212; color: white; border-radius: 4px;'>ElastiCache<br>(In-Memory)</div><div style='padding: 8px 12px; background: #4CAF50; color: white; border-radius: 4px;'>RDS Database<br>(Persistent Storage)</div></div></div><strong>Cache-Aside (Lazy Loading) Pattern Flow:</strong><ul><li><strong>1. Application checks cache first</strong> - Query ElastiCache for requested data</li><li><strong>2. Cache hit scenario:</strong> Return cached data immediately (sub-millisecond response)</li><li><strong>3. Cache miss scenario:</strong> Query database for data not in cache</li><li><strong>4. Update cache with result</strong> - Store database result in cache for future requests</li><li><strong>5. Return data to application</strong> - Serve data to user while cache is populated</li></ul><strong>Performance Benefits:</strong><ul><li><strong>Reduced database load</strong> - Frequent queries served from fast memory</li><li><strong>Improved response times</strong> - Sub-millisecond cache responses vs database milliseconds</li><li><strong>Cost optimization</strong> - Use smaller database instances due to reduced load</li><li><strong>Better scalability</strong> - Handle traffic spikes without database overload</li><li><strong>Lower latency</strong> - In-memory access much faster than disk-based databases</li></ul><strong>Implementation Considerations:</strong><ul><li><strong>Cache key strategy</strong> - Design unique, consistent identifiers for cached objects</li><li><strong>TTL (Time To Live) settings</strong> - Balance data freshness with performance gains</li><li><strong>Cache invalidation</strong> - Implement strategies for data updates and deletions</li><li><strong>Cache warming</strong> - Pre-populate cache with frequently accessed data</li><li><strong>Failover handling</strong> - Graceful fallback to database when cache fails</li><li><strong>Memory management</strong> - Monitor cache hit ratios and eviction patterns</li></ul><strong>Common Cache Patterns:</strong><ul><li><strong>User profiles and preferences</strong> - Frequently accessed user data</li><li><strong>Product catalogs</strong> - E-commerce item details and inventory</li><li><strong>Configuration data</strong> - Application settings and feature flags</li><li><strong>Query results</strong> - Complex database query outputs</li><li><strong>Computed data</strong> - Expensive calculations and aggregations</li></ul>",
+        category: "Caching Patterns"
+      },
+      {
+        level: 2,
+        front: "ElastiCache Solution Architecture - User Session Store",
+        back: "<strong>Definition:</strong> Using ElastiCache as a session store is an architectural pattern where user session data is stored in a centralized, in-memory cache that can be accessed by any application server, enabling stateless application design and horizontal scaling.<br><br><strong>Session Store Architecture:</strong><div style='background: #f5f5f5; padding: 15px; border-radius: 6px; margin: 15px 0;'><div style='text-align: center; margin-bottom: 15px;'><div style='display: inline-block; padding: 8px 12px; background: #ff9900; color: white; border-radius: 4px; margin: 5px;'>Load Balancer</div></div><div style='display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;'><div style='padding: 6px 10px; background: #4CAF50; color: white; border-radius: 4px; font-size: 12px;'>App Server 1</div><div style='padding: 6px 10px; background: #4CAF50; color: white; border-radius: 4px; font-size: 12px;'>App Server 2</div><div style='padding: 6px 10px; background: #4CAF50; color: white; border-radius: 4px; font-size: 12px;'>App Server N</div></div><div style='text-align: center;'><div style='display: inline-block; padding: 8px 12px; background: #d13212; color: white; border-radius: 4px;'>ElastiCache Session Store<br>(Centralized Session Management)</div></div></div><strong>Session Management Flow:</strong><ul><li><strong>1. User login</strong> - Application creates session and stores in ElastiCache</li><li><strong>2. Session ID</strong> - Unique session identifier sent to user (typically via cookie)</li><li><strong>3. Subsequent requests</strong> - Any application server can retrieve session data</li><li><strong>4. Load balancing</strong> - Users can be routed to any available server</li><li><strong>5. Session expiration</strong> - Automatic cleanup via TTL (Time To Live)</li></ul><strong>Benefits of External Session Store:</strong><ul><li><strong>Stateless applications</strong> - Any server can handle any user request</li><li><strong>High availability</strong> - Sessions survive individual server failures</li><li><strong>Horizontal auto scaling</strong> - Add/remove servers without losing sessions</li><li><strong>Fast session access</strong> - Sub-millisecond session data retrieval</li><li><strong>Simplified deployment</strong> - No session replication between servers</li><li><strong>Better resource utilization</strong> - No memory consumed for session storage on app servers</li></ul><strong>Session Data Types:</strong><ul><li><strong>User authentication</strong> - Login tokens, user ID, roles and permissions</li><li><strong>Shopping carts</strong> - E-commerce temporary purchase data and items</li><li><strong>User preferences</strong> - Settings, themes, language selections</li><li><strong>Application state</strong> - Multi-step workflow progress and form data</li><li><strong>Temporary data</strong> - Cached calculations, search results, filters</li><li><strong>Security tokens</strong> - CSRF tokens, OAuth state parameters</li></ul><strong>Implementation Best Practices:</strong><ul><li><strong>Session expiration</strong> - Set appropriate TTL based on application security requirements</li><li><strong>Data serialization</strong> - Use efficient formats like JSON or binary serialization</li><li><strong>Security considerations</strong> - Encrypt sensitive session data before storage</li><li><strong>Backup strategy</strong> - Enable Redis persistence for critical session data</li><li><strong>Key naming</strong> - Use consistent session key patterns for management</li><li><strong>Memory monitoring</strong> - Track session store memory usage and eviction</li></ul><strong>Comparison with Alternatives:</strong><ul><li><strong>vs Sticky sessions:</strong> Better scalability and fault tolerance</li><li><strong>vs Database sessions:</strong> Much faster access and reduced database load</li><li><strong>vs Local sessions:</strong> Enables true horizontal scaling and load balancing</li></ul>",
+        category: "Session Management"
+      },
+      {
+        level: 2,
+        front: "ElastiCache - Redis vs Memcached",
+        back: "<strong>Definition:</strong> Redis and Memcached are both in-memory caching engines available through Amazon ElastiCache, but they serve different use cases based on data structure complexity, persistence requirements, and application architecture needs.<br><br><strong>Redis Characteristics & Advantages:</strong><ul><li><strong>Rich data structures:</strong> Strings, hashes, lists, sets, sorted sets, bitmaps, geospatial indexes</li><li><strong>Data persistence options:</strong> RDB snapshots + AOF (Append Only File) logs for durability</li><li><strong>High availability:</strong> Multi-AZ deployments with automatic failover capabilities</li><li><strong>Backup and restore:</strong> Point-in-time recovery and cross-region replication</li><li><strong>Read replicas:</strong> Up to 5 read replicas per primary node for read scaling</li><li><strong>Advanced features:</strong> Pub/Sub messaging, Lua scripting, transactions, pipelining</li><li><strong>Cluster mode:</strong> Automatic data sharding and horizontal scaling across nodes</li><li><strong>Atomic operations:</strong> ACID compliance for complex data operations</li></ul><strong>Memcached Characteristics & Advantages:</strong><ul><li><strong>Simplicity:</strong> Pure distributed key-value store with simple string values</li><li><strong>Multi-threading:</strong> Better CPU utilization with multi-core systems</li><li><strong>Memory efficiency:</strong> Lower memory overhead per item stored</li><li><strong>Horizontal scaling:</strong> Easy to add/remove nodes in the cluster</li><li><strong>Performance:</strong> Slightly faster for simple get/set operations</li><li><strong>Protocol simplicity:</strong> Lightweight protocol with minimal overhead</li><li><strong>Mature ecosystem:</strong> Long-established with extensive client library support</li></ul><strong>Decision Matrix - Choose Redis for:</strong><ul><li><strong>Complex data types needed:</strong> Lists, sets, sorted sets for leaderboards, queues</li><li><strong>Data persistence required:</strong> Session stores, shopping carts that must survive restarts</li><li><strong>High availability critical:</strong> Applications requiring automatic failover</li><li><strong>Backup/restore needed:</strong> Data that needs point-in-time recovery</li><li><strong>Pub/Sub messaging:</strong> Real-time notifications and messaging systems</li><li><strong>Advanced operations:</strong> Atomic increments, set operations, geospatial queries</li><li><strong>Read scaling:</strong> Applications with heavy read workloads</li></ul><strong>Decision Matrix - Choose Memcached for:</strong><ul><li><strong>Simple caching only:</strong> Basic key-value storage without complex operations</li><li><strong>Multi-threaded performance:</strong> High-throughput, CPU-intensive applications</li><li><strong>Memory optimization priority:</strong> Tight memory constraints and cost optimization</li><li><strong>Horizontal scaling simplicity:</strong> Easy cluster management and node addition</li><li><strong>Large object caching:</strong> Storing large values efficiently</li><li><strong>Minimal overhead:</strong> Applications where protocol efficiency matters</li></ul><strong>Performance Considerations:</strong><ul><li><strong>Redis:</strong> Single-threaded but supports pipelining and async operations</li><li><strong>Memcached:</strong> Multi-threaded with better utilization of multiple CPU cores</li><li><strong>Memory usage:</strong> Memcached more efficient for simple key-value pairs</li><li><strong>Network overhead:</strong> Redis protocol slightly more verbose but more feature-rich</li></ul>",
+        category: "Cache Engine Selection"
+      },
+      {
+        level: 3,
+        front: "Caching Implementation Considerations",
+        back: "<strong>Data Patterns:</strong><ul><li><strong>Read-heavy workloads</strong> - High cache hit ratio beneficial</li><li><strong>Write-heavy workloads</strong> - Consider write-through/write-behind</li><li><strong>Data freshness requirements</strong> - TTL strategy</li><li><strong>Data size</strong> - Memory capacity planning</li></ul><strong>Performance Considerations:</strong><ul><li><strong>Cache warm-up</strong> - Pre-populate frequently accessed data</li><li><strong>Cache eviction</strong> - LRU, LFU policies</li><li><strong>Hot spots</strong> - Distribute load evenly</li><li><strong>Network latency</strong> - Co-locate cache with application</li></ul><strong>Consistency Models:</strong><ul><li><strong>Cache-aside</strong> - Application manages cache</li><li><strong>Write-through</strong> - Synchronous cache updates</li><li><strong>Write-behind</strong> - Asynchronous writes to database</li><li><strong>Refresh-ahead</strong> - Proactive cache updates</li></ul><strong>Monitoring & Operations:</strong><ul><li><strong>Cache hit ratio</strong> - Target >80% for effectiveness</li><li><strong>Memory utilization</strong> - Monitor for capacity</li><li><strong>Evictions</strong> - Indicates memory pressure</li><li><strong>Connection count</strong> - Application scaling metric</li></ul><strong>Security:</strong><ul><li>VPC placement</li><li>Security groups</li><li>Encryption in transit</li><li>Redis AUTH token</li></ul>",
+        category: "Caching Strategy"
+      },
+      {
+        level: 3,
+        front: "Caching Design Pattern Selection",
+        back: "<strong>Definition:</strong> Caching design patterns define how applications interact with cache layers to optimize performance, consistency, and resource utilization. Each pattern addresses different requirements for data freshness, write performance, and system complexity.<br><br><strong>Cache-Aside (Lazy Loading) Pattern:</strong><ul><li><strong>Definition:</strong> Application manages cache directly, loading data on-demand when cache misses occur</li><li><strong>Best for:</strong> Read-heavy workloads with unpredictable or sparse access patterns</li><li><strong>How it works:</strong> App checks cache → miss = query DB + update cache → hit = return cached data</li><li><strong>Pros:</strong> Only requested data cached, fault-tolerant, simple to implement</li><li><strong>Cons:</strong> Cache miss penalty, potential stale data, initial cache warming needed</li><li><strong>Use when:</strong> Can tolerate eventual consistency and read latency spikes</li></ul><strong>Write-Through Pattern:</strong><ul><li><strong>Definition:</strong> Data written to cache and database simultaneously, ensuring consistency</li><li><strong>Best for:</strong> Applications requiring strong data consistency and frequent reads</li><li><strong>How it works:</strong> Write request → update cache + DB together → read from fast cache</li><li><strong>Pros:</strong> No stale data, simple consistency model, fast reads</li><li><strong>Cons:</strong> Higher write latency, cache churn for rarely-read data, more complex</li><li><strong>Use when:</strong> Strong consistency required and write performance acceptable</li></ul><strong>Write-Behind (Write-Back) Pattern:</strong><ul><li><strong>Definition:</strong> Data written to cache immediately, database updated asynchronously later</li><li><strong>Best for:</strong> Write-heavy workloads with temporary or frequently-changing data</li><li><strong>How it works:</strong> Write to cache → return immediately → async DB update later</li><li><strong>Pros:</strong> Very fast writes, reduced database load, batching opportunities</li><li><strong>Cons:</strong> Risk of data loss, complex failure handling, potential inconsistency</li><li><strong>Use when:</strong> Can accept potential data loss for extreme write performance</li></ul><strong>Write-Around Pattern:</strong><ul><li><strong>Definition:</strong> Data written directly to database, bypassing cache entirely</li><li><strong>Best for:</strong> Write-once, read-rarely data or large bulk data operations</li><li><strong>How it works:</strong> Write directly to DB → cache miss on first read → lazy load if needed</li><li><strong>Pros:</strong> Avoids cache pollution, good for infrequent data</li><li><strong>Cons:</strong> Higher read latency for recently written data</li><li><strong>Use when:</strong> Data written once but rarely read afterwards</li></ul><strong>Refresh-Ahead Pattern:</strong><ul><li><strong>Definition:</strong> Cache proactively refreshed before expiration based on access patterns</li><li><strong>Best for:</strong> Predictable access patterns with consistent data freshness needs</li><li><strong>How it works:</strong> Monitor access → refresh popular items before TTL expires</li><li><strong>Pros:</strong> Low read latency, proactive freshness, predictable performance</li><li><strong>Cons:</strong> Implementation complexity, may refresh unused data, overhead</li><li><strong>Use when:</strong> Access patterns are predictable and performance is critical</li></ul><strong>Pattern Selection Criteria:</strong><ul><li><strong>Data consistency requirements:</strong> Strict consistency vs eventual consistency tolerance</li><li><strong>Read/write ratio:</strong> Read-heavy vs write-heavy vs balanced workloads</li><li><strong>Tolerance for stale data:</strong> Real-time requirements vs acceptable data lag</li><li><strong>Performance requirements:</strong> Latency sensitivity vs throughput optimization</li><li><strong>Failure tolerance:</strong> Data loss acceptance vs durability requirements</li><li><strong>Operational complexity:</strong> Simple implementation vs advanced features needed</li></ul><strong>Hybrid Approaches:</strong><ul><li>Combine multiple patterns for different data types within same application</li><li>Use write-through for critical data, cache-aside for less critical data</li><li>Implement pattern switching based on system load or data characteristics</li></ul>",
+        category: "Pattern Selection"
+      },
+      {
+        level: 3,
+        front: "Amazon MemoryDB for Redis",
+        back: "<strong>Definition:</strong> Amazon MemoryDB for Redis is a Redis-compatible, durable, in-memory database service that delivers ultra-fast performance with microsecond read latency, single-digit millisecond write latency, and high throughput.<br><br><strong>Key Features:</strong><div style='background: #f5f5f5; padding: 15px; border-radius: 6px; margin: 15px 0;'><div style='display: flex; justify-content: space-around; margin-bottom: 15px;'><div style='text-align: center;'><div style='padding: 8px; background: #4CAF50; color: white; border-radius: 4px; margin-bottom: 5px;'>Microservices Applications</div><div style='font-size: 12px;'>Web, mobile, retail, gaming, media streaming, finance, and more</div></div></div><div style='display: flex; justify-content: space-around; align-items: center;'><div style='text-align: center;'><div style='padding: 8px; background: #d13212; color: white; border-radius: 4px; margin-bottom: 5px;'>MemoryDB</div><div style='font-size: 12px;'>Redis-compatible, durable, in-memory database</div></div><div style='text-align: center;'><div style='padding: 8px; background: #ff9900; color: white; border-radius: 4px; margin-bottom: 5px;'>In-Memory Speed</div><div style='font-size: 12px;'>Stores data in-memory across up to hundreds of nodes for ultra-fast performance</div></div><div style='text-align: center;'><div style='padding: 8px; background: #2196F3; color: white; border-radius: 4px; margin-bottom: 5px;'>Multi-AZ Transactional Log</div><div style='font-size: 12px;'>Stores data across multiple Availability Zones to provide durability and fast recovery</div></div></div></div><strong>Core Capabilities:</strong><ul><li><strong>Ultra-fast performance:</strong> Over 160 million requests/second</li><li><strong>Durable storage:</strong> Multi-AZ transactional log</li><li><strong>Redis compatibility:</strong> Use existing Redis clients</li><li><strong>Scale seamlessly:</strong> From 10s GBs to 100s TBs</li></ul><strong>vs ElastiCache Redis:</strong><ul><li><strong>MemoryDB:</strong> Primary database with durability</li><li><strong>ElastiCache:</strong> Cache layer with optional persistence</li></ul>",
+        category: "MemoryDB"
+      }
+    ];
+
+    var questions = [
+      {
+        question: "Your company is migrating from self-managed MySQL on EC2 to a managed solution. The database must support automated backups, read replicas, and automatic storage scaling. What managed service provides the most operational benefits over EC2?",
+        type: "radio",
+        scenario: "Migration Strategy",
+        options: [
+          "Amazon RDS MySQL with Multi-AZ deployment",
+          "Amazon Aurora MySQL with read replicas", 
+          "ElastiCache Redis for in-memory processing",
+          "DynamoDB with DAX for caching"
+        ],
+        correct: ["Amazon Aurora MySQL with read replicas"],
+        explanation: "Aurora provides superior performance (5x faster than MySQL), automatic storage scaling, better availability, and more read replicas (15 vs 5) compared to RDS. It offers the most operational benefits over self-managed EC2 databases."
+      },
+      {
+        question: "A growing e-commerce application experiences unpredictable storage growth from 100GB to 2TB during peak seasons. The current RDS instance often runs out of storage space. What features address this challenge?",
+        type: "checkbox",
+        scenario: "Storage Scaling",
+        options: [
+          "Enable RDS Storage Auto Scaling with maximum threshold",
+          "Set up CloudWatch alarms for storage monitoring",
+          "Use Aurora with automatic storage expansion",
+          "Configure manual storage increases during peak seasons",
+          "Migrate to DynamoDB for unlimited scaling"
+        ],
+        correct: ["Enable RDS Storage Auto Scaling with maximum threshold", "Set up CloudWatch alarms for storage monitoring", "Use Aurora with automatic storage expansion"],
+        explanation: "RDS Storage Auto Scaling automatically increases storage when free space drops below 10%. Aurora automatically scales from 10GB to 128TB. CloudWatch alarms provide proactive monitoring. Manual scaling is not efficient for unpredictable growth."
+      },
+      {
+        question: "Your analytics team needs to run complex reporting queries that take 30+ minutes, but these queries are slowing down the production database. How should you optimize this architecture?",
+        type: "checkbox",
+        scenario: "Read Scaling",
+        options: [
+          "Create read replicas dedicated to analytical workloads",
+          "Schedule reports during off-peak hours only",
+          "Use Aurora Parallel Query for analytical processing",
+          "Implement ElastiCache for query result caching",
+          "Scale up the primary database instance"
+        ],
+        correct: ["Create read replicas dedicated to analytical workloads", "Use Aurora Parallel Query for analytical processing"],
+        explanation: "Read replicas offload analytical queries from production. Aurora Parallel Query pushes analytical processing to the storage layer for faster execution. Scheduling and scaling don't address the core issue of query interference."
+      },
+      {
+        question: "A global application serves users in North America, Europe, and Asia. Each region requires low-latency database reads, but writes can tolerate slightly higher latency. What architecture optimizes for global performance?",
+        type: "checkbox",
+        scenario: "Global Distribution",
+        options: [
+          "Aurora Global Database with regional clusters",
+          "Cross-region read replicas in each geographic region",
+          "ElastiCache clusters in each region for frequently accessed data",
+          "Single Multi-AZ RDS instance in us-east-1",
+          "DynamoDB Global Tables for automatic replication"
+        ],
+        correct: ["Aurora Global Database with regional clusters", "Cross-region read replicas in each geographic region", "ElastiCache clusters in each region for frequently accessed data"],
+        explanation: "Aurora Global Database provides <1 second replication globally. Cross-region read replicas reduce read latency. Regional ElastiCache further optimizes frequently accessed data. A single region cannot provide global low latency."
+      },
+      {
+        question: "An application experiences significant cost increases due to cross-region data transfer between read replicas. The read replicas are used for disaster recovery and local read performance. How can you optimize these costs?",
+        type: "checkbox",
+        scenario: "Network Cost Optimization",
+        options: [
+          "Use same-region read replicas to avoid transfer charges",
+          "Implement CloudFront for database query caching",
+          "Schedule cross-region replication during off-peak hours",
+          "Use Aurora Global Database to reduce transfer costs",
+          "Cache frequently accessed data in ElastiCache"
+        ],
+        correct: ["Use same-region read replicas to avoid transfer charges", "Use Aurora Global Database to reduce transfer costs", "Cache frequently accessed data in ElastiCache"],
+        explanation: "Same-region read replicas eliminate cross-region transfer charges. Aurora Global Database uses dedicated infrastructure with lower transfer costs. ElastiCache reduces database queries. CloudFront doesn't cache database queries, and scheduled replication doesn't reduce costs."
+      },
+      {
+        question: "Your production database requires zero data loss tolerance and automatic failover within 2 minutes during AZ failures. Currently using single-AZ RDS MySQL. What configuration meets these requirements?",
+        type: "radio",
+        scenario: "High Availability",
+        options: [
+          "Enable RDS Multi-AZ deployment for automatic failover",
+          "Create read replicas in multiple AZs",
+          "Use Aurora with Multi-AZ configuration",
+          "Implement manual failover with snapshots"
+        ],
+        correct: ["Enable RDS Multi-AZ deployment for automatic failover"],
+        explanation: "RDS Multi-AZ provides synchronous replication (zero data loss) and automatic failover within 1-2 minutes. Read replicas use asynchronous replication and don't provide automatic failover. Manual failover doesn't meet the time requirement."
+      },
+      {
+        question: "You need to migrate a single-AZ RDS instance to Multi-AZ for production deployment. The application cannot tolerate downtime during this migration. What approach ensures zero-downtime migration?",
+        type: "checkbox",
+        scenario: "Multi-AZ Migration",
+        options: [
+          "Use the 'Modify DB Instance' option to enable Multi-AZ",
+          "Create a snapshot and restore as Multi-AZ",
+          "Perform migration during a maintenance window",
+          "Monitor performance during the migration process",
+          "Test application behavior with the new Multi-AZ setup"
+        ],
+        correct: ["Use the 'Modify DB Instance' option to enable Multi-AZ", "Monitor performance during the migration process", "Test application behavior with the new Multi-AZ setup"],
+        explanation: "RDS allows zero-downtime conversion to Multi-AZ using the modify operation. It creates a standby via snapshot and synchronizes. Monitoring during migration and testing afterward are essential best practices."
+      },
+      {
+        question: "A microservices architecture with 15 services creates thousands of database connections, frequently hitting connection limits. Each service creates short-lived connections for database queries. What solution optimizes connection management?",
+        type: "radio",
+        scenario: "Connection Management",
+        options: [
+          "Increase max_connections parameter on the database",
+          "Implement RDS Proxy for connection pooling and multiplexing",
+          "Use separate read replicas for each microservice",
+          "Deploy separate databases for each microservice"
+        ],
+        correct: ["Implement RDS Proxy for connection pooling and multiplexing"],
+        explanation: "RDS Proxy is designed specifically for microservices and serverless architectures. It pools and multiplexes connections, reducing database connections by up to 100x while improving security and resilience. Simply increasing connections doesn't solve the efficiency problem."
+      },
+      {
+        question: "Your database requires advanced features like 6-copy storage across 3 AZs, sub-10ms read replica lag, and the ability to scale from 10GB to 128TB automatically. Which service provides these specific capabilities?",
+        type: "checkbox",
+        scenario: "Aurora Architecture",
+        options: [
+          "Amazon Aurora with shared storage architecture",
+          "6 copies of data across 3 Availability Zones",
+          "Automatic storage scaling from 10GB to 128TB",
+          "Sub-10ms read replica lag with up to 15 replicas",
+          "RDS MySQL with optimized storage configuration"
+        ],
+        correct: ["Amazon Aurora with shared storage architecture", "6 copies of data across 3 Availability Zones", "Automatic storage scaling from 10GB to 128TB", "Sub-10ms read replica lag with up to 15 replicas"],
+        explanation: "These are Aurora's distinctive features. Aurora's shared storage automatically maintains 6 copies across 3 AZs, scales storage automatically, and provides faster read replica performance compared to standard RDS."
+      },
+      {
+        question: "An application needs both read/write database access and complex data structure caching (sorted sets for leaderboards, hashes for user profiles). The cache must persist data across restarts. What architecture meets these requirements?",
+        type: "checkbox",
+        scenario: "Complex Caching",
+        options: [
+          "Aurora for primary database operations",
+          "ElastiCache Redis with persistence enabled",
+          "Redis sorted sets for leaderboard functionality",
+          "Redis hashes for user profile storage",
+          "ElastiCache Memcached for simple key-value caching"
+        ],
+        correct: ["Aurora for primary database operations", "ElastiCache Redis with persistence enabled", "Redis sorted sets for leaderboard functionality", "Redis hashes for user profile storage"],
+        explanation: "Aurora provides excellent read/write performance. Redis supports complex data structures (sorted sets, hashes) and persistence. Memcached only supports simple key-value pairs and has no persistence."
+      },
+      {
+        question: "Your application's security requirements mandate encryption at rest and in transit, IAM-based database authentication, and comprehensive audit logging. What security features should you implement?",
+        type: "checkbox",
+        scenario: "Database Security",
+        options: [
+          "Enable encryption at rest using AWS KMS",
+          "Configure SSL/TLS for encryption in transit",
+          "Implement IAM database authentication",
+          "Enable database activity streams for audit logging",
+          "Use AWS Secrets Manager for password rotation"
+        ],
+        correct: ["Enable encryption at rest using AWS KMS", "Configure SSL/TLS for encryption in transit", "Implement IAM database authentication", "Enable database activity streams for audit logging"],
+        explanation: "These features address all security requirements: KMS encryption at rest, SSL/TLS in transit, IAM authentication eliminates passwords, and activity streams provide comprehensive audit logs. Secrets Manager is good but not required if using IAM authentication."
+      },
+      {
+        question: "A web application with millions of users experiences slow database queries during peak traffic. The application makes the same queries repeatedly. You need to reduce database load while maintaining data consistency. What caching strategy is most appropriate?",
+        type: "radio",
+        scenario: "Database Caching",
+        options: [
+          "Implement cache-aside (lazy loading) pattern with ElastiCache",
+          "Use write-through caching for all database operations",
+          "Configure write-behind caching for better performance",
+          "Cache all queries in application memory"
+        ],
+        correct: ["Implement cache-aside (lazy loading) pattern with ElastiCache"],
+        explanation: "Cache-aside is ideal for read-heavy workloads with repeated queries. It only caches requested data, is fault-tolerant, and reduces database load effectively. Write-through adds latency, write-behind risks data loss, and application memory doesn't scale."
+      },
+      {
+        question: "Your e-commerce application needs to store user sessions across multiple application servers for scalability. Sessions must survive server restarts and provide fast access. How should you implement session storage?",
+        type: "checkbox",
+        scenario: "Session Management",
+        options: [
+          "Use ElastiCache Redis as external session store",
+          "Enable Redis persistence for session durability",
+          "Configure appropriate TTL for session expiration",
+          "Implement sticky sessions with load balancer",
+          "Store sessions in RDS database tables"
+        ],
+        correct: ["Use ElastiCache Redis as external session store", "Enable Redis persistence for session durability", "Configure appropriate TTL for session expiration"],
+        explanation: "External session store in Redis enables stateless applications and auto-scaling. Redis persistence ensures sessions survive restarts. TTL manages session lifecycle. Sticky sessions prevent scaling, and RDS is too slow for session access."
+      },
+      {
+        question: "You need to choose between Redis and Memcached for a new caching layer. The application requires data persistence, pub/sub messaging, and complex data structures. Which engine and features should you select?",
+        type: "checkbox",
+        scenario: "Cache Engine Selection",
+        options: [
+          "Choose ElastiCache Redis for advanced features",
+          "Enable Redis persistence with RDB snapshots",
+          "Use Redis data structures (lists, sets, sorted sets)",
+          "Implement Redis pub/sub for real-time messaging",
+          "Choose Memcached for better multi-threading performance"
+        ],
+        correct: ["Choose ElastiCache Redis for advanced features", "Enable Redis persistence with RDB snapshots", "Use Redis data structures (lists, sets, sorted sets)", "Implement Redis pub/sub for real-time messaging"],
+        explanation: "Redis provides all required features: persistence, complex data structures, and pub/sub messaging. Memcached only supports simple key-value storage without persistence or advanced features."
+      },
+      {
+        question: "Your application has varying caching needs: some data requires immediate consistency, other data can tolerate eventual consistency, and some data is write-heavy. What caching patterns should you implement for each scenario?",
+        type: "checkbox",
+        scenario: "Caching Patterns",
+        options: [
+          "Write-through caching for data requiring immediate consistency",
+          "Cache-aside (lazy loading) for data tolerating eventual consistency",
+          "Write-behind caching for write-heavy workloads",
+          "Refresh-ahead caching for predictable access patterns",
+          "Use the same pattern for all data types for simplicity"
+        ],
+        correct: ["Write-through caching for data requiring immediate consistency", "Cache-aside (lazy loading) for data tolerating eventual consistency", "Write-behind caching for write-heavy workloads"],
+        explanation: "Different data patterns require different caching strategies. Write-through ensures consistency, cache-aside optimizes for reads with eventual consistency, and write-behind optimizes write performance. One pattern cannot optimize all scenarios."
+      },
+      {
+        question: "A gaming application needs ultra-fast performance with durable storage for user profiles, leaderboards, and real-time messaging. The application requires Redis compatibility but needs the data to survive instance failures. What service meets these requirements?",
+        type: "radio",
+        scenario: "MemoryDB Use Case",
+        options: [
+          "ElastiCache Redis with backup enabled",
+          "Amazon MemoryDB for Redis with Multi-AZ durability",
+          "RDS with in-memory optimization",
+          "DynamoDB with DAX caching"
+        ],
+        correct: ["Amazon MemoryDB for Redis with Multi-AZ durability"],
+        explanation: "MemoryDB provides Redis compatibility with built-in durability via Multi-AZ transactional logs. It delivers ultra-fast performance (160M+ requests/second) with data persistence, making it ideal as a primary database for gaming applications."
+      },
+      {
+        question: "Your data analytics pipeline processes both real-time streams and historical batch data. You need microsecond read latency for real-time queries and the ability to store massive datasets (100+ TB) with high durability. What combination addresses both requirements?",
+        type: "checkbox",
+        scenario: "Analytics Architecture",
+        options: [
+          "MemoryDB for real-time analytics with microsecond latency",
+          "Aurora for historical data storage and complex queries",
+          "ElastiCache Redis for temporary real-time data",
+          "Redshift for data warehousing and batch processing",
+          "DynamoDB for both real-time and historical storage"
+        ],
+        correct: ["MemoryDB for real-time analytics with microsecond latency", "Aurora for historical data storage and complex queries", "Redshift for data warehousing and batch processing"],
+        explanation: "MemoryDB provides microsecond latency for real-time analytics. Aurora handles complex queries on historical data. Redshift optimizes batch processing and warehousing. ElastiCache lacks durability for critical data."
+      },
+      {
+        question: "A financial application requires strict data consistency, audit logging, encryption at rest and in transit, and the ability to track all database operations. What security and compliance features should you implement?",
+        type: "checkbox",
+        scenario: "Financial Compliance",
+        options: [
+          "Enable encryption at rest with customer-managed KMS keys",
+          "Configure SSL/TLS with certificate validation",
+          "Implement database activity streams for comprehensive auditing",
+          "Use IAM database authentication to eliminate passwords",
+          "Deploy in VPC with private subnets and security groups"
+        ],
+        correct: ["Enable encryption at rest with customer-managed KMS keys", "Configure SSL/TLS with certificate validation", "Implement database activity streams for comprehensive auditing", "Use IAM database authentication to eliminate passwords", "Deploy in VPC with private subnets and security groups"],
+        explanation: "Financial applications require comprehensive security: customer-managed encryption keys, validated SSL/TLS, complete audit trails, passwordless authentication, and network isolation. All these features are essential for compliance."
+      },
+      {
+        question: "Your serverless application using AWS Lambda experiences database connection timeouts during traffic spikes. Each Lambda invocation creates new database connections, quickly exhausting the connection pool. What solution optimizes serverless database connectivity?",
+        type: "checkbox",
+        scenario: "Serverless Optimization",
+        options: [
+          "Implement RDS Proxy for Lambda connection management",
+          "Enable RDS Proxy IAM authentication for security",
+          "Use connection pooling and multiplexing",
+          "Increase the max_connections parameter significantly",
+          "Cache frequently accessed data in Lambda memory"
+        ],
+        correct: ["Implement RDS Proxy for Lambda connection management", "Enable RDS Proxy IAM authentication for security", "Use connection pooling and multiplexing"],
+        explanation: "RDS Proxy is designed for serverless architectures, providing connection pooling, multiplexing, and persistent connections across Lambda invocations. It reduces connection overhead and improves scalability for serverless applications."
+      },
+      {
+        question: "An e-commerce platform experiences 10x traffic during flash sales, causing database performance degradation. The application needs to maintain both product catalog queries and user session data during these spikes. What architecture handles extreme scaling?",
+        type: "checkbox",
+        scenario: "Flash Sale Scaling",
+        options: [
+          "Aurora Serverless v2 for automatic database scaling",
+          "ElastiCache Redis cluster for session management",
+          "Read replicas with automatic scaling for product queries",
+          "Aurora Parallel Query for complex product searches",
+          "DynamoDB with on-demand scaling for product catalog"
+        ],
+        correct: ["Aurora Serverless v2 for automatic database scaling", "ElastiCache Redis cluster for session management", "Read replicas with automatic scaling for product queries"],
+        explanation: "Aurora Serverless v2 scales automatically for demand spikes. ElastiCache handles session data efficiently. Read replicas distribute product query load. This combination provides both database and caching scaling for extreme traffic events."
+      },
+      {
+        question: "Your application requires a database that can serve as both a primary database and a cache, providing Redis compatibility with durability guarantees. The workload includes real-time leaderboards, user sessions, and persistent user data. What service architecture is optimal?",
+        type: "radio",
+        scenario: "Dual-Purpose Database",
+        options: [
+          "ElastiCache Redis with RDB backups",
+          "MemoryDB for Redis as primary database with durability",
+          "Aurora with ElastiCache Redis as separate cache layer",
+          "RDS with Redis-compatible application caching"
+        ],
+        correct: ["MemoryDB for Redis as primary database with durability"],
+        explanation: "MemoryDB serves as both primary database and cache, providing Redis compatibility with built-in durability. It eliminates the need for separate cache and database layers while maintaining ultra-fast performance and data persistence."
+      },
+      {
+        question: "A multi-tenant SaaS application serves thousands of customers with varying performance requirements. Some tenants need guaranteed performance while others can accept shared resources. How should you architect the database layer?",
+        type: "checkbox",
+        scenario: "Multi-Tenant Architecture",
+        options: [
+          "Aurora Provisioned clusters for high-performance tenants",
+          "Aurora Serverless v2 for variable workload tenants",
+          "Separate databases per tier (premium, standard, basic)",
+          "ElastiCache Redis for caching across all tenants",
+          "RDS Proxy to manage connections across tenant databases"
+        ],
+        correct: ["Aurora Provisioned clusters for high-performance tenants", "Aurora Serverless v2 for variable workload tenants", "ElastiCache Redis for caching across all tenants", "RDS Proxy to manage connections across tenant databases"],
+        explanation: "A tiered approach using Aurora Provisioned for guaranteed performance, Aurora Serverless v2 for cost-effective variable workloads, shared caching, and RDS Proxy for connection management optimizes for different tenant requirements."
+      },
+      {
+        question: "Your backup strategy must support point-in-time recovery for the last 35 days, cross-region disaster recovery, and the ability to restore specific tables without affecting the entire database. What backup configuration accomplishes these requirements?",
+        type: "checkbox",
+        scenario: "Advanced Backup Strategy",
+        options: [
+          "Enable automated backups with 35-day retention",
+          "Configure cross-region automated backup replication",
+          "Use Aurora backtrack for point-in-time recovery",
+          "Implement manual snapshots for long-term retention",
+          "Enable continuous backup to S3"
+        ],
+        correct: ["Enable automated backups with 35-day retention", "Configure cross-region automated backup replication", "Use Aurora backtrack for point-in-time recovery"],
+        explanation: "Automated backups with maximum 35-day retention enable point-in-time recovery. Cross-region replication provides disaster recovery. Aurora backtrack allows rewinding without full restore. Table-level restore typically requires application-level implementation."
+      },
+      {
+        question: "A real-time analytics dashboard requires sub-100ms query response times for complex aggregations on large datasets. The data is primarily read-only after initial insertion. What database configuration optimizes for these analytical queries?",
+        type: "checkbox",
+        scenario: "Real-Time Analytics",
+        options: [
+          "Aurora with Parallel Query enabled for analytics",
+          "Multiple read replicas dedicated to dashboard queries",
+          "ElastiCache Redis for frequently accessed aggregations",
+          "MemoryDB for ultra-fast analytical processing",
+          "Aurora Serverless v2 with automatic scaling"
+        ],
+        correct: ["Aurora with Parallel Query enabled for analytics", "Multiple read replicas dedicated to dashboard queries", "ElastiCache Redis for frequently accessed aggregations"],
+        explanation: "Aurora Parallel Query pushes analytical processing to storage for faster execution. Dedicated read replicas handle dashboard queries without affecting writes. ElastiCache provides sub-millisecond access for computed aggregations."
+      },
+      {
+        question: "Your database monitoring shows high CPU utilization, increasing connection counts, and growing query latency during peak hours. Performance Insights indicates specific slow queries. What optimization strategies should you implement?",
+        type: "checkbox",
+        scenario: "Performance Optimization",
+        options: [
+          "Implement query optimization based on Performance Insights",
+          "Add database indexes for frequently executed queries",
+          "Deploy RDS Proxy to manage connection pooling",
+          "Scale up to a larger instance class",
+          "Implement ElastiCache for frequently accessed data"
+        ],
+        correct: ["Implement query optimization based on Performance Insights", "Add database indexes for frequently executed queries", "Deploy RDS Proxy to manage connection pooling", "Implement ElastiCache for frequently accessed data"],
+        explanation: "Performance Insights identifies optimization opportunities. Query optimization and proper indexing address root causes. RDS Proxy manages connections efficiently. ElastiCache reduces database load. Scaling up helps but doesn't address underlying inefficiencies."
+      },
+      {
+        question: "A gaming leaderboard application needs to support millions of concurrent users with real-time score updates and sub-millisecond read latency for leaderboard queries. The system must handle both individual player scores and global rankings. What architecture supports these requirements?",
+        type: "checkbox",
+        scenario: "Gaming Leaderboards",
+        options: [
+          "MemoryDB for Redis with sorted sets for leaderboards",
+          "Redis ZADD operations for real-time score updates",
+          "Redis ZRANGE queries for leaderboard retrieval",
+          "Aurora for persistent player profile storage",
+          "ElastiCache Memcached for simple score caching"
+        ],
+        correct: ["MemoryDB for Redis with sorted sets for leaderboards", "Redis ZADD operations for real-time score updates", "Redis ZRANGE queries for leaderboard retrieval", "Aurora for persistent player profile storage"],
+        explanation: "MemoryDB provides Redis compatibility with durability for leaderboards. Redis sorted sets are perfect for rankings. ZADD updates scores efficiently, ZRANGE retrieves rankings quickly. Aurora stores persistent player data. Memcached lacks the required data structures."
+      },
+      {
+        question: "Your application architecture includes microservices, serverless functions, and batch processing jobs, all accessing the same database. Each component has different connection patterns and performance requirements. How do you optimize database access across this diverse architecture?",
+        type: "checkbox",
+        scenario: "Hybrid Architecture",
+        options: [
+          "RDS Proxy for microservices and serverless connection management",
+          "Direct connections for batch jobs to avoid proxy overhead",
+          "ElastiCache for shared caching across all components",
+          "Separate read replicas for different workload types",
+          "Aurora Serverless v2 for automatic scaling across workloads"
+        ],
+        correct: ["RDS Proxy for microservices and serverless connection management", "Direct connections for batch jobs to avoid proxy overhead", "ElastiCache for shared caching across all components", "Separate read replicas for different workload types"],
+        explanation: "RDS Proxy optimizes connections for microservices and serverless. Batch jobs benefit from direct connections for long-running processes. Shared caching improves efficiency. Separate read replicas isolate different workload patterns for optimal performance."
+      },
+      {
+        question: "A financial trading application requires ultra-low latency for order processing, strict data consistency for trade records, and the ability to scale to handle market opening surges. The system processes millions of transactions per second during peak hours. What database architecture meets these demands?",
+        type: "checkbox",
+        scenario: "High-Frequency Trading",
+        options: [
+          "MemoryDB for ultra-low latency order processing",
+          "Aurora with Multi-AZ for trade record consistency",
+          "ElastiCache Redis for real-time market data",
+          "Aurora Serverless v2 for automatic scaling during market hours",
+          "RDS Proxy for connection management during surges"
+        ],
+        correct: ["MemoryDB for ultra-low latency order processing", "Aurora with Multi-AZ for trade record consistency", "ElastiCache Redis for real-time market data"],
+        explanation: "MemoryDB provides microsecond latency for order processing while maintaining durability. Aurora Multi-AZ ensures strict consistency for trade records. ElastiCache delivers real-time market data. This combination optimizes for both speed and consistency requirements."
+      },
+      {
+        question: "Your disaster recovery plan requires RPO of 1 second and RTO of 1 minute for a critical global application. The primary database is in us-east-1 and you need disaster recovery capability in eu-west-1. What solution meets these aggressive requirements?",
+        type: "radio",
+        scenario: "Aggressive DR Requirements",
+        options: [
+          "Aurora Global Database with managed failover",
+          "Cross-region read replica with manual promotion",
+          "RDS Multi-AZ with cross-region backup copying",
+          "DynamoDB Global Tables with automatic failover"
+        ],
+        correct: ["Aurora Global Database with managed failover"],
+        explanation: "Aurora Global Database provides <1 second RPO with typical lag under 1 second, and managed failover typically completes in under 1 minute RTO. It's specifically designed for such aggressive disaster recovery requirements."
+      },
+      {
+        question: "A content management system stores articles, user comments, and media metadata. The system has 90% read operations and needs to support full-text search, complex queries, and real-time comment updates. What database architecture optimizes for these mixed requirements?",
+        type: "checkbox",
+        scenario: "Content Management",
+        options: [
+          "Aurora for primary content storage and complex queries",
+          "ElastiCache Redis for frequently accessed articles",
+          "Read replicas for search and analytical queries",
+          "Amazon OpenSearch for full-text search capabilities",
+          "MemoryDB for real-time comment threading"
+        ],
+        correct: ["Aurora for primary content storage and complex queries", "ElastiCache Redis for frequently accessed articles", "Read replicas for search and analytical queries", "Amazon OpenSearch for full-text search capabilities"],
+        explanation: "Aurora handles primary storage and complex queries. ElastiCache improves read performance for popular articles. Read replicas support search operations. OpenSearch provides full-text search capabilities. This architecture separates concerns for optimal performance."
+      },
+      {
+        question: "Your cost optimization review shows high database expenses due to over-provisioned instances and underutilized read replicas. The workload varies significantly throughout the day and week. What strategies reduce costs while maintaining performance?",
+        type: "checkbox",
+        scenario: "Cost Optimization",
+        options: [
+          "Migrate to Aurora Serverless v2 for automatic scaling",
+          "Right-size instances based on CloudWatch metrics",
+          "Use Reserved Instances for predictable baseline workload",
+          "Implement scheduled scaling for read replicas",
+          "Enable storage auto-scaling to optimize storage costs"
+        ],
+        correct: ["Migrate to Aurora Serverless v2 for automatic scaling", "Right-size instances based on CloudWatch metrics", "Use Reserved Instances for predictable baseline workload"],
+        explanation: "Aurora Serverless v2 automatically scales compute capacity, eliminating over-provisioning. Right-sizing optimizes instance costs. Reserved Instances provide significant savings for predictable workloads. Storage auto-scaling optimizes storage but doesn't address compute over-provisioning."
+      },
+      {
+        question: "A social media application needs to store user feeds, handle real-time notifications, maintain friend relationships, and cache trending content. The system experiences viral content that can increase traffic by 100x within minutes. What database architecture handles these diverse social media requirements?",
+        type: "checkbox",
+        scenario: "Social Media Architecture",
+        options: [
+          "Aurora for user profiles and relationship data",
+          "ElastiCache Redis for real-time feeds and notifications",
+          "MemoryDB for trending content with persistence",
+          "Aurora Serverless v2 for automatic scaling during viral events",
+          "DynamoDB for user timeline storage"
+        ],
+        correct: ["Aurora for user profiles and relationship data", "ElastiCache Redis for real-time feeds and notifications", "Aurora Serverless v2 for automatic scaling during viral events"],
+        explanation: "Aurora handles structured user and relationship data. ElastiCache Redis provides real-time performance for feeds and notifications. Aurora Serverless v2 automatically scales for viral traffic spikes. This architecture combines RDBMS benefits with high-performance caching."
+      },
+      {
+        question: "Your database security audit requires implementing defense-in-depth with multiple security layers. The application handles PII data and must comply with GDPR requirements. What comprehensive security implementation addresses these requirements?",
+        type: "checkbox",
+        scenario: "Comprehensive Security",
+        options: [
+          "VPC deployment with private subnets and NACLs",
+          "Security groups restricting access to specific ports and sources",
+          "Encryption at rest with customer-managed KMS keys",
+          "Encryption in transit with TLS 1.2+ and certificate validation",
+          "IAM database authentication with least privilege access",
+          "Database activity streams with CloudTrail integration",
+          "Regular security patches through managed maintenance windows"
+        ],
+        correct: ["VPC deployment with private subnets and NACLs", "Security groups restricting access to specific ports and sources", "Encryption at rest with customer-managed KMS keys", "Encryption in transit with TLS 1.2+ and certificate validation", "IAM database authentication with least privilege access", "Database activity streams with CloudTrail integration"],
+        explanation: "GDPR and PII protection require comprehensive security: network isolation (VPC, NACLs, security groups), encryption at rest and in transit, strong authentication, and complete audit trails. Managed maintenance is automatic but doesn't address the core security requirements."
+      }
+    ];
+    
+    function showTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(function(tab) {
+        tab.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-button').forEach(function(btn) {
+        btn.classList.remove('active');
+      });
+      
+      document.getElementById(tabName).classList.add('active');
+      event.target.classList.add('active');
+      
+      if (tabName === 'assessment') {
+        generateQuiz();
+        startTimer();
+      } else {
+        stopTimer();
+      }
+    }
+    
+    function loadCard() {
+      var card = flashcards[currentCard];
+      
+      updateDifficultyIndicator(card.level);
+      
+      document.getElementById('frontCategory').textContent = card.category;
+      document.getElementById('frontTitle').textContent = card.front;
+      document.getElementById('backText').innerHTML = card.back;
+      
+      document.getElementById('progressText').textContent = "Card " + (currentCard + 1) + " of " + flashcards.length;
+      
+      document.getElementById('prevBtn').disabled = currentCard === 0;
+      document.getElementById('nextBtn').disabled = currentCard === flashcards.length - 1;
+    }
+    
+    function updateDifficultyIndicator(level) {
+      var dots = [
+        document.getElementById('diff1'),
+        document.getElementById('diff2'), 
+        document.getElementById('diff3')
+      ];
+      var label = document.getElementById('diffLabel');
+      
+      dots.forEach(function(dot) {
+        dot.className = 'difficulty-dot';
+      });
+      
+      for (var i = 0; i < level; i++) {
+        if (i === 0) dots[i].classList.add('active');
+        else if (i === 1) dots[i].classList.add('medium');
+        else dots[i].classList.add('hard');
+      }
+      
+      var labels = ['Foundation', 'Intermediate', 'Advanced'];
+      label.textContent = labels[level - 1];
+    }
+    
+    function flipCard() {
+      var card = document.getElementById('flashcard');
+      card.classList.toggle('flip');
+      isFlipped = !isFlipped;
+    }
+    
+    function nextCard() {
+      if (currentCard < flashcards.length - 1) {
+        currentCard++;
+        if (isFlipped) {
+          var card = document.getElementById('flashcard');
+          card.classList.remove('flip');
+          isFlipped = false;
+        }
+        loadCard();
+      }
+    }
+    
+    function prevCard() {
+      if (currentCard > 0) {
+        currentCard--;
+        if (isFlipped) {
+          var card = document.getElementById('flashcard');
+          card.classList.remove('flip');
+          isFlipped = false;
+        }
+        loadCard();
+      }
+    }
+    
+    function generateQuiz() {
+      var container = document.getElementById('quiz-questions');
+      if (container.innerHTML !== '') return;
+      
+      container.innerHTML = '';
+      document.getElementById('totalQuestions').textContent = questions.length;
+      
+      questions.forEach(function(q, index) {
+        var questionDiv = document.createElement('div');
+        questionDiv.className = 'question-container' + (index === 0 ? ' active' : '');
+        questionDiv.id = 'question-' + index;
+        
+        var optionsHtml = q.options.map(function(option, optIndex) {
+          return '<div class="option" onclick="selectOption(' + index + ', ' + optIndex + ', this)">' +
+                 '<input type="' + q.type + '" name="q' + index + '" value="' + option + '" id="q' + index + '_' + optIndex + '">' +
+                 '<label for="q' + index + '_' + optIndex + '">' + option + '</label>' +
+                 '</div>';
+        }).join('');
+        
+        questionDiv.innerHTML = '<div class="question-header">' +
+          '<div class="scenario-tag">' + q.scenario + '</div>' +
+          '<div class="question-title">' + (index + 1) + '. ' + q.question + '</div>' +
+          '</div>' +
+          '<div class="question-body">' +
+          '<div class="option-group">' + optionsHtml + '</div>' +
+          '</div>';
+        
+        container.appendChild(questionDiv);
+      });
+      
+      updateQuestionNavigation();
+    }
+    
+    function selectOption(questionIndex, optionIndex, element) {
+      var questionContainer = element.closest('.question-container');
+      var inputType = element.querySelector('input').type;
+      
+      if (inputType === 'radio') {
+        questionContainer.querySelectorAll('.option').forEach(function(opt) {
+          opt.classList.remove('selected');
+        });
+        element.classList.add('selected');
+        element.querySelector('input').checked = true;
+      } else {
+        element.classList.toggle('selected');
+        var input = element.querySelector('input');
+        input.checked = element.classList.contains('selected');
+      }
+      
+      updateProgress();
+    }
+    
+    function updateProgress() {
+      var totalQuestions = questions.length;
+      var answeredQuestions = 0;
+      
+      questions.forEach(function(q, index) {
+        var questionContainer = document.getElementById('question-' + index);
+        if (questionContainer.querySelector('input:checked')) {
+          answeredQuestions++;
+        }
+      });
+      
+      var progressPercentage = (answeredQuestions / totalQuestions) * 100;
+      document.getElementById('progressBar').style.width = progressPercentage + '%';
+    }
+    
+    function nextQuestion() {
+      if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        showQuestion(currentQuestionIndex);
+      }
+    }
+    
+    function previousQuestion() {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        showQuestion(currentQuestionIndex);
+      }
+    }
+    
+    function showQuestion(index) {
+      document.querySelectorAll('.question-container').forEach(function(q) {
+        q.classList.remove('active');
+      });
+      
+      document.getElementById('question-' + index).classList.add('active');
+      document.getElementById('currentQuestion').textContent = index + 1;
+      
+      updateQuestionNavigation();
+    }
+    
+    function updateQuestionNavigation() {
+      document.getElementById('prevQuestionBtn').disabled = currentQuestionIndex === 0;
+      document.getElementById('nextQuestionBtn').disabled = currentQuestionIndex === questions.length - 1;
+    }
+    
+    function startTimer() {
+      stopTimer();
+      timeRemaining = 2400; // 40 minutes
+      
+      timerInterval = setInterval(function() {
+        timeRemaining--;
+        
+        var minutes = Math.floor(timeRemaining / 60);
+        var seconds = timeRemaining % 60;
+        var timerDisplay = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+        
+        var timerElement = document.getElementById('timer');
+        timerElement.textContent = timerDisplay;
+        
+        if (timeRemaining <= 600) { // 10 minutes
+          timerElement.classList.add('danger');
+        } else if (timeRemaining <= 1200) { // 20 minutes
+          timerElement.classList.add('warning');
+        }
+        
+        if (timeRemaining <= 0) {
+          stopTimer();
+          submitQuiz();
+        }
+      }, 1000);
+    }
+    
+    function stopTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+    }
+    
+    function submitQuiz() {
+      stopTimer();
+      checkAnswers();
+    }
+    
+    function checkAnswers() {
+      var score = 0;
+      var results = [];
+      
+      questions.forEach(function(q, index) {
+        var questionContainer = document.getElementById('question-' + index);
+        var selectedOptions = Array.from(questionContainer.querySelectorAll('input:checked')).map(function(input) {
+          return input.value;
+        });
+        
+        var isCorrect = false;
+        
+        if (q.type === "radio") {
+          isCorrect = selectedOptions.length === 1 && selectedOptions[0] === q.correct[0];
+        } else {
+          var correctSet = new Set(q.correct);
+          var selectedSet = new Set(selectedOptions);
+          isCorrect = correctSet.size === selectedSet.size && 
+                     Array.from(correctSet).every(function(answer) { return selectedSet.has(answer); });
+        }
+        
+        if (isCorrect) score++;
+        
+        results.push({
+          question: q.question,
+          selected: selectedOptions,
+          correct: q.correct,
+          isCorrect: isCorrect,
+          explanation: q.explanation,
+          scenario: q.scenario
+        });
+      });
+      
+      displayResults(score, results);
+    }
+    
+    function displayResults(score, results) {
+      var resultBox = document.getElementById('resultBox');
+      var percentage = Math.round((score / questions.length) * 100);
+      
+      document.querySelector('.question-nav-container').style.display = 'none';
+      document.querySelector('.assessment-header').style.display = 'none';
+      
+      var resultHTML = '<div class="score-circle">' + percentage + '%</div>' +
+        '<div class="result-title">Database Services Assessment Complete</div>' +
+        '<div class="result-subtitle">You scored ' + score + ' out of ' + questions.length + ' questions correctly</div>';
+      
+      if (percentage >= 80) {
+        resultHTML += '<p style="color: #1b660f; font-weight: 500;">Outstanding! You have excellent AWS database expertise.</p>';
+      } else if (percentage >= 60) {
+        resultHTML += '<p style="color: #ff9900; font-weight: 500;">Good foundation! Review flashcards for advanced database concepts.</p>';
+      } else {
+        resultHTML += '<p style="color: #d13212; font-weight: 500;">Keep studying! Focus on RDS, Aurora, and ElastiCache fundamentals.</p>';
+      }
+      
+      resultHTML += '<div class="result-details">';
+      
+      results.forEach(function(result, index) {
+        var statusClass = result.isCorrect ? 'correct' : 'incorrect';
+        var statusIcon = result.isCorrect ? '✓ Correct' : '✗ Incorrect';
+        
+        resultHTML += '<div class="result-item ' + statusClass + '">' +
+          '<div class="result-item-header">' + statusIcon + ' - ' + result.scenario + ' - Question ' + (index + 1) + '</div>' +
+          '<div class="result-item-explanation">' + result.explanation + '</div>' +
+          '</div>';
+      });
+      
+      resultHTML += '</div>';
+      resultHTML += '<button class="btn-reset" onclick="resetQuiz()">Retake Assessment</button>';
+      
+      resultBox.innerHTML = resultHTML;
+      resultBox.classList.add('show');
+      resultBox.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    function resetQuiz() {
+      document.querySelectorAll('.option').forEach(function(opt) {
+        opt.classList.remove('selected');
+      });
+      document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(function(input) {
+        input.checked = false;
+      });
+      
+      document.getElementById('resultBox').classList.remove('show');
+      document.querySelector('.question-nav-container').style.display = 'block';
+      document.querySelector('.assessment-header').style.display = 'flex';
+      
+      currentQuestionIndex = 0;
+      showQuestion(0);
+      updateProgress();
+      startTimer();
+      
+      document.getElementById('quiz-questions').scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      loadCard();
+    });
+    
+    // Make functions globally available
+    window.flipCard = flipCard;
+    window.nextCard = nextCard;
+    window.prevCard = prevCard;
+    window.showTab = showTab;
+    window.submitQuiz = submitQuiz;
+    window.selectOption = selectOption;
+    window.nextQuestion = nextQuestion;
+    window.previousQuestion = previousQuestion;
+    window.resetQuiz = resetQuiz;
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+      var activeTab = document.querySelector('.tab-content.active').id;
+      
+      if (activeTab === 'learn') {
+        if (e.code === 'ArrowLeft') {
+          e.preventDefault();
+          prevCard();
+        } else if (e.code === 'ArrowRight') {
+          e.preventDefault();
+          nextCard();
+        } else if (e.code === 'Space') {
+          e.preventDefault();
+          flipCard();
+        }
+      } else if (activeTab === 'assessment') {
+        if (e.code === 'ArrowLeft') {
+          e.preventDefault();
+          previousQuestion();
+        } else if (e.code === 'ArrowRight') {
+          e.preventDefault();
+          nextQuestion();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
