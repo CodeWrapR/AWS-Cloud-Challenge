@@ -1,0 +1,1860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AWS Day 6: Networking Deep Dive</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Amazon Ember', 'Helvetica Neue', Roboto, Arial, sans-serif;
+      background-color: #f2f3f3;
+      color: #232f3e;
+      line-height: 1.6;
+    }
+    
+    .aws-header {
+      background-color: #000000;
+      color: white;
+      padding: 0;
+    }
+    
+    .aws-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      height: 48px;
+      background-color: #232f3e;
+    }
+    
+    .aws-logo-section {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    
+    .aws-breadcrumb {
+      background-color: #f9f9f9;
+      padding: 12px 20px;
+      border-bottom: 1px solid #d5dbdb;
+      font-size: 14px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    
+    .page-header {
+      margin-bottom: 32px;
+    }
+    
+    .page-title {
+      font-size: 28px;
+      font-weight: 300;
+      color: #232f3e;
+      margin-bottom: 8px;
+    }
+    
+    .page-description {
+      font-size: 14px;
+      color: #687078;
+      line-height: 1.5;
+    }
+    
+    .tab-container {
+      border-bottom: 1px solid #d5dbdb;
+      margin-bottom: 24px;
+      display: flex;
+    }
+    
+    .tab-button {
+      background: none;
+      border: none;
+      padding: 16px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #687078;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s ease;
+    }
+    
+    .tab-button:hover {
+      color: #232f3e;
+      background-color: #fafafa;
+    }
+    
+    .tab-button.active {
+      color: #d13212;
+      border-bottom-color: #d13212;
+      background-color: white;
+    }
+    
+    .tab-content {
+      display: none;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .content-header {
+      background-color: #fafafa;
+      padding: 20px 24px;
+      border-bottom: 1px solid #d5dbdb;
+    }
+    
+    .content-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-bottom: 8px;
+    }
+    
+    .content-subtitle {
+      font-size: 14px;
+      color: #687078;
+    }
+    
+    .content-body {
+      padding: 24px;
+    }
+    
+    .difficulty-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      padding: 12px 16px;
+      background-color: #f9f9f9;
+      border-radius: 4px;
+      border-left: 4px solid #d13212;
+    }
+    
+    .difficulty-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-right: 12px;
+    }
+    
+    .difficulty-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #d5dbdb;
+    }
+    
+    .difficulty-dot.active { background: #1b660f; }
+    .difficulty-dot.medium { background: #ff9900; }
+    .difficulty-dot.hard { background: #d13212; }
+    
+    .difficulty-text {
+      font-size: 14px;
+      color: #687078;
+      margin-left: 8px;
+    }
+    
+    .flashcard-container {
+      perspective: 1000px;
+      margin: 24px 0;
+    }
+    
+    .flashcard {
+      width: 100%;
+      height: 450px;
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+      position: relative;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .flashcard:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .flip {
+      transform: rotateY(180deg);
+    }
+    
+    .front, .back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+    
+    .front {
+      background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+      color: #232f3e;
+    }
+    
+    .back {
+      background: linear-gradient(135deg, #fff4e6 0%, #ffe6cc 100%);
+      color: #232f3e;
+      transform: rotateY(180deg);
+    }
+    
+    .card-category {
+      font-size: 12px;
+      font-weight: 500;
+      color: #d13212;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+      padding: 4px 12px;
+      background-color: rgba(209, 50, 18, 0.1);
+      border-radius: 12px;
+    }
+    
+    .card-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+    
+    .card-content {
+      font-size: 15px;
+      line-height: 1.6;
+      color: #232f3e;
+      text-align: left;
+      width: 100%;
+    }
+    
+    .card-content strong {
+      color: #d13212;
+      font-weight: 600;
+    }
+    
+    .card-content ul {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+    
+    .card-content li {
+      margin: 8px 0;
+      list-style-type: none;
+      position: relative;
+      padding-left: 20px;
+    }
+    
+    .card-content li:before {
+      content: "▸";
+      position: absolute;
+      left: 0;
+      color: #d13212;
+      font-weight: bold;
+    }
+    
+    .card-content ol {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+    
+    .card-content ol li {
+      list-style-type: decimal;
+      padding-left: 0;
+    }
+    
+    .card-content ol li:before {
+      content: none;
+    }
+    
+    .card-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+    }
+    
+    .card-content table, .card-content th, .card-content td {
+      border: 1px solid #d5dbdb;
+    }
+    
+    .card-content th, .card-content td {
+      padding: 8px;
+      text-align: left;
+    }
+    
+    .card-content th {
+      background-color: #f9f9f9;
+      font-weight: 500;
+    }
+    
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+      padding: 16px;
+      background-color: #fafafa;
+      border-radius: 4px;
+    }
+    
+    .btn-aws {
+      background-color: #d13212;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    
+    .btn-aws:hover {
+      background-color: #b12a1a;
+    }
+    
+    .btn-aws:disabled {
+      background-color: #d5dbdb;
+      color: #687078;
+      cursor: not-allowed;
+    }
+    
+    .btn-secondary {
+      background-color: #fafafa;
+      color: #232f3e;
+      border: 1px solid #d5dbdb;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #f2f3f3;
+    }
+    
+    .progress-info {
+      font-size: 14px;
+      color: #687078;
+      text-align: center;
+      flex: 1;
+      margin: 0 16px;
+    }
+    
+    .progress-text {
+      font-weight: 500;
+      color: #232f3e;
+    }
+
+    /* Assessment styles */
+    .assessment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding: 16px;
+      background-color: #fafafa;
+      border-radius: 8px;
+      border: 1px solid #d5dbdb;
+    }
+    
+    .timer-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 16px;
+      font-weight: 500;
+    }
+    
+    .timer {
+      color: #d13212;
+      font-size: 20px;
+      font-weight: 600;
+      min-width: 60px;
+    }
+    
+    .timer.warning {
+      color: #ff9900;
+      animation: pulse 1s infinite;
+    }
+    
+    .timer.danger {
+      color: #d13212;
+      animation: pulse 0.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+    
+    .progress-container {
+      flex: 1;
+      margin: 0 24px;
+    }
+    
+    .progress-bar-wrapper {
+      background-color: #e6e6e6;
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background-color: #d13212;
+      transition: width 0.3s ease;
+      border-radius: 4px;
+    }
+    
+    .progress-label {
+      font-size: 14px;
+      color: #687078;
+      text-align: center;
+    }
+    
+    .question-nav-container {
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    
+    .question-container {
+      display: none;
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    
+    .question-container.active {
+      display: block;
+    }
+    
+    .question-header {
+      background-color: #f9f9f9;
+      padding: 16px 20px;
+      border-bottom: 1px solid #d5dbdb;
+    }
+    
+    .scenario-tag {
+      display: inline-block;
+      background-color: #d13212;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    
+    .question-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: #232f3e;
+      line-height: 1.5;
+    }
+    
+    .question-body {
+      padding: 20px;
+    }
+    
+    .option-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .option {
+      display: flex;
+      align-items: flex-start;
+      padding: 12px 16px;
+      background: #fafafa;
+      border: 1px solid #d5dbdb;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .option:hover {
+      background-color: #f2f3f3;
+      border-color: #d13212;
+    }
+    
+    .option.selected {
+      background-color: #fff4e6;
+      border-color: #d13212;
+    }
+    
+    .option input {
+      margin-right: 12px;
+      margin-top: 2px;
+    }
+    
+    .option label {
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1.5;
+      flex: 1;
+    }
+    
+    .quiz-navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+      padding: 16px;
+      background-color: #fafafa;
+      border-radius: 8px;
+    }
+    
+    .nav-button {
+      background-color: #687078;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    
+    .nav-button:hover:not(:disabled) {
+      background-color: #232f3e;
+    }
+    
+    .nav-button:disabled {
+      background-color: #d5dbdb;
+      cursor: not-allowed;
+    }
+    
+    .nav-button.primary {
+      background-color: #d13212;
+    }
+    
+    .nav-button.primary:hover {
+      background-color: #b12a1a;
+    }
+    
+    .result {
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      padding: 24px;
+      margin-top: 24px;
+      display: none;
+      text-align: center;
+    }
+    
+    .result.show {
+      display: block;
+    }
+    
+    .score-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background-color: #d13212;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 600;
+      margin: 0 auto 24px;
+      box-shadow: 0 4px 12px rgba(209, 50, 18, 0.3);
+    }
+    
+    .result-title {
+      font-size: 24px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-bottom: 12px;
+    }
+    
+    .result-subtitle {
+      font-size: 18px;
+      color: #687078;
+      margin-bottom: 24px;
+    }
+    
+    .result-details {
+      text-align: left;
+      margin-top: 32px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    
+    .result-item {
+      margin: 12px 0;
+      padding: 16px;
+      border-radius: 4px;
+      border-left: 4px solid;
+    }
+    
+    .result-item.correct {
+      background-color: #f0f8f0;
+      border-color: #1b660f;
+    }
+    
+    .result-item.incorrect {
+      background-color: #fdf2f2;
+      border-color: #d13212;
+    }
+    
+    .result-item-header {
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #232f3e;
+    }
+    
+    .result-item-explanation {
+      font-size: 14px;
+      color: #687078;
+      line-height: 1.6;
+    }
+    
+    .btn-reset {
+      background-color: #687078;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 16px;
+    }
+    
+    .btn-reset:hover {
+      background-color: #232f3e;
+    }
+  </style>
+</head>
+<body>
+  <div class="aws-header">
+    <div class="aws-nav">
+      <div class="aws-logo-section">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 12px; height: 12px; background-color: #ff9900; border-radius: 50%;"></div>
+            <span style="color: white; font-size: 16px; font-weight: 400;">AWS</span>
+          </div>
+          <div style="width: 1px; height: 24px; background-color: #666; margin: 0 4px;"></div>
+          <span style="color: white; font-size: 16px; font-weight: 400;">Networking Deep Dive Training</span>
+        </div>
+      </div>
+      <a href="https://www.linkedin.com/in/vamshi-majhi-a59727102/" target="_blank" style="display: flex; align-items: center; gap: 6px; color: #ff9900; text-decoration: none; font-size: 14px; font-weight: 400;">
+        <svg style="width: 14px; height: 14px; fill: currentColor;" viewBox="0 0 24 24">
+          <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+        </svg>
+        LinkedIn
+      </a>
+    </div>
+  </div>
+  
+  <div class="aws-breadcrumb">
+    <span><a href="https://codewrapr.github.io/AWS-Cloud-Challenge/index.html#" style="color: #0073bb; font-weight: bold; text-decoration: none;">AWS Training</a> > Day 6: Networking Deep Dive</span>
+  </div>
+  
+  <div class="container">
+    <div class="page-header">
+      <h1 class="page-title">AWS Networking Deep Dive</h1>
+      <p class="page-description">
+        Master enterprise-grade AWS networking including VPC design, security architecture, hybrid connectivity, 
+        performance optimization, and advanced networking services for professional-level cloud implementations.
+      </p>
+    </div>
+    
+    <div class="tab-container">
+      <button class="tab-button active" onclick="showTab('learn')">Networking Mastery (40 Cards)</button>
+      <button class="tab-button" onclick="showTab('assessment')">Professional Assessment</button>
+    </div>
+
+    <div id="learn" class="tab-content active">
+      <div class="content-header">
+        <h2 class="content-title">Comprehensive AWS Networking Training</h2>
+        <p class="content-subtitle">
+          Expert-level training covering VPC fundamentals, security implementation, hybrid connectivity, 
+          performance optimization, and cutting-edge networking services with real-world scenarios.
+        </p>
+      </div>
+      
+      <div class="content-body">
+        <div class="difficulty-indicator">
+          <span class="difficulty-label">Complexity Level:</span>
+          <div class="difficulty-dot" id="diff1"></div>
+          <div class="difficulty-dot" id="diff2"></div>
+          <div class="difficulty-dot" id="diff3"></div>
+          <span class="difficulty-text" id="diffLabel">Foundation</span>
+        </div>
+        
+        <div class="flashcard-container">
+          <div id="flashcard" class="flashcard" onclick="flipCard()">
+            <div class="front">
+              <div class="card-category" id="frontCategory">AWS Networking</div>
+              <div class="card-title" id="frontTitle">Click "Start Learning" to begin your AWS Networking mastery journey!</div>
+            </div>
+            <div class="back">
+              <div class="card-category">Networking Foundation</div>
+<div class="card-title">AWS Networking Deep Dive Overview</div>
+              <div class="card-content" id="backText">
+                <strong>🌐 Comprehensive Networking Training</strong>
+                <ul>
+                  <li><strong>VPC Fundamentals:</strong> CIDR planning, subnets, routing, gateways</li>
+                  <li><strong>Security Architecture:</strong> Security groups, NACLs, zero-trust patterns</li>
+                  <li><strong>Hybrid Connectivity:</strong> Direct Connect, VPN, BGP routing</li>
+                  <li><strong>Performance Optimization:</strong> Enhanced networking, latency reduction</li>
+                  <li><strong>Advanced Services:</strong> Transit Gateway, PrivateLink, service mesh</li>
+                </ul>
+                
+                <strong>🎯 Learning Outcomes:</strong>
+                <ul>
+                  <li>Design enterprise-grade network architectures</li>
+                  <li>Implement comprehensive security strategies</li>
+                  <li>Optimize for performance and cost efficiency</li>
+                  <li>Troubleshoot complex networking issues</li>
+                </ul>
+                
+                <strong>📚 40 Expert Cards covering:</strong>
+                <ul>
+                  <li>VPC design patterns and best practices</li>
+                  <li>Network security and compliance</li>
+                  <li>Hybrid cloud connectivity solutions</li>
+                  <li>Performance tuning and optimization</li>
+                  <li>Container and serverless networking</li>
+                  <li>Advanced troubleshooting techniques</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="controls">
+          <button class="btn-aws btn-secondary" onclick="prevCard()" id="prevBtn">Previous</button>
+          <div class="progress-info">
+            <div class="progress-text" id="progressText">Ready to Start • Card 1 of 40</div>
+            <div style="font-size: 12px; color: #687078; margin-top: 4px;">
+              Click card to flip • Use arrow keys to navigate
+            </div>
+          </div>
+          <button class="btn-aws" onclick="nextCard()" id="nextBtn">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="assessment" class="tab-content">
+      <div class="content-header">
+        <h2 class="content-title">Professional Networking Assessment</h2>
+        <p class="content-subtitle">
+          Test your AWS networking expertise with challenging scenarios covering VPC design, security implementation, 
+          hybrid connectivity, and performance optimization for enterprise environments.
+        </p>
+      </div>
+      
+      <div class="content-body">
+        <div class="assessment-header">
+          <div class="timer-container">
+            <span>Time Remaining:</span>
+            <span class="timer" id="timer">50:00</span>
+          </div>
+          <div class="progress-container">
+            <div class="progress-bar-wrapper">
+              <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+            </div>
+            <div class="progress-label">
+              Question <span id="currentQuestion">1</span> of <span id="totalQuestions">40</span>
+            </div>
+          </div>
+          <button class="nav-button primary" onclick="submitQuiz()">Submit Assessment</button>
+        </div>
+        
+        <div class="question-nav-container">
+          <div id="quiz-questions"></div>
+          <div class="quiz-navigation">
+            <button class="nav-button" onclick="previousQuestion()" id="prevQuestionBtn">Previous Question</button>
+            <button class="nav-button" onclick="nextQuestion()" id="nextQuestionBtn">Next Question</button>
+          </div>
+        </div>
+        
+        <div class="result" id="resultBox"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var currentCard = 0;
+    var isFlipped = false;
+    var currentQuestionIndex = 0;
+    var timerInterval;
+    var timeRemaining = 3000; // 50 minutes in seconds for 40 questions
+    
+    var flashcards = [
+      // VPC Fundamentals (Cards 1-10)
+      {
+        level: 1,
+        front: "What is Amazon VPC and what are its core components?",
+        back: "<strong>Definition:</strong> Amazon VPC (Virtual Private Cloud) is a logically isolated virtual network where you can launch AWS resources in a defined network segment that you control.<br><br><strong>Core VPC Components:</strong><ul><li><strong>Subnets:</strong> Range of IP addresses in your VPC that divide the network into smaller segments</li><li><strong>Route Tables:</strong> Control how traffic is directed between subnets and external networks</li><li><strong>Internet Gateway (IGW):</strong> Horizontally scaled gateway that allows internet access for public subnets</li><li><strong>NAT Gateway/Instance:</strong> Enables outbound internet access for private subnet resources</li><li><strong>Security Groups:</strong> Virtual firewalls that control traffic at the instance level</li><li><strong>Network ACLs (NACLs):</strong> Stateless firewalls that control traffic at the subnet level</li><li><strong>VPC Endpoints:</strong> Private connections to AWS services without internet routing</li><li><strong>Elastic Network Interfaces (ENIs):</strong> Virtual network cards assigned to instances</li></ul><strong>VPC Benefits:</strong><ul><li><strong>Network isolation:</strong> Complete control over virtual networking environment</li><li><strong>Security control:</strong> Multiple layers of security through SGs and NACLs</li><li><strong>Connectivity options:</strong> Various ways to connect to on-premises and other VPCs</li><li><strong>IP address management:</strong> Choose IP address ranges using private RFC 1918 addresses</li></ul>",
+        category: "VPC Fundamentals"
+      },
+      {
+        level: 1,
+        front: "Explain CIDR notation and IP address planning for VPC",
+        back: "<strong>Definition:</strong> CIDR (Classless Inter-Domain Routing) is a method for allocating IP addresses and routing that allows for more efficient use of IP addresses than traditional classful addressing.<br><br><strong>CIDR Format:</strong> IP_ADDRESS/PREFIX_LENGTH (e.g., 10.0.0.0/16)<br><br><strong>Common CIDR Block Examples:</strong><ul><li><strong>10.0.0.0/16:</strong> 65,536 IP addresses (10.0.0.0 - 10.0.255.255)</li><li><strong>10.0.0.0/24:</strong> 256 IP addresses (10.0.0.0 - 10.0.0.255)</li><li><strong>10.0.0.0/28:</strong> 16 IP addresses (10.0.0.0 - 10.0.0.15)</li><li><strong>172.31.0.0/16:</strong> Default VPC CIDR in most regions</li></ul><strong>VPC CIDR Planning Best Practices:</strong><ul><li><strong>Non-overlapping blocks:</strong> Ensure CIDR ranges don't conflict with on-premises or other VPCs</li><li><strong>Future growth:</strong> Choose larger blocks than currently needed to accommodate expansion</li><li><strong>Regional considerations:</strong> Plan for multi-region deployments</li><li><strong>Hybrid connectivity:</strong> Consider on-premises network ranges for Direct Connect/VPN</li><li><strong>Multi-account strategy:</strong> Coordinate CIDR allocation across AWS accounts</li></ul><strong>Reserved IP Addresses in Subnets:</strong><ul><li><strong>Network address:</strong> First IP (e.g., 10.0.0.0 in 10.0.0.0/24)</li><li><strong>VPC router:</strong> Second IP (e.g., 10.0.0.1)</li><li><strong>DNS server:</strong> Third IP (e.g., 10.0.0.2)</li><li><strong>AWS reserved:</strong> Fourth IP (e.g., 10.0.0.3)</li><li><strong>Broadcast:</strong> Last IP (e.g., 10.0.0.255)</li></ul>",
+        category: "CIDR Planning"
+      },
+      {
+        level: 2,
+        front: "What are the differences between public and private subnets?",
+        back: "<strong>Public Subnet Characteristics:</strong><ul><li><strong>Internet Gateway route:</strong> Has a route to Internet Gateway (0.0.0.0/0 → igw-xxx)</li><li><strong>Public IP assignment:</strong> Resources can receive public IPv4 addresses</li><li><strong>Direct internet access:</strong> Bidirectional internet connectivity</li><li><strong>Use cases:</strong> Web servers, load balancers, bastion hosts, NAT gateways</li><li><strong>Security consideration:</strong> Directly accessible from internet (requires proper security groups)</li></ul><strong>Private Subnet Characteristics:</strong><ul><li><strong>No direct internet route:</strong> No route to Internet Gateway</li><li><strong>NAT for outbound:</strong> Uses NAT Gateway/Instance for outbound internet access</li><li><strong>Enhanced security:</strong> Not directly accessible from internet</li><li><strong>Use cases:</strong> Application servers, databases, internal services</li><li><strong>Cost consideration:</strong> NAT Gateway charges apply for internet access</li></ul><strong>Multi-Tier Architecture Example:</strong><ul><li><strong>Public Tier:</strong> Application Load Balancer, NAT Gateways</li><li><strong>Private App Tier:</strong> Web/application servers</li><li><strong>Private DB Tier:</strong> Database servers with no internet access</li></ul><strong>Best Practices:</strong><ul><li><strong>Principle of least privilege:</strong> Only expose what needs internet access</li><li><strong>Defense in depth:</strong> Use both network and instance-level security</li><li><strong>Multi-AZ deployment:</strong> Distribute across multiple availability zones</li><li><strong>Monitoring:</strong> Enable VPC Flow Logs for traffic analysis</li></ul>",
+        category: "Subnet Design"
+      },
+      {
+        level: 2,
+        front: "How do Route Tables work and what are the routing priorities?",
+        back: "<strong>Route Table Definition:</strong> Route tables contain rules (routes) that determine where network traffic from associated subnets is directed.<br><br><strong>Route Table Components:</strong><ul><li><strong>Destination:</strong> IP address range where traffic is going</li><li><strong>Target:</strong> Where to send the traffic (gateway, interface, etc.)</li><li><strong>Status:</strong> Active (traffic can flow) or Blackhole (traffic dropped)</li><li><strong>Propagated:</strong> Automatically added by virtual private gateway</li></ul><strong>Route Priority (Most to Least Specific):</strong><ol><li><strong>Local routes:</strong> VPC CIDR range (cannot be deleted or overridden)</li><li><strong>Longest prefix match:</strong> Most specific route (e.g., /32 beats /24)</li><li><strong>Static routes:</strong> Manually configured routes</li><li><strong>VPC peering routes:</strong> Routes to peered VPCs</li><li><strong>VPN connection routes:</strong> Routes over VPN tunnels</li><li><strong>Direct Connect routes:</strong> Routes over dedicated connections</li></ol><strong>Common Route Configurations:</strong><ul><li><strong>Public subnet:</strong> 0.0.0.0/0 → Internet Gateway</li><li><strong>Private subnet:</strong> 0.0.0.0/0 → NAT Gateway</li><li><strong>VPC peering:</strong> peer-vpc-cidr → pcx-xxxxx</li><li><strong>On-premises:</strong> corporate-cidr → vgw-xxxxx</li></ul><strong>Best Practices:</strong><ul><li><strong>Explicit routing:</strong> Use custom route tables rather than main route table</li><li><strong>Least privilege:</strong> Only route necessary traffic</li><li><strong>Documentation:</strong> Clearly label and document route purposes</li><li><strong>Testing:</strong> Verify routing behavior after changes</li></ul>",
+        category: "Routing"
+      },
+      {
+        level: 3,
+        front: "Explain VPC Peering and its limitations",
+        back: "<strong>VPC Peering Definition:</strong> VPC peering allows you to connect two VPCs privately using AWS backbone network, enabling resources to communicate as if they're in the same network.<br><br><strong>Key Characteristics:</strong><ul><li><strong>One-to-one connection:</strong> Direct connection between exactly two VPCs</li><li><strong>Non-transitive:</strong> Traffic cannot route through intermediate VPCs</li><li><strong>Cross-region support:</strong> Connect VPCs across different AWS regions</li><li><strong>Cross-account support:</strong> Connect VPCs across different AWS accounts</li><li><strong>No single point of failure:</strong> Highly available across multiple AZs</li><li><strong>No bandwidth bottleneck:</strong> No aggregate bandwidth limit</li></ul><strong>VPC Peering Limitations:</strong><ul><li><strong>No transitive routing:</strong> Cannot route A→B→C; requires direct A→C connection</li><li><strong>Overlapping CIDR blocks:</strong> Cannot peer VPCs with overlapping IP ranges</li><li><strong>No edge-to-edge routing:</strong> Cannot route through Internet Gateway, NAT, VPN</li><li><strong>DNS resolution:</strong> Requires enableDnsResolution and enableDnsHostnames</li><li><strong>Security group references:</strong> Cannot reference security groups across regions</li><li><strong>Maximum connections:</strong> 125 peering connections per VPC</li></ul><strong>Use Cases:</strong><ul><li><strong>Multi-tier applications:</strong> Separate VPCs for different application tiers</li><li><strong>Shared services:</strong> Central VPC with shared resources</li><li><strong>Development environments:</strong> Isolated environments with limited connectivity</li><li><strong>Cross-region backup:</strong> Disaster recovery and data replication</li></ul><strong>Alternatives for Complex Connectivity:</strong><ul><li><strong>Transit Gateway:</strong> Hub-and-spoke model with transitive routing</li><li><strong>VPN connections:</strong> Encrypted connections for sensitive data</li><li><strong>Direct Connect:</strong> Dedicated connections for high bandwidth</li></ul>",
+        category: "VPC Peering"
+      },
+      {
+        level: 3,
+        front: "What is AWS Transit Gateway and how does it solve VPC connectivity challenges?",
+        back: "<strong>Transit Gateway Definition:</strong> AWS Transit Gateway is a network transit hub that connects VPCs and on-premises networks through a central hub, simplifying network architecture and enabling transitive routing.<br><br><strong>Key Features:</strong><ul><li><strong>Hub-and-spoke model:</strong> Centralized connectivity point for all networks</li><li><strong>Transitive routing:</strong> Networks can communicate through the hub</li><li><strong>Route table control:</strong> Granular control over which networks can communicate</li><li><strong>Cross-region peering:</strong> Connect Transit Gateways across regions</li><li><strong>Multicast support:</strong> Distribute content to multiple destinations</li><li><strong>Equal-cost multi-path (ECMP):</strong> Load balancing across multiple connections</li></ul><strong>Benefits Over VPC Peering:</strong><ul><li><strong>Simplified management:</strong> Single connection point vs. multiple peering connections</li><li><strong>Transitive routing:</strong> A can reach C through B</li><li><strong>Scalability:</strong> Support for thousands of VPCs vs. 125 peering connections</li><li><strong>Route control:</strong> Advanced routing policies and segmentation</li><li><strong>On-premises integration:</strong> Direct connection to corporate networks</li></ul><strong>Transit Gateway Route Tables:</strong><ul><li><strong>Association:</strong> Which attachments use this route table</li><li><strong>Propagation:</strong> Which attachments can advertise routes</li><li><strong>Static routes:</strong> Manually configured routing rules</li><li><strong>Blackhole routes:</strong> Drop traffic to specific destinations</li></ul><strong>Use Cases:</strong><ul><li><strong>Complex multi-VPC architectures:</strong> Hundreds or thousands of VPCs</li><li><strong>Network segmentation:</strong> Isolate different environments or tenants</li><li><strong>Hybrid connectivity:</strong> Integrate on-premises with multiple VPCs</li><li><strong>Centralized services:</strong> Shared inspection, monitoring, or security services</li></ul><strong>Limitations:</strong><ul><li><strong>Maximum VPCs:</strong> 5,000 VPCs per Transit Gateway</li><li><strong>Bandwidth limits:</strong> 50 Gbps per VPC attachment</li><li><strong>Route table limits:</strong> 10,000 routes per route table</li><li><strong>Regional service:</strong> Cross-region requires peering</li></ul>",
+        category: "Transit Gateway"
+      },
+      {
+        level: 3,
+        front: "Design a multi-tier VPC architecture for a high-availability web application",
+        back: "<strong>Multi-Tier VPC Architecture Design:</strong><br><br><strong>Network Architecture:</strong><ul><li><strong>VPC CIDR:</strong> 10.0.0.0/16 (65,536 IPs for future growth)</li><li><strong>3-tier design:</strong> Web tier, Application tier, Database tier</li><li><strong>Multi-AZ deployment:</strong> Minimum 2 AZs for high availability</li><li><strong>Separate subnets per tier per AZ</li></ul><strong>Subnet Design (2 AZ Example):</strong><ul><li><strong>Public Web Subnets:</strong><ul><li>10.0.1.0/24 (AZ-a) - Load balancers, NAT Gateways</li><li>10.0.2.0/24 (AZ-b) - Load balancers, NAT Gateways</li></ul></li><li><strong>Private Application Subnets:</strong><ul><li>10.0.10.0/24 (AZ-a) - Web/app servers</li><li>10.0.11.0/24 (AZ-b) - Web/app servers</li></ul></li><li><strong>Private Database Subnets:</strong><ul><li>10.0.20.0/24 (AZ-a) - Database servers</li><li>10.0.21.0/24 (AZ-b) - Database servers</li></ul></li></ul><strong>High Availability Components:</strong><ul><li><strong>Application Load Balancer:</strong> Distributed across public subnets</li><li><strong>Auto Scaling Groups:</strong> Application servers across AZs</li><li><strong>RDS Multi-AZ:</strong> Database replication across AZs</li><li><strong>NAT Gateways:</strong> One per AZ for redundancy</li><li><strong>Elastic IPs:</strong> Static IPs for NAT Gateways</li></ul><strong>Security Implementation:</strong><ul><li><strong>Web tier SG:</strong> Allow HTTP/HTTPS from internet</li><li><strong>App tier SG:</strong> Allow traffic only from web tier</li><li><strong>DB tier SG:</strong> Allow traffic only from app tier</li><li><strong>NACLs:</strong> Additional subnet-level controls</li></ul><strong>Best Practices:</strong><ul><li><strong>Least privilege:</strong> Minimum required access between tiers</li><li><strong>Defense in depth:</strong> Multiple security layers</li><li><strong>Monitoring:</strong> VPC Flow Logs, CloudWatch metrics</li><li><strong>Automation:</strong> Infrastructure as Code for consistency</li></ul>",
+        category: "Multi-Tier Design"
+      },
+      {
+        level: 2,
+        front: "What are VPC Endpoints and when should you use them?",
+        back: "<strong>VPC Endpoints Definition:</strong> VPC Endpoints enable private connectivity to AWS services without requiring internet access, NAT gateway, VPN connection, or AWS Direct Connect.<br><br><strong>Types of VPC Endpoints:</strong><ul><li><strong>Interface Endpoints (VPC Endpoint Services):</strong><ul><li>Creates ENI with private IP addresses in your subnet</li><li>Supports most AWS services (S3, DynamoDB, EC2, etc.)</li><li>Uses AWS PrivateLink technology</li><li>Charged per hour and per GB processed</li></ul></li><li><strong>Gateway Endpoints:</strong><ul><li>Route table target for specific services</li><li>Only supports S3 and DynamoDB</li><li>No additional charges</li><li>Higher throughput and lower latency</li></ul></li></ul><strong>Key Benefits:</strong><ul><li><strong>Enhanced security:</strong> Traffic stays within AWS network</li><li><strong>Reduced latency:</strong> Direct connection without internet routing</li><li><strong>Cost savings:</strong> Eliminates NAT Gateway charges for AWS service access</li><li><strong>Bandwidth efficiency:</strong> Doesn't consume internet gateway bandwidth</li><li><strong>Simplified architecture:</strong> No need for complex routing</li></ul><strong>Use Cases:</strong><ul><li><strong>S3 access from private subnets:</strong> Backup, data processing without internet</li><li><strong>DynamoDB queries:</strong> Database access from private instances</li><li><strong>Lambda functions:</strong> Access AWS services without VPC internet access</li><li><strong>Compliance requirements:</strong> Keep data within AWS network</li><li><strong>Hybrid architectures:</strong> On-premises access to AWS services</li></ul><strong>Configuration Considerations:</strong><ul><li><strong>Route table updates:</strong> Gateway endpoints require route modifications</li><li><strong>Security groups:</strong> Interface endpoints need security group rules</li><li><strong>DNS resolution:</strong> Enable DNS hostnames and resolution</li><li><strong>Policy controls:</strong> Use endpoint policies for access control</li></ul>",
+        category: "VPC Endpoints"
+      },
+      {
+        level: 1,
+        front: "What is the difference between Internet Gateway and NAT Gateway?",
+        back: "<strong>Internet Gateway (IGW) Characteristics:</strong><ul><li><strong>Bidirectional access:</strong> Allows both inbound and outbound internet traffic</li><li><strong>Stateless operation:</strong> Requires explicit security group rules for traffic</li><li><strong>Protocol support:</strong> Supports both IPv4 and IPv6 traffic</li><li><strong>Horizontal scaling:</strong> Automatically scales to handle traffic</li><li><strong>High availability:</strong> Redundant and highly available by design</li><li><strong>Cost:</strong> No charges for Internet Gateway usage</li><li><strong>One per VPC:</strong> Single Internet Gateway per VPC</li></ul><strong>NAT Gateway Characteristics:</strong><ul><li><strong>Outbound-only access:</strong> Allows outbound internet traffic, blocks inbound</li><li><strong>Stateful operation:</strong> Automatically tracks connections and allows return traffic</li><li><strong>Protocol support:</strong> IPv4 only (separate NAT64 for IPv6)</li><li><strong>AZ-specific:</strong> Deployed in specific Availability Zone</li><li><strong>Managed service:</strong> AWS manages patching, updates, and availability</li><li><strong>Bandwidth scaling:</strong> Up to 45 Gbps throughput</li><li><strong>Cost:</strong> Hourly charge plus data processing charges</li></ul><strong>When to Use Internet Gateway:</strong><ul><li><strong>Public web servers:</strong> Need to receive inbound internet requests</li><li><strong>Application load balancers:</strong> Internet-facing load balancers</li><li><strong>Bastion hosts:</strong> SSH/RDP access from internet</li><li><strong>Public-facing applications:</strong> Any service that needs direct internet access</li></ul><strong>When to Use NAT Gateway:</strong><ul><li><strong>Private application servers:</strong> Need outbound internet for updates/patches</li><li><strong>Database servers:</strong> Download software or connect to external APIs</li><li><strong>Backend services:</strong> Access external services without exposure</li><li><strong>Lambda functions:</strong> VPC Lambda functions needing internet access</li></ul><strong>High Availability Considerations:</strong><ul><li><strong>Internet Gateway:</strong> Automatically highly available across AZs</li><li><strong>NAT Gateway:</strong> Deploy one per AZ for redundancy</li></ul>",
+        category: "Network Gateways"
+      },
+      {
+        level: 3,
+        front: "Explain DNS resolution in VPC and Route 53 integration",
+        back: "<strong>VPC DNS Configuration:</strong><ul><li><strong>enableDnsHostnames:</strong> Assigns public DNS hostnames to instances with public IPs</li><li><strong>enableDnsSupport:</strong> Enables DNS resolution via Amazon-provided DNS server</li><li><strong>Both required:</strong> Must enable both for full DNS functionality</li></ul><strong>Amazon DNS Server:</strong><ul><li><strong>IP address:</strong> Located at VPC CIDR base + 2 (e.g., 10.0.0.2 for 10.0.0.0/16)</li><li><strong>Alternative address:</strong> Always available at 169.254.169.253</li><li><strong>DNS forwarding:</strong> Resolves internal VPC names and forwards external queries</li><li><strong>Route 53 integration:</strong> Automatically integrates with Route 53 services</li></ul><strong>Route 53 Private Hosted Zones:</strong><ul><li><strong>Internal DNS:</strong> Custom DNS names for internal resources</li><li><strong>VPC association:</strong> Associate zones with specific VPCs</li><li><strong>Cross-VPC resolution:</strong> Share private zones across multiple VPCs</li><li><strong>Record types:</strong> A, AAAA, CNAME, MX, TXT records for internal resources</li><li><strong>Health checks:</strong> Monitor internal resource health</li></ul><strong>DNS Resolution Flow:</strong><ol><li><strong>Local cache check:</strong> Instance checks local DNS cache</li><li><strong>Amazon DNS query:</strong> Query sent to VPC DNS server</li><li><strong>Private zone lookup:</strong> Check Route 53 private hosted zones</li><li><strong>Public DNS resolution:</strong> Forward to public DNS if not found</li><li><strong>Response caching:</strong> Cache results for future queries</li></ol><strong>Advanced DNS Features:</strong><ul><li><strong>DNS firewall:</strong> Block malicious DNS queries</li><li><strong>Resolver rules:</strong> Forward specific domains to on-premises DNS</li><li><strong>DNSSEC validation:</strong> Validate DNS responses</li><li><strong>Query logging:</strong> Log DNS queries for security and compliance</li></ul><strong>Best Practices:</strong><ul><li><strong>Consistent naming:</strong> Use consistent DNS naming conventions</li><li><strong>Zone organization:</strong> Organize private zones by environment or application</li><li><strong>Monitoring:</strong> Monitor DNS query patterns and failures</li><li><strong>Security:</strong> Use DNS firewall for threat protection</li></ul>",
+        category: "DNS Resolution"
+      },
+
+      // Security & Access (Cards 11-20)
+      {
+        level: 1,
+        front: "What are Security Groups and how do they work?",
+        back: "<strong>Security Groups Definition:</strong> Security Groups act as virtual firewalls at the instance level, controlling inbound and outbound traffic based on rules you define.<br><br><strong>Key Characteristics:</strong><ul><li><strong>Stateful operation:</strong> Return traffic automatically allowed if initial traffic was permitted</li><li><strong>Allow rules only:</strong> Cannot create explicit deny rules (implicit deny for all others)</li><li><strong>Instance-level protection:</strong> Applied to Elastic Network Interfaces (ENIs)</li><li><strong>Default behavior:</strong> Deny all inbound, allow all outbound by default</li><li><strong>Rule evaluation:</strong> All rules are evaluated before deciding to allow traffic</li></ul><strong>Security Group Rules Components:</strong><ul><li><strong>Type:</strong> Protocol type (HTTP, HTTPS, SSH, Custom TCP/UDP)</li><li><strong>Protocol:</strong> TCP, UDP, ICMP, or protocol number</li><li><strong>Port range:</strong> Single port or range of ports</li><li><strong>Source/Destination:</strong> IP addresses, CIDR blocks, or another security group</li><li><strong>Description:</strong> Optional description for rule documentation</li></ul><strong>Source/Destination Options:</strong><ul><li><strong>Individual IP:</strong> 203.0.113.1/32 (specific IP address)</li><li><strong>CIDR block:</strong> 10.0.0.0/16 (range of IP addresses)</li><li><strong>Another security group:</strong> sg-12345678 (reference to another SG)</li><li><strong>Prefix lists:</strong> Managed lists for AWS services</li></ul><strong>Common Security Group Patterns:</strong><ul><li><strong>Web server SG:</strong> Allow port 80/443 from 0.0.0.0/0</li><li><strong>Application server SG:</strong> Allow port 8080 from web server SG</li><li><strong>Database server SG:</strong> Allow port 3306 from application server SG</li><li><strong>SSH access SG:</strong> Allow port 22 from admin IP range</li></ul><strong>Best Practices:</strong><ul><li><strong>Principle of least privilege:</strong> Only allow necessary traffic</li><li><strong>Use security group references:</strong> Reference other SGs instead of IP ranges when possible</li><li><strong>Descriptive names:</strong> Use clear, descriptive security group names</li><li><strong>Regular audits:</strong> Regularly review and clean up unused rules</li></ul>",
+        category: "Security Groups"
+      },
+      {
+        level: 2,
+        front: "What are Network ACLs and how do they differ from Security Groups?",
+        back: "<strong>Network ACLs Definition:</strong> Network ACLs are stateless firewalls that control traffic at the subnet level using numbered rules processed in order.<br><br><strong>Security Groups vs Network ACLs Comparison:</strong><table><tr><th>Feature</th><th>Security Groups</th><th>Network ACLs</th></tr><tr><td>Level</td><td>Instance level (ENI)</td><td>Subnet level</td></tr><tr><td>State</td><td>Stateful</td><td>Stateless</td></tr><tr><td>Rules</td><td>Allow rules only</td><td>Allow and Deny rules</td></tr><tr><td>Rule processing</td><td>All rules evaluated</td><td>Rules processed in order</td></tr><tr><td>Default behavior</td><td>Deny all inbound</td><td>Allow all traffic</td></tr><tr><td>Rule changes</td><td>Immediately effective</td><td>Immediately effective</td></tr></table><strong>Network ACL Characteristics:</strong><ul><li><strong>Rule numbering:</strong> Rules numbered 1-32766, processed in ascending order</li><li><strong>Stateless:</strong> Must explicitly allow both request and response traffic</li><li><strong>Ephemeral ports:</strong> Must consider client-side ephemeral port ranges (1024-65535)</li><li><strong>Subnet association:</strong> Each subnet must be associated with exactly one NACL</li><li><strong>Default NACL:</strong> Allows all inbound and outbound traffic</li></ul><strong>When to Use Network ACLs:</strong><ul><li><strong>Additional security layer:</strong> Defense in depth with security groups</li><li><strong>Subnet-level blocking:</strong> Block specific IP ranges or protocols</li><li><strong>Compliance requirements:</strong> Regulatory requirements for subnet isolation</li><li><strong>Deny rules:</strong> When you need explicit deny rules</li></ul><strong>Network ACL Best Practices:</strong><ul><li><strong>Leave default NACL open:</strong> Use custom NACLs for restrictions</li><li><strong>Rule spacing:</strong> Leave gaps between rule numbers for future additions</li><li><strong>Ephemeral port consideration:</strong> Account for return traffic port ranges</li><li><strong>Documentation:</strong> Document the purpose of each rule</li><li><strong>Testing:</strong> Thoroughly test NACL changes before implementation</li></ul><strong>Common Pitfalls:</strong><ul><li><strong>Forgetting return traffic:</strong> Stateless nature requires bidirectional rules</li><li><strong>Ephemeral port blocking:</strong> Blocking response traffic on high ports</li><li><strong>Rule order confusion:</strong> Lower numbered rules take precedence</li></ul>",
+        category: "Network ACLs"
+      },
+      {
+        level: 3,
+        front: "Implement a zero-trust network security model in AWS",
+        back: "<strong>Zero-Trust Principles:</strong><ul><li><strong>Never trust, always verify:</strong> Authenticate and authorize every connection</li><li><strong>Least privilege access:</strong> Grant minimum necessary permissions</li><li><strong>Assume breach:</strong> Design assuming network compromise</li><li><strong>Continuous monitoring:</strong> Real-time visibility and threat detection</li><li><strong>Verify explicitly:</strong> Use identity and device information for access decisions</li></ul><strong>Network Segmentation (Zero-Trust Foundation):</strong><ul><li><strong>Microsegmentation:</strong> Isolate workloads at granular level</li><li><strong>VPC isolation:</strong> Separate VPCs for different trust levels</li><li><strong>Subnet segmentation:</strong> Isolate tiers and functions</li><li><strong>Security group design:</strong> Restrictive, application-specific rules</li><li><strong>Network ACLs:</strong> Additional subnet-level controls</li></ul><strong>Identity and Access Controls:</strong><ul><li><strong>IAM integration:</strong> Identity-based network access</li><li><strong>Multi-factor authentication:</strong> Required for all access</li><li><strong>Certificate-based authentication:</strong> Mutual TLS for service communication</li><li><strong>Session management:</strong> Time-limited access tokens</li><li><strong>Conditional access:</strong> Context-aware access decisions</li></ul><strong>Encryption Everywhere:</strong><ul><li><strong>Data in transit:</strong> TLS/SSL for all communications</li><li><strong>Service mesh:</strong> Encrypted service-to-service communication</li><li><strong>VPN/Direct Connect:</strong> Encrypted connections to on-premises</li><li><strong>Database encryption:</strong> Encrypted database connections</li></ul><strong>Monitoring and Detection:</strong><ul><li><strong>VPC Flow Logs:</strong> Network traffic analysis</li><li><strong>AWS GuardDuty:</strong> Threat detection and analysis</li><li><strong>CloudTrail:</strong> API call monitoring and auditing</li><li><strong>Security Hub:</strong> Centralized security findings</li><li><strong>Config:</strong> Configuration compliance monitoring</li></ul><strong>Implementation Strategy:</strong><ol><li><strong>Inventory and classify:</strong> Catalog all assets and data flows</li><li><strong>Design network zones:</strong> Create trust boundaries</li><li><strong>Implement access controls:</strong> Deploy identity-based access</li><li><strong>Enable monitoring:</strong> Deploy comprehensive logging</li><li><strong>Continuous improvement:</strong> Regular assessment and refinement</li></ol>",
+        category: "Zero-Trust"
+      },
+      {
+        level: 3,
+        front: "What is AWS PrivateLink and how does it enable zero-trust networking?",
+        back: "<strong>AWS PrivateLink Definition:</strong> PrivateLink enables private connectivity between VPCs, AWS services, and your own applications without exposing traffic to the public internet.<br><br><strong>PrivateLink Architecture Components:</strong><ul><li><strong>VPC Endpoint Services:</strong> Services you want to share privately</li><li><strong>VPC Endpoints:</strong> Interface endpoints in consumer VPCs</li><li><strong>Network Load Balancer:</strong> Frontend for your service</li><li><strong>Elastic Network Interfaces:</strong> Private IP addresses in your subnets</li></ul><strong>Zero-Trust Benefits:</strong><ul><li><strong>Private connectivity:</strong> Traffic never leaves AWS backbone network</li><li><strong>No internet routing:</strong> Eliminates internet-based attack vectors</li><li><strong>Granular access control:</strong> Endpoint policies and security groups</li><li><strong>Service isolation:</strong> Each service has dedicated private connection</li><li><strong>Identity-based access:</strong> IAM integration for authentication</li></ul><strong>PrivateLink Use Cases:</strong><ul><li><strong>SaaS connectivity:</strong> Private access to third-party services</li><li><strong>Shared services:</strong> Centralized services across accounts/VPCs</li><li><strong>Partner integration:</strong> Secure B2B connectivity</li><li><strong>Microservices:</strong> Service-to-service communication</li><li><strong>Hybrid cloud:</strong> On-premises to AWS service access</li></ul><strong>Implementation Example:</strong><ul><li><strong>Service provider:</strong> Creates VPC Endpoint Service with NLB</li><li><strong>Service consumer:</strong> Creates VPC Endpoint in their VPC</li><li><strong>Private DNS:</strong> Custom DNS names for service discovery</li><li><strong>Security policies:</strong> Endpoint policies control access</li></ul><strong>Security Features:</strong><ul><li><strong>Endpoint policies:</strong> Resource-based access control</li><li><strong>Security groups:</strong> Network-level access control</li><li><strong>Connection logging:</strong> Monitor access attempts</li><li><strong>Cross-account access:</strong> Controlled sharing between accounts</li></ul><strong>Advantages over VPC Peering:</strong><ul><li><strong>No CIDR overlap issues:</strong> Works with overlapping IP ranges</li><li><strong>Granular access:</strong> Service-level access control</li><li><strong>Scalability:</strong> No limit on number of connections</li><li><strong>Simplified routing:</strong> No route table modifications</li></ul>",
+        category: "PrivateLink"
+      },
+      {
+        level: 2,
+        front: "How do you implement network segmentation for compliance (PCI-DSS, HIPAA)?",
+        back: "<strong>PCI-DSS Network Requirements:</strong><ul><li><strong>Cardholder Data Environment (CDE) isolation:</strong> Separate network for card data processing</li><li><strong>Network access controls:</strong> Firewall between trusted and untrusted networks</li><li><strong>Strong access control measures:</strong> Restrict access by business need-to-know</li><li><strong>Regular security testing:</strong> Penetration testing and vulnerability scans</li><li><strong>Network monitoring:</strong> Track and monitor all access to network resources</li></ul><strong>HIPAA Security Requirements:</strong><ul><li><strong>Administrative safeguards:</strong> Assigned security responsibility and training</li><li><strong>Physical safeguards:</strong> Facility access controls and workstation use</li><li><strong>Technical safeguards:</strong> Access control, audit controls, integrity controls</li><li><strong>Encryption requirements:</strong> PHI encryption in transit and at rest</li></ul><strong>AWS Implementation for PCI-DSS:</strong><ul><li><strong>Dedicated VPC:</strong> Isolated VPC for cardholder data environment</li><li><strong>Private subnets:</strong> No direct internet access for CDE components</li><li><strong>Network ACLs:</strong> Restrict traffic between network segments</li><li><strong>Security groups:</strong> Least privilege access rules</li><li><strong>VPC Flow Logs:</strong> Monitor all network traffic</li><li><strong>Network Load Balancer:</strong> SSL termination and traffic inspection</li></ul>        <strong>AWS Implementation for HIPAA:</strong><ul><li><strong>PHI network isolation:</strong> Separate VPC or subnets for PHI processing</li><li><strong>Encryption in transit:</strong> TLS 1.2+ for all communications</li><li><strong>Access logging:</strong> CloudTrail and VPC Flow Logs</li><li><strong>Network monitoring:</strong> GuardDuty for threat detection</li><li><strong>VPC Endpoints:</strong> Private access to AWS services</li></ul><strong>Compliance Architecture Pattern:</strong><ul><li><strong>DMZ subnet:</strong> Internet-facing components with strict controls</li><li><strong>Application subnet:</strong> Business logic with restricted access</li><li><strong>Data subnet:</strong> Database and sensitive data storage</li><li><strong>Management subnet:</strong> Administrative and monitoring tools</li></ul><strong>Network Security Controls:</strong><ul><li><strong>Web Application Firewall:</strong> Protect against OWASP Top 10</li><li><strong>Network firewalls:</strong> Deep packet inspection</li><li><strong>Intrusion detection:</strong> Monitor for suspicious activity</li><li><strong>DDoS protection:</strong> AWS Shield and Shield Advanced</li></ul>",
+        category: "Compliance"
+      },
+      {
+        level: 3,
+        front: "Explain AWS WAF and how it integrates with network security",
+        back: "<strong>AWS WAF Definition:</strong> AWS Web Application Firewall (WAF) is a web application firewall that protects web applications from common web exploits and vulnerabilities that could affect availability, compromise security, or consume excessive resources.<br><br><strong>Key Protection Features:</strong><ul><li><strong>SQL injection protection:</strong> Detects and blocks SQL injection attempts</li><li><strong>Cross-site scripting (XSS) prevention:</strong> Filters malicious scripts</li><li><strong>Size constraints:</strong> Blocks requests exceeding size limits</li><li><strong>Rate limiting:</strong> Controls request frequency from IP addresses</li><li><strong>IP reputation:</strong> Blocks traffic from known malicious IPs</li><li><strong>Geo-blocking:</strong> Restrict traffic by geographic location</li></ul><strong>AWS WAF Integration Points:</strong><ul><li><strong>Amazon CloudFront:</strong> Global content delivery with edge protection</li><li><strong>Application Load Balancer:</strong> Regional application protection</li><li><strong>Amazon API Gateway:</strong> API endpoint protection</li><li><strong>AWS AppSync:</strong> GraphQL API protection</li></ul><strong>Rule Types and Management:</strong><ul><li><strong>Managed rule groups:</strong> AWS and marketplace pre-configured rules</li><li><strong>Custom rules:</strong> Organization-specific protection logic</li><li><strong>Rate-based rules:</strong> DDoS and abuse protection</li><li><strong>IP set rules:</strong> Allow/block specific IP ranges</li><li><strong>String match rules:</strong> Pattern-based filtering</li></ul><strong>Advanced Features:</strong><ul><li><strong>Machine learning:</strong> Bot detection and mitigation</li><li><strong>CAPTCHA integration:</strong> Challenge suspicious requests</li><li><strong>Sampling and monitoring:</strong> Request analysis and metrics</li><li><strong>Logging integration:</strong> CloudWatch and Kinesis integration</li></ul><strong>Network Security Integration:</strong><ul><li><strong>Defense in depth:</strong> Application layer protection with network controls</li><li><strong>Security group coordination:</strong> WAF handles application attacks, SGs handle network access</li><li><strong>CloudFront integration:</strong> Global protection at edge locations</li><li><strong>ALB integration:</strong> Regional protection for internal traffic</li></ul><strong>Best Practices:</strong><ul><li><strong>Start with managed rules:</strong> Use AWS managed rule groups as baseline</li><li><strong>Monitor before blocking:</strong> Test rules in count mode first</li><li><strong>Regular rule updates:</strong> Keep managed rules current</li><li><strong>Performance consideration:</strong> Balance security with application performance</li></ul>",
+        category: "Web Application Firewall"
+      },
+      {
+        level: 3,
+        front: "Design a comprehensive network security monitoring strategy",
+        back: "<strong>Monitoring Components and Data Sources:</strong><ul><li><strong>VPC Flow Logs:</strong> IP traffic information for network interfaces</li><li><strong>AWS GuardDuty:</strong> Threat detection using ML and threat intelligence</li><li><strong>AWS Security Hub:</strong> Centralized security findings aggregation</li><li><strong>AWS CloudTrail:</strong> API call logging and monitoring</li><li><strong>Amazon Detective:</strong> Security investigation and root cause analysis</li><li><strong>CloudWatch Logs:</strong> Application and system log aggregation</li></ul><strong>Detection Capabilities by Component:</strong><ul><li><strong>Anomalous traffic patterns:</strong> Unusual volume, frequency, or destination patterns</li><li><strong>Malicious IP communications:</strong> Communication with known threat sources</li><li><strong>Data exfiltration attempts:</strong> Large outbound data transfers</li><li><strong>Unauthorized access attempts:</strong> Failed authentication patterns</li><li><strong>Compromise indicators:</strong> Cryptocurrency mining, botnets, backdoors</li><li><strong>Policy violations:</strong> Configuration drift and compliance violations</li></ul><strong>Implementation Architecture:</strong><ul><li><strong>Data collection:</strong> Enable Flow Logs on all VPCs, subnets, and ENIs</li><li><strong>Threat detection:</strong> Configure GuardDuty in all regions and accounts</li><li><strong>Centralization:</strong> Use Security Hub for multi-account aggregation</li><li><strong>Analysis:</strong> Amazon Athena for Flow Log queries and analysis</li><li><strong>Visualization:</strong> QuickSight dashboards for security metrics</li><li><strong>Alerting:</strong> CloudWatch alarms and SNS notifications</li></ul><strong>Advanced Analytics and Response:</strong><ul><li><strong>Machine learning models:</strong> Custom anomaly detection models</li><li><strong>Automated response:</strong> Lambda functions for incident response</li><li><strong>Threat hunting:</strong> Proactive search for advanced threats</li><li><strong>Forensic analysis:</strong> Detective for investigation workflows</li></ul><strong>Key Metrics to Monitor:</strong><ul><li><strong>Network traffic volume:</strong> Baseline and anomaly detection</li><li><strong>Connection patterns:</strong> Unusual source/destination combinations</li><li><strong>Protocol analysis:</strong> Unexpected protocol usage</li><li><strong>Geographic patterns:</strong> Traffic from unexpected locations</li><li><strong>Time-based patterns:</strong> After-hours or unusual timing</li></ul><strong>Integration with SIEM:</strong><ul><li><strong>Log forwarding:</strong> Send logs to external SIEM systems</li><li><strong>API integration:</strong> Programmatic access to security findings</li><li><strong>Custom correlation:</strong> Correlate AWS events with external data</li><li><strong>Compliance reporting:</strong> Automated compliance and audit reports</li></ul>",
+        category: "Security Monitoring"
+      },
+      {
+        level: 2,
+        front: "What is AWS Network Firewall and when should you use it?",
+        back: "<strong>AWS Network Firewall Definition:</strong> AWS Network Firewall is a managed firewall service that provides stateful inspection, intrusion detection and prevention, and web filtering for Amazon VPCs.<br><br><strong>Key Features and Capabilities:</strong><ul><li><strong>Stateful packet inspection:</strong> Tracks connection state and context</li><li><strong>Intrusion detection and prevention (IDS/IPS):</strong> Signature-based threat detection</li><li><strong>Web filtering:</strong> URL and domain-based filtering</li><li><strong>DNS filtering:</strong> Block malicious or unwanted DNS queries</li><li><strong>Custom rules:</strong> Suricata-compatible rule engine</li><li><strong>TLS inspection:</strong> Deep packet inspection of encrypted traffic</li></ul><strong>Deployment Architecture:</strong><ul><li><strong>Firewall subnet:</strong> Dedicated subnet for firewall endpoints</li><li><strong>Route table modifications:</strong> Direct traffic through firewall</li><li><strong>Multi-AZ deployment:</strong> High availability across availability zones</li><li><strong>Centralized management:</strong> Firewall policies and rule groups</li></ul><strong>Use Cases:</strong><ul><li><strong>East-west traffic filtering:</strong> Control traffic between VPC subnets</li><li><strong>Egress filtering:</strong> Control outbound internet traffic</li><li><strong>IDS/IPS capabilities:</strong> Detect and prevent network-based attacks</li><li><strong>Compliance requirements:</strong> Meet regulatory inspection requirements</li><li><strong>Centralized security:</strong> Consistent security policies across VPCs</li></ul><strong>Integration with AWS Services:</strong><ul><li><strong>AWS Firewall Manager:</strong> Centralized policy management</li><li><strong>VPC routing:</strong> Integration with VPC route tables</li><li><strong>CloudWatch:</strong> Metrics and monitoring</li><li><strong>S3:</strong> Log storage and analysis</li></ul><strong>Comparison with Security Groups/NACLs:</strong><ul><li><strong>Deeper inspection:</strong> Application-layer inspection vs. basic packet filtering</li><li><strong>Threat detection:</strong> Active threat hunting vs. simple allow/deny</li><li><strong>Centralized management:</strong> Policy inheritance vs. resource-specific rules</li><li><strong>Performance impact:</strong> Additional latency vs. minimal impact</li></ul><strong>When to Use Network Firewall:</strong><ul><li><strong>Regulatory compliance:</strong> Requirements for deep packet inspection</li><li><strong>Advanced threat protection:</strong> Need for IDS/IPS capabilities</li><li><strong>Centralized security:</strong> Consistent policies across multiple VPCs</li><li><strong>Complex filtering:</strong> Application-layer filtering requirements</li></ul>",
+        category: "Network Firewall"
+      },
+      {
+        level: 1,
+        front: "How do you secure data in transit within AWS networks?",
+        back: "<strong>Encryption Methods for Data in Transit:</strong><ul><li><strong>TLS/SSL encryption:</strong> HTTPS for web traffic, encrypted database connections</li><li><strong>VPN connections:</strong> Site-to-site and client VPN with IPSec encryption</li><li><strong>Direct Connect encryption:</strong> MACsec for layer 2 encryption</li><li><strong>Application-level encryption:</strong> API encryption, message-level encryption</li></ul><strong>AWS Services for Transit Encryption:</strong><ul><li><strong>AWS Certificate Manager (ACM):</strong> Provision and manage SSL/TLS certificates</li><li><strong>Elastic Load Balancer:</strong> SSL/TLS termination and encryption</li><li><strong>VPN Gateway:</strong> Encrypted tunnels for hybrid connectivity</li><li><strong>PrivateLink:</strong> Private connectivity without internet exposure</li><li><strong>CloudFront:</strong> SSL/TLS encryption for content delivery</li></ul><strong>Database Connection Encryption:</strong><ul><li><strong>RDS/Aurora:</strong> Force SSL connections via parameter groups</li><li><strong>ElastiCache:</strong> TLS encryption for Redis and Memcached</li><li><strong>DynamoDB:</strong> HTTPS API endpoints with TLS encryption</li><li><strong>Redshift:</strong> SSL connections for data warehouse access</li></ul><strong>Network-Level Encryption:</strong><ul><li><strong>VPC Traffic Mirroring:</strong> Encrypted traffic analysis</li><li><strong>Transit Gateway:</strong> Encrypted inter-VPC communication</li><li><strong>Site-to-Site VPN:</strong> IPSec tunnels for hybrid networks</li><li><strong>Client VPN:</strong> OpenVPN protocol with certificate authentication</li></ul><strong>Certificate Management Best Practices:</strong><ul><li><strong>Automated provisioning:</strong> Use ACM for automatic certificate management</li><li><strong>Certificate rotation:</strong> Automatic renewal and deployment</li><li><strong>Strong cipher suites:</strong> Use modern, secure encryption algorithms</li><li><strong>Perfect Forward Secrecy:</strong> Ephemeral key exchange for session keys</li></ul><strong>Monitoring and Compliance:</strong><ul><li><strong>CloudTrail:</strong> Monitor certificate usage and API calls</li><li><strong>Config:</strong> Track SSL/TLS configuration compliance</li><li><strong>Inspector:</strong> Assess network reachability and security</li><li><strong>Systems Manager:</strong> Patch management for security updates</li></ul><strong>Implementation Checklist:</strong><ul><li><strong>Identify data flows:</strong> Map all data transmission paths</li><li><strong>Implement encryption:</strong> Enable TLS for all communications</li><li><strong>Validate certificates:</strong> Ensure proper certificate validation</li><li><strong>Monitor compliance:</strong> Regular security assessments</li></ul>",
+        category: "Data in Transit"
+      },
+      {
+        level: 3,
+        front: "Explain network forensics and incident response in AWS",
+        back: "<strong>Network Forensic Data Sources:</strong><ul><li><strong>VPC Flow Logs:</strong> Source/destination IPs, ports, protocol, packet counts</li><li><strong>DNS query logs:</strong> Domain resolution requests and responses</li><li><strong>Load balancer access logs:</strong> Client requests, response codes, latencies</li><li><strong>CloudTrail logs:</strong> API calls and configuration changes</li><li><strong>GuardDuty findings:</strong> Threat detection alerts and details</li><li><strong>WAF logs:</strong> Web application attack attempts</li></ul><strong>Incident Response Methodology:</strong><ol><li><strong>Detection and Analysis:</strong><ul><li>Identify security incident indicators</li><li>Collect and preserve evidence</li><li>Analyze attack vectors and scope</li><li>Determine impact and affected systems</li></ul></li><li><strong>Containment:</strong><ul><li>Isolate affected resources</li><li>Block malicious traffic sources</li><li>Prevent lateral movement</li><li>Preserve evidence for investigation</li></ul></li><li><strong>Eradication and Recovery:</strong><ul><li>Remove threats and vulnerabilities</li><li>Restore systems from clean backups</li><li>Apply security patches and updates</li><li>Monitor for persistence indicators</li></ul></li><li><strong>Post-Incident Activities:</strong><ul><li>Document lessons learned</li><li>Update security procedures</li><li>Conduct root cause analysis</li><li>Improve detection capabilities</li></ul></li></ol><strong>AWS-Specific Forensic Tools:</strong><ul><li><strong>Amazon Detective:</strong> Visual investigation of security findings</li><li><strong>CloudWatch Insights:</strong> Log query and analysis</li><li><strong>Athena:</strong> SQL queries on VPC Flow Logs in S3</li><li><strong>Macie:</strong> Data discovery and classification</li><li><strong>Inspector:</strong> Security assessment and vulnerability analysis</li></ul><strong>Evidence Collection and Preservation:</strong><ul><li><strong>EC2 snapshots:</strong> Preserve instance state for analysis</li><li><strong>Memory dumps:</strong> Capture runtime memory for malware analysis</li><li><strong>Log centralization:</strong> Aggregate logs in tamper-evident storage</li><li><strong>Chain of custody:</strong> Document evidence handling procedures</li></ul><strong>Network Analysis Techniques:</strong><ul><li><strong>Traffic pattern analysis:</strong> Identify anomalous communication patterns</li><li><strong>Protocol analysis:</strong> Deep inspection of network protocols</li><li><strong>Timeline reconstruction:</strong> Correlate events across multiple sources</li><li><strong>Attribution analysis:</strong> Identify attack sources and methods</li></ul>",
+        category: "Forensics"
+      },
+
+      // Hybrid Connectivity (Cards 21-25)
+      {
+        level: 2,
+        front: "What is AWS Direct Connect and what are its benefits?",
+        back: "<strong>AWS Direct Connect Definition:</strong> AWS Direct Connect is a cloud service that provides dedicated network connection from your premises to AWS, bypassing internet service providers in your network path.<br><br><strong>Connection Types:</strong><ul><li><strong>Dedicated Connection:</strong><ul><li>Physical Ethernet port dedicated to your use</li><li>Available in 1Gbps and 10Gbps ports</li><li>Provided by AWS at Direct Connect locations</li><li>Higher bandwidth and consistent performance</li></ul></li><li><strong>Hosted Connection:</strong><ul><li>Shared physical connection via AWS Partner</li><li>Available from 50Mbps to 10Gbps</li><li>More flexible and cost-effective for smaller bandwidth</li><li>Partner manages the physical connection</li></ul></li></ul><strong>Key Benefits:</strong><ul><li><strong>Consistent Network Performance:</strong> Predictable bandwidth and lower, more consistent latency</li><li><strong>Reduced Network Costs:</strong> Lower data transfer rates compared to internet-based connections</li><li><strong>Private Connectivity:</strong> Traffic doesn't traverse public internet</li><li><strong>Bandwidth Scalability:</strong> Up to 100Gbps with LAG (Link Aggregation Groups)</li><li><strong>Hybrid Cloud Architecture:</strong> Seamless integration with on-premises infrastructure</li></ul><strong>Virtual Interfaces (VIFs):</strong><ul><li><strong>Private VIF:</strong> Access VPC resources using private IP addresses</li><li><strong>Public VIF:</strong> Access AWS public services (S3, DynamoDB) without internet</li><li><strong>Transit VIF:</strong> Connect to AWS Transit Gateway for multiple VPC access</li></ul><strong>Use Cases:</strong><ul><li><strong>High bandwidth requirements:</strong> Large data transfers, backup/restore</li><li><strong>Consistent performance needs:</strong> Real-time applications, video streaming</li><li><strong>Regulatory compliance:</strong> Data sovereignty and security requirements</li><li><strong>Hybrid architectures:</strong> Extending on-premises data center to AWS</li><li><strong>Multi-cloud connectivity:</strong> Connecting multiple cloud providers</li></ul><strong>Direct Connect Locations:</strong><ul><li><strong>Colocation facilities:</strong> Third-party data centers with AWS presence</li><li><strong>Global availability:</strong> 100+ locations worldwide</li><li><strong>Local zones:</strong> Extended AWS infrastructure for ultra-low latency</li></ul>",
+        category: "Direct Connect"
+      },
+      {
+        level: 3,
+        front: "Explain BGP routing with Direct Connect and route propagation",
+        back: "<strong>BGP (Border Gateway Protocol) Overview:</strong> BGP is the routing protocol used to exchange routing information between your network and AWS over Direct Connect connections.<br><br><strong>BGP Configuration Requirements:</strong><ul><li><strong>AS Numbers (ASN):</strong><ul><li>AWS uses ASN 64512 for private VIFs</li><li>Customer provides their own public or private ASN</li><li>Private ASNs: 64512-65534, 4200000000-4294967294</li></ul></li><li><strong>VLAN Configuration:</strong><ul><li>802.1Q VLAN tagging required</li><li>Different VLAN for each Virtual Interface</li><li>Customer and AWS configure same VLAN ID</li></ul></li><li><strong>BGP Authentication:</strong><ul><li>Optional MD5 authentication for BGP sessions</li><li>Shared secret between customer and AWS</li><li>Recommended for additional security</li></ul></li></ul><strong>Route Advertisement Process:</strong><ul><li><strong>Customer to AWS:</strong><ul><li>Advertise on-premises network prefixes</li><li>AWS learns routes to customer networks</li><li>Routes propagated to associated VPCs/Transit Gateway</li></ul></li><li><strong>AWS to Customer:</strong><ul><li>AWS advertises VPC CIDR blocks</li><li>Customer receives routes to AWS resources</li><li>Routes installed in customer routing table</li></ul></li></ul><strong>Route Propagation and Priority:</strong><ul><li><strong>Longest prefix match:</strong> More specific routes take precedence</li><li><strong>AS path length:</strong> Shorter AS paths preferred</li><li><strong>Local preference:</strong> Higher values preferred (customer configurable)</li><li><strong>Multi-exit discriminator (MED):</strong> AWS uses for route preference</li></ul><strong>Advanced BGP Features:</strong><ul><li><strong>BGP communities:</strong> Tag routes for policy application</li><li><strong>Route filtering:</strong> Control which routes are advertised/accepted</li><li><strong>Load balancing:</strong> ECMP across multiple Direct Connect connections</li><li><strong>AS path prepending:</strong> Influence inbound traffic paths</li></ul><strong>Best Practices:</strong><ul><li><strong>Redundant connections:</strong> Multiple Direct Connect links for high availability</li><li><strong>Route monitoring:</strong> Monitor BGP session state and route tables</li><li><strong>Security:</strong> Use BGP authentication and route filtering</li><li><strong>Documentation:</strong> Maintain accurate network documentation</li></ul>",
+        category: "BGP Routing"
+      },
+      {
+        level: 2,
+        front: "What are the different types of VPN connections in AWS?",
+        back: "<strong>Site-to-Site VPN:</strong><ul><li><strong>Purpose:</strong> Connects on-premises network to AWS VPC</li><li><strong>Technology:</strong> IPSec tunnels over internet</li><li><strong>Routing:</strong> Static routing or dynamic routing with BGP</li><li><strong>Redundancy:</strong> Two IPSec tunnels for high availability</li><li><strong>Bandwidth:</strong> Up to 1.25 Gbps per tunnel</li><li><strong>Use cases:</strong> Hybrid cloud, backup connectivity, secure communication</li></ul><strong>Client VPN:</strong><ul><li><strong>Purpose:</strong> Remote access VPN for individual users</li><li><strong>Technology:</strong> OpenVPN-based managed service</li><li><strong>Authentication:</strong> Certificate-based, SAML, or Active Directory</li><li><strong>Scalability:</strong> Support for thousands of concurrent connections</li><li><strong>Client software:</strong> AWS-provided or compatible OpenVPN clients</li><li><strong>Use cases:</strong> Remote work, contractor access, mobile connectivity</li></ul><strong>Transit Gateway VPN:</strong><ul><li><strong>Purpose:</strong> Centralized VPN connectivity for multiple VPCs</li><li><strong>Architecture:</strong> VPN attached to Transit Gateway</li><li><strong>Scalability:</strong> Connect to multiple VPCs through single VPN</li><li><strong>Routing:</strong> Simplified routing through Transit Gateway</li><li><strong>Monitoring:</strong> Enhanced monitoring and logging capabilities</li><li><strong>Use cases:</strong> Large-scale hybrid architectures, multi-VPC connectivity</li></ul><strong>VPN Connection Components:</strong><ul><li><strong>Virtual Private Gateway (VGW):</strong> AWS-side VPN endpoint for VPC</li><li><strong>Customer Gateway (CGW):</strong> Customer-side VPN endpoint</li><li><strong>VPN Connection:</strong> Logical connection with two IPSec tunnels</li><li><strong>Route Tables:</strong> Routes for VPN traffic</li></ul><strong>Security Features:</strong><ul><li><strong>Encryption:</strong> AES-128, AES-256 encryption</li><li><strong>Authentication:</strong> Pre-shared keys or certificates</li><li><strong>Perfect Forward Secrecy:</strong> Session key protection</li><li><strong>Dead Peer Detection:</strong> Tunnel health monitoring</li></ul><strong>Performance Considerations:</strong><ul><li><strong>Internet dependency:</strong> Performance depends on internet quality</li><li><strong>Latency:</strong> Higher latency than Direct Connect</li><li><strong>Throughput:</strong> Limited by internet bandwidth and tunnel capacity</li><li><strong>Redundancy:</strong> Multiple tunnels and connections for reliability</li></ul>",
+        category: "VPN Types"
+      },
+      {
+        level: 3,
+        front: "Design a redundant hybrid connectivity solution with failover",
+        back: "<strong>Multi-Path Connectivity Architecture:</strong><ul><li><strong>Primary connectivity:</strong> AWS Direct Connect with BGP dynamic routing</li><li><strong>Secondary connectivity:</strong> Site-to-Site VPN as backup path</li><li><strong>Load balancing:</strong> Equal-cost multi-path (ECMP) routing when available</li><li><strong>Geographic redundancy:</strong> Direct Connect from multiple locations</li></ul><strong>Failover Mechanisms:</strong><ul><li><strong>BGP route manipulation:</strong><ul><li>AS path prepending to influence route selection</li><li>Local preference settings for preferred paths</li><li>BGP communities for route tagging and policy</li></ul></li><li><strong>Link monitoring:</strong><ul><li>Bidirectional Forwarding Detection (BFD)</li><li>BGP keepalive and hold timers</li><li>Application-level health checks</li></ul></li><li><strong>Automated failover:</strong><ul><li>BGP route convergence (typically 30-60 seconds)</li><li>Health check triggered routing changes</li><li>Lambda-based automated responses</li></ul></li></ul><strong>Reference Architecture:</strong><ul><li><strong>Location A:</strong> Primary Direct Connect (1Gbps) + VPN backup</li><li><strong>Location B:</strong> Secondary Direct Connect (1Gbps) + VPN backup</li><li><strong>Transit Gateway:</strong> Central hub for all connections</li><li><strong>Route priorities:</strong> Direct Connect preferred over VPN</li></ul><strong>BGP Configuration Example:</strong><ul><li><strong>Direct Connect routes:</strong> Advertised with higher local preference</li><li><strong>VPN routes:</strong> Advertised with lower local preference</li><li><strong>AS path prepending:</strong> Make backup paths less preferred</li><li><strong>Route filtering:</strong> Control which routes are accepted/advertised</li></ul><strong>Testing and Validation:</strong><ul><li><strong>Planned failover testing:</strong> Regular testing during maintenance windows</li><li><strong>Latency monitoring:</strong> Continuous measurement of path performance</li><li><strong>Bandwidth verification:</strong> Regular throughput testing</li><li><strong>Application testing:</strong> End-to-end application functionality validation</li></ul><strong>Monitoring and Alerting:</strong><ul><li><strong>CloudWatch metrics:</strong> Connection state, BGP session status</li><li><strong>SNS notifications:</strong> Alert on connection failures</li><li><strong>VPC Flow Logs:</strong> Monitor traffic patterns and failover behavior</li><li><strong>Transit Gateway monitoring:</strong> Route table and attachment health</li></ul><strong>Cost Optimization:</strong><ul><li><strong>Right-sizing connections:</strong> Appropriate bandwidth for each path</li><li><strong>Data transfer optimization:</strong> Prefer lower-cost paths when possible</li><li><strong>Reserved capacity:</strong> Direct Connect dedicated connections</li></ul>",
+        category: "Hybrid Redundancy"
+      },
+      {
+        level: 3,
+        front: "Explain AWS Direct Connect Gateway and its use cases",
+        back: "<strong>Direct Connect Gateway Definition:</strong> AWS Direct Connect Gateway enables you to connect your AWS Direct Connect connection to multiple VPCs in different AWS regions through a single Direct Connect connection.<br><br><strong>Key Features:</strong><ul><li><strong>Global resource:</strong> Not region-specific, can connect to VPCs in any region</li><li><strong>Multi-VPC connectivity:</strong> Connect up to 10 VPCs per Direct Connect Gateway</li><li><strong>Cross-region support:</strong> Connect VPCs across different AWS regions</li><li><strong>Virtual interface reuse:</strong> Single VIF can reach multiple VPCs</li><li><strong>Centralized routing:</strong> Simplified routing for multi-region architectures</li></ul><strong>Architecture Components:</strong><ul><li><strong>Direct Connect connection:</strong> Physical connection to AWS</li><li><strong>Virtual Interface (VIF):</strong> Transit VIF connected to Direct Connect Gateway</li><li><strong>Direct Connect Gateway:</strong> Global routing component</li><li><strong>Virtual Private Gateways:</strong> Attached to individual VPCs</li><li><strong>Route propagation:</strong> Automatic route advertisement</li></ul><strong>Primary Use Cases:</strong><ul><li><strong>Multi-region connectivity:</strong><ul><li>Single Direct Connect location serving multiple regions</li><li>Global applications with regional VPCs</li><li>Disaster recovery across regions</li></ul></li><li><strong>Centralized network management:</strong><ul><li>Simplified routing architecture</li><li>Reduced number of VIFs required</li><li>Consistent network policies</li></ul></li><li><strong>Cost optimization:</strong><ul><li>Reduce cross-region data transfer costs</li><li>Eliminate need for multiple Direct Connect connections</li><li>Shared bandwidth across multiple VPCs</li></ul></li></ul><strong>Routing Behavior:</strong><ul><li><strong>Route propagation:</strong> VPC routes automatically propagated to on-premises</li><li><strong>Route selection:</strong> BGP best path selection applies</li><li><strong>Route limits:</strong> Maximum 100 prefixes per Direct Connect Gateway</li><li><strong>Route filtering:</strong> Cannot filter routes at Direct Connect Gateway level</li></ul><strong>Important Limitations:</strong><ul><li><strong>No VPC-to-VPC communication:</strong> VPCs cannot communicate through the gateway</li><li><strong>No overlapping CIDR blocks:</strong> Connected VPCs must have non-overlapping IP ranges</li><li><strong>No transitive routing:</strong> Traffic cannot transit between VPCs</li><li><strong>Region limitations:</strong> Some regions may not support all features</li></ul><strong>Comparison with Transit Gateway:</strong><ul><li><strong>Direct Connect Gateway:</strong> Global, on-premises to VPC only</li><li><strong>Transit Gateway:</strong> Regional, supports VPC-to-VPC communication</li><li><strong>Use both:</strong> Combine for comprehensive hybrid connectivity</li></ul>",
+        category: "Direct Connect Gateway"
+      },
+
+      // Performance (Cards 26-30)
+      {
+        level: 2,
+        front: "What is Enhanced Networking and how does it improve performance?",
+        back: "<strong>Enhanced Networking Definition:</strong> Enhanced Networking uses SR-IOV (Single Root I/O Virtualization) to provide high-performance networking capabilities with higher bandwidth, lower latency, and lower jitter.<br><br><strong>SR-IOV Technology:</strong><ul><li><strong>Hardware-level optimization:</strong> Direct hardware access bypassing hypervisor</li><li><strong>Reduced CPU overhead:</strong> Network processing offloaded to hardware</li><li><strong>Improved packet processing:</strong> Higher packets per second (PPS) capability</li><li><strong>Consistent performance:</strong> Reduced performance variation</li></ul><strong>Performance Benefits:</strong><ul><li><strong>Higher bandwidth:</strong> Up to 100 Gbps network performance</li><li><strong>Lower latency:</strong> Reduced network latency and jitter</li><li><strong>Higher PPS:</strong> Millions of packets per second processing</li><li><strong>Lower CPU utilization:</strong> More CPU available for applications</li><li><strong>Better scalability:</strong> Improved performance at scale</li></ul><strong>Enhanced Networking Technologies:</strong><ul><li><strong>Intel 82599 VF:</strong><ul><li>Supports up to 10 Gbps</li><li>Available on older instance types</li><li>Legacy option for existing workloads</li></ul></li><li><strong>Elastic Network Adapter (ENA):</strong><ul><li>Supports up to 100 Gbps</li><li>Available on modern instance types</li><li>Recommended for new deployments</li><li>Advanced features like adaptive interrupt coalescing</li></ul></li></ul><strong>Requirements and Configuration:</strong><ul><li><strong>Supported instance types:</strong> C5, M5, R5, and newer generations</li><li><strong>ENA driver:</strong> Must install and configure ENA driver</li><li><strong>AMI support:</strong> Use HVM AMIs with ENA support</li><li><strong>Instance attribute:</strong> Enable sriovNetSupport or enaSupport</li></ul><strong>Verification and Monitoring:</strong><ul><li><strong>Driver verification:</strong> Check ENA driver version and status</li><li><strong>Performance testing:</strong> Network throughput and latency testing</li><li><strong>CloudWatch metrics:</strong> Monitor network performance metrics</li><li><strong>Instance metadata:</strong> Verify enhanced networking is enabled</li></ul><strong>Best Practices:</strong><ul><li><strong>Modern instance types:</strong> Use latest generation instances</li><li><strong>Driver updates:</strong> Keep ENA drivers up to date</li><li><strong>Performance testing:</strong> Validate performance improvements</li><li><strong>Application tuning:</strong> Optimize applications for high-performance networking</li></ul>",
+        category: "Enhanced Networking"
+      },
+      {
+        level: 3,
+        front: "Explain Placement Groups and their network implications",
+        back: "<strong>Placement Groups Definition:</strong> Placement Groups are logical groupings of instances that influence how instances are placed on underlying hardware to meet specific performance or availability requirements.<br><br><strong>Placement Group Types:</strong><ul><li><strong>Cluster Placement Groups:</strong><ul><li>Low latency, high bandwidth within single AZ</li><li>10 Gbps network performance between instances</li><li>Enhanced networking strongly recommended</li><li>Ideal for HPC, distributed computing, tightly coupled workloads</li></ul></li><li><strong>Partition Placement Groups:</strong><ul><li>Logical partitions with isolated hardware</li><li>Good for distributed workloads (Hadoop, HDFS, HBase)</li><li>Network performance similar to regular instances</li><li>Up to 7 partitions per AZ</li></ul></li><li><strong>Spread Placement Groups:</strong><ul><li>Instances on different underlying hardware</li><li>Maximum isolation for critical instances</li><li>Network performance not optimized</li><li>Maximum 7 instances per AZ</li></ul></li></ul><strong>Network Performance Implications:</strong><ul><li><strong>Cluster groups:</strong><ul><li>10 Gbps bandwidth between instances</li><li>Sub-millisecond latency</li><li>Requires enhanced networking</li><li>Best for network-intensive applications</li></ul></li><li><strong>Partition groups:</strong><ul><li>Standard network performance between partitions</li><li>Enhanced performance within partitions</li><li>Balanced performance and isolation</li></ul></li><li><strong>Spread groups:</strong><ul><li>Standard network performance</li><li>Priority on isolation over performance</li><li>Suitable for fault-tolerant applications</li></ul></li></ul><strong>Best Practices for Network Performance:</strong><ul><li><strong>Launch together:</strong> Launch all instances in cluster at the same time</li><li><strong>Same instance type:</strong> Use homogeneous instance types</li><li><strong>Enhanced networking:</strong> Enable SR-IOV for cluster groups</li><li><strong>Application optimization:</strong> Design applications to leverage high bandwidth</li><li><strong>Monitoring:</strong> Monitor network metrics and performance</li></ul><strong>Limitations and Considerations:</strong><ul><li><strong>Instance type restrictions:</strong> Not all instance types support all placement groups</li><li><strong>Capacity limitations:</strong> Limited capacity may affect placement</li><li><strong>Cross-AZ restrictions:</strong> Cluster groups limited to single AZ</li><li><strong>Network topology:</strong> Physical proximity affects performance</li></ul><strong>Use Case Examples:</strong><ul><li><strong>High-performance computing:</strong> Scientific simulations, financial modeling</li><li><strong>Distributed databases:</strong> NoSQL clusters, in-memory databases</li><li><strong>Big data analytics:</strong> Spark clusters, distributed processing</li><li><strong>Real-time applications:</strong> Gaming, trading platforms, media processing</li></ul>",
+        category: "Placement Groups"
+      },
+      {
+        level: 3,
+        front: "How do you optimize network performance for high-throughput applications?",
+        back: "<strong>Instance-Level Optimization:</strong><ul><li><strong>Instance type selection:</strong><ul><li>Choose network-optimized instances (C5n, M5dn, R5n)</li><li>Consider 100 Gbps networking instances</li><li>Match instance size to network requirements</li></ul></li><li><strong>Enhanced networking:</strong><ul><li>Enable SR-IOV with ENA drivers</li><li>Use latest generation instances</li><li>Keep drivers updated</li></ul></li><li><strong>Placement groups:</strong><ul><li>Use cluster placement groups for low latency</li><li>Deploy in single AZ for maximum performance</li><li>Launch instances simultaneously</li></ul></li></ul><strong>Network Configuration Optimization:</strong><ul><li><strong>Network buffer tuning:</strong><ul><li>Increase TCP send/receive buffer sizes</li><li>Tune socket buffer parameters</li><li>Optimize kernel network parameters</li></ul></li><li><strong>Network interface optimization:</strong><ul><li>Use multiple ENIs for bandwidth aggregation</li><li>Configure interrupt affinity</li><li>Enable receive side scaling (RSS)</li></ul></li><li><strong>Protocol optimization:</strong><ul><li>Use UDP for low-latency requirements</li><li>Optimize TCP window scaling</li><li>Consider DPDK for user-space networking</li></ul></li></ul><strong>Application-Level Optimization:</strong><ul><li><strong>Connection management:</strong><ul><li>Implement connection pooling and reuse</li><li>Use persistent connections</li><li>Minimize connection establishment overhead</li></ul></li><li><strong>I/O patterns:</strong><ul><li>Use asynchronous I/O operations</li><li>Implement batching for bulk operations</li><li>Optimize data serialization</li></ul></li><li><strong>Threading models:</strong><ul><li>Use appropriate threading for network I/O</li><li>Consider event-driven architectures</li><li>Implement proper thread affinity</li></ul></li></ul><strong>Performance Tuning Methodology:</strong><ul><li><strong>Baseline measurement:</strong><ul><li>Establish performance baselines</li><li>Monitor key network metrics</li><li>Use tools like iperf3, netperf</li></ul></li><li><strong>Bottleneck identification:</strong><ul><li>CPU utilization analysis</li><li>Network interface utilization</li><li>Memory bandwidth assessment</li></ul></li><li><strong>Iterative optimization:</strong><ul><li>Test one change at a time</li><li>Measure impact of each optimization</li><li>Document configuration changes</li></ul></li></ul><strong>Monitoring and Observability:</strong><ul><li><strong>CloudWatch metrics:</strong> NetworkIn/Out, NetworkPacketsIn/Out</li><li><strong>Instance metrics:</strong> CPU utilization, network utilization</li><li><strong>Application metrics:</strong> Request latency, throughput</li><li><strong>Custom metrics:</strong> Application-specific performance indicators</li></ul><strong>Advanced Techniques:</strong><ul><li><strong>DPDK (Data Plane Development Kit):</strong> User-space packet processing</li><li><strong>Kernel bypass:</strong> Direct hardware access for applications</li><li><strong>Load balancing:</strong> Distribute traffic across multiple instances</li><li><strong>Caching strategies:</strong> Reduce network traffic with intelligent caching</li></ul>",
+        category: "Performance Optimization"
+      },
+      {
+        level: 2,
+        front: "What is AWS Global Accelerator and how does it improve network performance?",
+        back: "<strong>AWS Global Accelerator Definition:</strong> AWS Global Accelerator improves performance for your applications by routing traffic through AWS's global network infrastructure using anycast IP addresses.<br><br><strong>Core Components:</strong><ul><li><strong>Anycast IP addresses:</strong> Static IP addresses that route to nearest AWS edge location</li><li><strong>Global network:</strong> AWS backbone network for optimized routing</li><li><strong>Accelerator endpoints:</strong> Application Load Balancers, Network Load Balancers, EC2 instances</li><li><strong>Listeners:</strong> Process traffic based on port and protocol configuration</li><li><strong>Endpoint groups:</strong> Group endpoints by AWS region</li></ul><strong>Key Features:</strong><ul><li><strong>Improved performance:</strong> Up to 60% better performance for global users</li><li><strong>Increased availability:</strong> Automatic failover to healthy endpoints</li><li><strong>DDoS protection:</strong> AWS Shield Standard included</li><li><strong>Static IP addresses:</strong> Simplify DNS management and firewall rules</li><li><strong>Health checks:</strong> Continuous monitoring of endpoint health</li><li><strong>Traffic dials:</strong> Control traffic distribution across endpoints</li></ul><strong>Performance Benefits:</strong><ul><li><strong>Reduced latency:</strong> Traffic enters AWS network at nearest edge location</li><li><strong>Improved throughput:</strong> AWS backbone network optimization</li><li><strong>Better reliability:</strong> Automatic rerouting around network issues</li><li><strong>Consistent performance:</strong> Predictable network behavior</li></ul><strong>Use Cases:</strong><ul><li><strong>Gaming applications:</strong> Reduced latency for global gaming platforms</li><li><strong>IoT applications:</strong> Improved connectivity for distributed IoT devices</li><li><strong>Video streaming:</strong> Better performance for media delivery</li><li><strong>Global applications:</strong> Improved user experience worldwide</li><li><strong>API acceleration:</strong> Faster API response times</li></ul><strong>Configuration Options:</strong><ul><li><strong>Traffic dials:</strong> Control percentage of traffic to each endpoint group</li><li><strong>Health checks:</strong> Configure health check parameters</li><li><strong>Client affinity:</strong> Route users to same endpoint</li><li><strong>Endpoint weights:</strong> Distribute traffic within endpoint groups</li></ul><strong>Integration with AWS Services:</strong><ul><li><strong>Application Load Balancer:</strong> HTTP/HTTPS traffic acceleration</li><li><strong>Network Load Balancer:</strong> TCP/UDP traffic acceleration</li><li><strong>Elastic IP addresses:</strong> Direct EC2 instance acceleration</li><li><strong>CloudWatch:</strong> Monitoring and metrics</li></ul><strong>Comparison with CloudFront:</strong><ul><li><strong>Global Accelerator:</strong> TCP/UDP traffic, dynamic content, API acceleration</li><li><strong>CloudFront:</strong> HTTP/HTTPS content, static content caching, CDN features</li></ul>",
+        category: "Global Accelerator"
+      },
+      {
+        level: 3,
+        front: "Explain network latency optimization techniques in AWS",
+        back: "<strong>Geographic Optimization Strategies:</strong><ul><li><strong>Multi-region deployment:</strong><ul><li>Deploy closer to end users geographically</li><li>Use Route 53 latency-based routing</li><li>Consider Local Zones for ultra-low latency</li><li>Leverage Wavelength for 5G edge computing</li></ul></li><li><strong>Content delivery optimization:</strong><ul><li>CloudFront for global content distribution</li><li>Regional edge caches for dynamic content</li><li>Origin shield for origin protection</li><li>Edge locations close to users</li></ul></li></ul><strong>Network-Level Optimization:</strong><ul><li><strong>Direct Connect benefits:</strong><ul><li>Consistent, predictable latency</li><li>Bypass internet routing variability</li><li>Dedicated bandwidth allocation</li><li>Private connectivity to AWS</li></ul></li><li><strong>Enhanced networking features:</strong><ul><li>SR-IOV for reduced hypervisor overhead</li><li>ENA drivers for modern instances</li><li>Placement groups for cluster proximity</li><li>Instance type selection for network performance</li></ul></li><li><strong>Network optimization:</strong><ul><li>Optimize Maximum Transmission Unit (MTU) size</li><li>Enable jumbo frames where supported</li><li>Configure TCP window scaling</li><li>Tune network buffer sizes</li></ul></li></ul><strong>Application-Level Optimization:</strong><ul><li><strong>Connection optimization:</strong><ul><li>Keep-alive connections to reduce overhead</li><li>Connection pooling for database access</li><li>HTTP/2 and HTTP/3 for multiplexing</li><li>Persistent connections for frequently accessed services</li></ul></li><li><strong>Protocol optimization:</strong><ul><li>Use binary protocols vs. text-based</li><li>Implement efficient serialization</li><li>Compress data for reduced transfer time</li><li>Batch requests to reduce round trips</li></ul></li><li><strong>Caching strategies:</strong><ul><li>Application-level caching</li><li>Database query result caching</li><li>CDN caching for static assets</li><li>ElastiCache for frequently accessed data</li></ul></li></ul><strong>Database and Storage Optimization:</strong><ul><li><strong>Database proximity:</strong> Locate databases close to compute resources</li><li><strong>Read replicas:</strong> Create regional read replicas for read operations</li><li><strong>Connection pooling:</strong> Use RDS Proxy for connection management</li><li><strong>Storage optimization:</strong> Use Provisioned IOPS for consistent performance</li></ul><strong>Monitoring and Measurement:</strong><ul><li><strong>Real User Monitoring (RUM):</strong> Measure actual user experience</li><li><strong>Synthetic monitoring:</strong> Proactive latency testing</li><li><strong>CloudWatch metrics:</strong> Monitor application and network metrics</li><li><strong>X-Ray tracing:</strong> Identify application bottlenecks</li></ul><strong>Advanced Techniques:</strong><ul><li><strong>Pre-warming connections:</strong> Establish connections before needed</li><li><strong>Predictive prefetching:</strong> Anticipate user requests</li><li><strong>Edge computing:</strong> Process data closer to source</li><li><strong>Microservice optimization:</strong> Reduce inter-service communication</li></ul>",
+        category: "Latency Optimization"
+      },
+
+      // Advanced Topics (Cards 31-40)
+      {
+        level: 3,
+        front: "What is IPv6 in AWS and how do you implement it?",
+        back: "<strong>IPv6 Overview:</strong> IPv6 provides virtually unlimited IP addresses using 128-bit addressing, solving IPv4 address exhaustion while offering improved security, performance, and simplified network configuration.<br><br><strong>AWS IPv6 Support:</strong><ul><li><strong>Dual-stack VPCs:</strong> Support both IPv4 and IPv6 simultaneously</li><li><strong>IPv6-only subnets:</strong> Subnets that only assign IPv6 addresses</li><li><strong>Internet Gateway:</strong> IPv6 internet connectivity</li><li><strong>Route table support:</strong> IPv6 route entries (::/0 for default)</li><li><strong>Security groups:</strong> IPv6 CIDR blocks in rules</li><li><strong>NACLs:</strong> IPv6 rules for subnet-level control</li></ul><strong>IPv6 Implementation Steps:</strong><ol><li><strong>VPC IPv6 Association:</strong><ul><li>Associate IPv6 CIDR block with VPC (/56 block)</li><li>AWS provides globally unique IPv6 addresses</li><li>Cannot choose your own IPv6 CIDR</li></ul></li><li><strong>Subnet IPv6 Configuration:</strong><ul><li>Add IPv6 CIDR to subnets (/64 blocks)</li><li>Enable auto-assign IPv6 addresses</li><li>Configure for IPv6-only or dual-stack</li></ul></li><li><strong>Route Table Updates:</strong><ul><li>Add IPv6 routes (::/0 → igw for public)</li><li>Configure IPv6 routing for private subnets</li><li>Update existing routes for IPv6 traffic</li></ul></li><li><strong>Security Group Modifications:</strong><ul><li>Add IPv6 rules to security groups</li><li>Update source/destination to include IPv6</li><li>Consider IPv6 equivalents of IPv4 rules</li></ul></li><li><strong>Instance Configuration:</strong><ul><li>Enable IPv6 on network interfaces</li><li>Configure applications for IPv6</li><li>Update DNS records (AAAA records)</li></ul></li></ol><strong>IPv6 Benefits:</strong><ul><li><strong>Larger address space:</strong> Virtually unlimited IP addresses</li><li><strong>Simplified routing:</strong> Hierarchical addressing and routing</li><li><strong>Improved security:</strong> IPSec built into protocol</li><li><strong>Better performance:</strong> Reduced NAT overhead</li><li><strong>Auto-configuration:</strong> Stateless address autoconfiguration</li></ul><strong>Considerations and Limitations:</strong><ul><li><strong>Application compatibility:</strong> Ensure applications support IPv6</li><li><strong>NAT64:</strong> Required for IPv6-only to IPv4 communication</li><li><strong>Monitoring:</strong> Update monitoring for IPv6 addresses</li><li><strong>Cost implications:</strong> IPv6 addresses are free but consider traffic costs</li></ul>",
+        category: "IPv6"
+      },
+      {
+        level: 3,
+        front: "Explain container networking in ECS and EKS",
+        back: "<strong>ECS (Elastic Container Service) Networking:</strong><ul><li><strong>Bridge Mode:</strong><ul><li>Default Docker networking mode</li><li>Containers share host network interface</li><li>Port mapping required for external access</li><li>Limited isolation between containers</li></ul></li><li><strong>Host Mode:</strong><ul><li>Containers use host network directly</li><li>Best performance but limited isolation</li><li>Port conflicts possible</li><li>Used for high-performance applications</li></ul></li><li><strong>awsvpc Mode:</strong><ul><li>Each task gets dedicated ENI</li><li>Full VPC networking features</li><li>Security groups at task level</li><li>Recommended for production workloads</li></ul></li></ul><strong>EKS (Elastic Kubernetes Service) Networking:</strong><ul><li><strong>AWS VPC CNI Plugin:</strong><ul><li>Native VPC networking for pods</li><li>Each pod gets VPC IP address</li><li>Secondary IP addresses on ENIs</li><li>Direct routing without overlay</li></ul></li><li><strong>Pod Networking:</strong><ul><li>Pods communicate directly via VPC routing</li><li>No performance overhead from overlay networks</li><li>Security groups can be applied to pods</li><li>Simplified network troubleshooting</li></ul></li><li><strong>Service Networking:</strong><ul><li>ClusterIP: Internal cluster communication</li><li>NodePort: Access via node IP and port</li><li>LoadBalancer: AWS Load Balancer integration</li><li>Ingress: HTTP/HTTPS routing with ALB</li></ul></li></ul><strong>Advanced EKS Networking Features:</strong><ul><li><strong>Network Policies:</strong><ul><li>Use Calico for network segmentation</li><li>Control traffic between pods</li><li>Implement microsegmentation</li><li>Policy-based security controls</li></ul></li><li><strong>Service Mesh Integration:</strong><ul><li>Istio for advanced traffic management</li><li>AWS App Mesh for service connectivity</li><li>Mutual TLS between services</li><li>Observability and tracing</li></ul></li><li><strong>Ingress Controllers:</strong><ul><li>AWS Load Balancer Controller</li><li>NGINX Ingress Controller</li><li>Traefik for dynamic configuration</li><li>Certificate management integration</li></ul></li></ul><strong>Container Networking Best Practices:</strong><ul><li><strong>IP address management:</strong><ul><li>Plan for sufficient IP addresses</li><li>Monitor IP address utilization</li><li>Use subnet size appropriate for scale</li></ul></li><li><strong>Security considerations:</strong><ul><li>Apply security groups to tasks/pods</li><li>Implement network policies</li><li>Use private subnets for workloads</li><li>Enable VPC Flow Logs</li></ul></li><li><strong>Performance optimization:</strong><ul><li>Use placement groups for latency-sensitive workloads</li><li>Enable enhanced networking</li><li>Consider cross-zone load balancing costs</li></ul></li></ul>",
+        category: "Container Networking"
+      },
+      {
+        level: 3,
+        front: "What is AWS Cloud Map and how does it work with service discovery?",
+        back: "<strong>AWS Cloud Map Definition:</strong> AWS Cloud Map is a cloud resource discovery service that enables you to register and discover application resources using custom names, providing a way to map logical service names to actual resource locations.<br><br><strong>Key Components:</strong><ul><li><strong>Namespaces:</strong><ul><li>Logical grouping of services</li><li>DNS or API-based discovery</li><li>Public or private namespaces</li><li>Organizational boundary for services</li></ul></li><li><strong>Services:</strong><ul><li>Template for service instances</li><li>Define health check configuration</li><li>Specify discovery type (DNS/API)</li><li>Set TTL and failure threshold</li></ul></li><li><strong>Service Instances:</strong><ul><li>Individual resources registered to service</li><li>IP addresses, DNS names, or custom attributes</li><li>Health status monitoring</li><li>Custom metadata and attributes</li></ul></li></ul><strong>Service Discovery Types:</strong><ul><li><strong>DNS-based Discovery:</strong><ul><li>Creates Route 53 hosted zone</li><li>DNS queries return service endpoints</li><li>A, AAAA, CNAME, SRV record types</li><li>Standard DNS resolution process</li></ul></li><li><strong>API-based Discovery:</strong><ul><li>HTTP API for service lookup</li><li>Programmatic service discovery</li><li>Rich metadata and filtering</li><li>Real-time updates and changes</li></ul></li></ul><strong>Health Checking:</strong><ul><li><strong>Health check types:</strong><ul><li>HTTP/HTTPS health checks</li><li>TCP connection checks</li><li>Custom health checks</li></ul></li><li><strong>Health status management:</strong><ul><li>Automatic removal of unhealthy instances</li><li>Configurable failure threshold</li><li>Health check intervals</li><li>Route 53 health check integration</li></ul></li></ul><strong>Integration with AWS Services:</strong><ul><li><strong>Amazon ECS:</strong> Automatic service registration</li><li><strong>Amazon EKS:</strong> Kubernetes service discovery</li><li><strong>EC2 instances:</strong> Manual or automated registration</li><li><strong>Application Load Balancer:</strong> Target group integration</li><li><strong>Lambda functions:</strong> Serverless service discovery</li></ul><strong>Use Cases:</strong><ul><li><strong>Microservices architecture:</strong><ul><li>Dynamic service location</li><li>Service-to-service communication</li><li>Load balancing and failover</li></ul></li><li><strong>Container orchestration:</strong><ul><li>Pod and service discovery</li><li>Dynamic scaling scenarios</li><li>Multi-cluster communication</li></ul></li><li><strong>API gateway integration:</strong><ul><li>Backend service discovery</li><li>Dynamic routing configuration</li><li>Health-based routing decisions</li></ul></li></ul><strong>Best Practices:</strong><ul><li><strong>Namespace organization:</strong> Use environment and application-based namespaces</li><li><strong>Health check configuration:</strong> Set appropriate intervals and thresholds</li><li><strong>Service naming:</strong> Use consistent and descriptive service names</li><li><strong>Monitoring:</strong> Monitor service discovery metrics and health</li></ul>",
+        category: "Service Discovery"
+      },
+      {
+        level: 3,
+        front: "Explain AWS App Mesh and service mesh networking",
+        back: "<strong>AWS App Mesh Definition:</strong> AWS App Mesh is a service mesh that provides application-level networking to make it easy for services to communicate with each other across multiple types of compute infrastructure.<br><br><strong>Service Mesh Architecture:</strong><ul><li><strong>Control Plane:</strong><ul><li>Manages and configures proxy data plane</li><li>Defines traffic routing policies</li><li>Handles service discovery</li><li>Provides observability data</li></ul></li><li><strong>Data Plane:</strong><ul><li>Envoy proxies deployed with applications</li><li>Intercepts all network traffic</li><li>Enforces policies and security</li><li>Collects telemetry data</li></ul></li></ul><strong>App Mesh Components:</strong><ul><li><strong>Mesh:</strong><ul><li>Logical boundary for network traffic</li><li>Contains all service mesh resources</li><li>Defines policy scope</li><li>Enables service communication</li></ul></li><li><strong>Virtual Services:</strong><ul><li>Abstraction of actual services</li><li>Logical name for service discovery</li><li>Routing configuration target</li><li>Decouples consumers from providers</li></ul></li><li><strong>Virtual Nodes:</strong><ul><li>Logical pointer to compute resources</li><li>Represents service instances</li><li>Defines backend services</li><li>Configures health checks</li></ul></li><li><strong>Virtual Routers:</strong><ul><li>Handle traffic routing between services</li><li>Define routing rules and policies</li><li>Support weighted routing</li><li>Enable traffic splitting</li></ul></li></ul><strong>Traffic Management Features:</strong><ul><li><strong>Load balancing:</strong><ul><li>Round robin, least connection algorithms</li><li>Health-based routing decisions</li><li>Circuit breaker patterns</li><li>Retry and timeout policies</li></ul></li><li><strong>Traffic routing:</strong><ul><li>Header-based routing</li><li>Path-based routing</li><li>Weighted traffic splitting</li><li>A/B testing and canary deployments</li></ul></li></ul><strong>Security Features:</strong><ul><li><strong>Mutual TLS (mTLS):</strong><ul><li>Automatic certificate management</li><li>Service-to-service encryption</li><li>Identity verification</li><li>Certificate rotation</li></ul></li><li><strong>Authorization policies:</strong><ul><li>Fine-grained access control</li><li>Service-to-service authorization</li><li>Policy-based security</li></ul></li></ul><strong>Observability and Monitoring:</strong><ul><li><strong>Metrics collection:</strong> Request rates, latencies, error rates</li><li><strong>Distributed tracing:</strong> X-Ray integration for request tracing</li><li><strong>Access logging:</strong> Detailed request and response logging</li><li><strong>CloudWatch integration:</strong> Metrics and alarms</li></ul><strong>Benefits:</strong><ul><li><strong>Simplified service communication:</strong> Abstract network complexity</li><li><strong>Enhanced security:</strong> Automatic mTLS and policy enforcement</li><li><strong>Improved observability:</strong> Comprehensive monitoring and tracing</li><li><strong>Traffic control:</strong> Advanced routing and load balancing</li><li><strong>Resilience patterns:</strong> Circuit breakers, retries, timeouts</li></ul><strong>Integration with Compute Services:</strong><ul><li><strong>Amazon ECS:</strong> Task definition integration</li><li><strong>Amazon EKS:</strong> Kubernetes deployment</li><li><strong>EC2 instances:</strong> Direct integration</li><li><strong>AWS Fargate:</strong> Serverless container integration</li></ul>",
+        category: "Service Mesh"
+      },
+      {
+        level: 3,
+        front: "Design a multi-region disaster recovery network architecture",
+        back: "<strong>Multi-Region DR Architecture Components:</strong><ul><li><strong>Primary Region (Production):</strong><ul><li>Full application stack deployment</li><li>Complete network infrastructure</li><li>Primary database and storage</li><li>Active user traffic</li></ul></li><li><strong>DR Region (Standby):</strong><ul><li>Standby infrastructure ready for activation</li><li>Replicated data and configurations</li><li>Minimal running resources (cost optimization)</li><li>Rapid scaling capabilities</li></ul></li><li><strong>Global Services:</strong><ul><li>Route 53 for DNS failover</li><li>CloudFront for global content delivery</li><li>IAM for cross-region access</li><li>AWS Backup for cross-region backups</li></ul></li></ul><strong>Network Design Patterns:</strong><ul><li><strong>VPC Architecture:</strong><ul><li>Identical VPC structures in both regions</li><li>Non-overlapping CIDR blocks</li><li>Same subnet organization and security groups</li><li>Consistent network ACL policies</li></ul></li><li><strong>Inter-Region Connectivity:</strong><ul><li>VPC Peering for direct communication</li><li>Transit Gateway inter-region peering</li><li>Cross-region VPN connections</li><li>Direct Connect at multiple locations</li></ul></li></ul><strong>Data Replication Strategy:</strong><ul><li><strong>Database replication:</strong><ul><li>RDS cross-region read replicas</li><li>Aurora Global Database</li><li>DynamoDB Global Tables</li><li>Database-specific replication</li></ul></li><li><strong>Storage replication:</strong><ul><li>S3 Cross-Region Replication</li><li>EBS snapshot copying</li><li>EFS backup to second region</li></ul></li></ul><strong>DNS Failover Configuration:</strong><ul><li><strong>Route 53 Health Checks:</strong><ul><li>Monitor primary region endpoints</li><li>Configure health check parameters</li><li>Set up CloudWatch alarms</li><li>Define failure thresholds</li></ul></li><li><strong>Failover Routing:</strong><ul><li>Primary-secondary failover policies</li><li>Weighted routing for testing</li><li>Latency-based routing for performance</li><li>Geolocation routing for compliance</li></ul></li></ul><strong>Disaster Recovery Process:</strong><ol><li><strong>Detection:</strong><ul><li>Automated monitoring and alerting</li><li>Health check failures</li><li>Application-level monitoring</li><li>Manual escalation procedures</li></ul></li><li><strong>DNS Failover:</strong><ul><li>Automatic Route 53 failover</li><li>Traffic redirection to DR region</li><li>TTL considerations for quick switchover</li></ul></li><li><strong>Infrastructure Activation:</strong><ul><li>Auto Scaling group activation</li><li>Database promotion (read replica to primary)</li><li>Load balancer target updates</li><li>Application configuration updates</li></ul></li><li><strong>Data Consistency Verification:</strong><ul><li>Verify data replication status</li><li>Check for data consistency</li><li>Validate application functionality</li><li>User notification and communication</li></ul></li></ol><strong>Recovery Time and Point Objectives:</strong><ul><li><strong>RTO (Recovery Time Objective):</strong> Target time to restore operations</li><li><strong>RPO (Recovery Point Objective):</strong> Acceptable data loss timeframe</li><li><strong>Network-specific considerations:</strong> DNS propagation time, connection establishment</li></ul><strong>Testing and Validation:</strong><ul><li><strong>Regular DR drills:</strong> Scheduled failover testing</li><li><strong>Network connectivity testing:</strong> Verify cross-region communication</li><li><strong>Performance validation:</strong> Ensure acceptable performance in DR region</li><li><strong>Documentation updates:</strong> Keep runbooks current</li></ul>",
+        category: "DR Architecture"
+      },
+      {
+        level: 3,
+        front: "What are AWS Local Zones and how do they affect network architecture?",
+        back: "        <strong>AWS Local Zones Definition:</strong> AWS Local Zones place AWS compute, storage, database, and other select services closer to large population and industry centers, enabling applications that require single-digit millisecond latency to end users.<br><br><strong>Network Architecture Characteristics:</strong><ul><li><strong>Extension of AWS Region:</strong> Local Zones are extensions of existing AWS Regions</li><li><strong>Direct connection:</strong> High-bandwidth, low-latency connection to parent Region</li><li><strong>Limited service availability:</strong> Subset of AWS services available</li><li><strong>Local internet breakout:</strong> Direct internet connectivity for reduced latency</li><li><strong>Same VPC:</strong> Subnets in Local Zones belong to same VPC as parent Region</li></ul><strong>Network Benefits:</strong><ul><li><strong>Ultra-low latency:</strong> Single-digit millisecond latency to local users</li><li><strong>Improved performance:</strong> Reduced network hops and routing</li><li><strong>Local data processing:</strong> Process data closer to source</li><li><strong>Bandwidth optimization:</strong> Reduced bandwidth requirements to Region</li></ul><strong>Use Cases:</strong><ul><li><strong>Real-time gaming:</strong> Multiplayer gaming with minimal lag</li><li><strong>Live video streaming:</strong> Low-latency video processing and delivery</li><li><strong>Augmented/Virtual Reality:</strong> Immersive experiences requiring instant response</li><li><strong>High-frequency trading:</strong> Financial applications requiring microsecond latency</li><li><strong>Industrial automation:</strong> Real-time control systems</li></ul><strong>Network Design Considerations:</strong><ul><li><strong>Subnet placement:</strong> Create subnets specifically in Local Zone</li><li><strong>Instance placement:</strong> Deploy latency-sensitive workloads in Local Zone</li><li><strong>Data locality:</strong> Keep frequently accessed data in Local Zone</li><li><strong>Failover strategy:</strong> Plan for failover to parent Region</li></ul><strong>Limitations:</strong><ul><li><strong>Service limitations:</strong> Not all AWS services available</li><li><strong>Instance types:</strong> Limited instance type selection</li><li><strong>Availability:</strong> Single point of failure for ultra-local processing</li><li><strong>Cost considerations:</strong> Potentially higher costs for some services</li></ul>",
+        category: "Local Zones"
+      },
+      {
+        level: 3,
+        front: "Explain AWS Wavelength and 5G edge computing networking",
+        back: "<strong>AWS Wavelength Definition:</strong> AWS Wavelength brings AWS services to the edge of 5G networks, enabling ultra-low latency applications for mobile devices and connected vehicles by deploying AWS infrastructure within telecommunications providers' 5G networks.<br><br><strong>Network Architecture:</strong><ul><li><strong>Wavelength Zones:</strong><ul><li>AWS infrastructure deployed within carrier networks</li><li>Direct connection to 5G radio access network</li><li>Bypass internet routing for mobile traffic</li><li>Ultra-low latency to mobile devices</li></ul></li><li><strong>Carrier Integration:</strong><ul><li>Deep integration with telecom infrastructure</li><li>Direct access to 5G network</li><li>Carrier-grade network performance</li><li>Mobile edge computing capabilities</li></ul></li><li><strong>Parent Region Connection:</strong><ul><li>High-speed connection to AWS Region</li><li>Access to full AWS service portfolio</li><li>Seamless workload distribution</li></ul></li></ul><strong>Key Networking Benefits:</strong><ul><li><strong>Sub-10ms latency:</strong> Single-digit millisecond latency to mobile devices</li><li><strong>High bandwidth:</strong> 5G network bandwidth capabilities</li><li><strong>Edge processing:</strong> Compute closer to mobile users</li><li><strong>Reduced backhaul:</strong> Process data at network edge</li><li><strong>Carrier-grade reliability:</strong> Telecom-level network reliability</li></ul><strong>5G Edge Computing Use Cases:</strong><ul><li><strong>Autonomous vehicles:</strong><ul><li>Real-time decision making</li><li>Vehicle-to-everything (V2X) communication</li><li>Safety-critical applications</li><li>Real-time traffic optimization</li></ul></li><li><strong>Industrial IoT:</strong><ul><li>Factory automation</li><li>Predictive maintenance</li><li>Real-time quality control</li><li>Remote equipment monitoring</li></ul></li><li><strong>AR/VR applications:</strong><ul><li>Immersive gaming experiences</li><li>Virtual collaboration platforms</li><li>Training and simulation</li><li>Live event streaming</li></ul></li><li><strong>Smart cities:</strong><ul><li>Traffic management systems</li><li>Public safety applications</li><li>Environmental monitoring</li><li>Emergency response systems</li></ul></li></ul><strong>Network Design Patterns:</strong><ul><li><strong>Edge-first architecture:</strong> Process data at edge, send results to cloud</li><li><strong>Hybrid processing:</strong> Split workloads between edge and cloud</li><li><strong>Data filtering:</strong> Filter and compress data at edge</li><li><strong>Real-time analytics:</strong> Immediate insights at point of data generation</li></ul><strong>Integration with AWS Services:</strong><ul><li><strong>EC2 instances:</strong> Compute at the edge</li><li><strong>EBS storage:</strong> Local storage for applications</li><li><strong>VPC networking:</strong> Standard VPC networking model</li><li><strong>Application Load Balancer:</strong> Load balancing at the edge</li></ul><strong>Developer Considerations:</strong><ul><li><strong>Application design:</strong> Design for distributed, edge-native architecture</li><li><strong>Data synchronization:</strong> Manage data consistency between edge and cloud</li><li><strong>Resource constraints:</strong> Optimize for limited edge resources</li><li><strong>Network reliability:</strong> Handle network connectivity variations</li></ul>",
+        category: "Wavelength"
+      },
+      {
+        level: 3,
+        front: "How do you implement network automation and Infrastructure as Code?",
+        back: "<strong>Infrastructure as Code (IaC) Tools for Networking:</strong><ul><li><strong>AWS CloudFormation:</strong><ul><li>Native AWS IaC service</li><li>JSON/YAML templates for network resources</li><li>Stack-based resource management</li><li>Drift detection and remediation</li><li>Integration with AWS services</li></ul></li><li><strong>Terraform:</strong><ul><li>Multi-cloud infrastructure provisioning</li><li>HashiCorp Configuration Language (HCL)</li><li>State management and planning</li><li>Extensive AWS provider support</li><li>Modular and reusable configurations</li></ul></li><li><strong>AWS CDK (Cloud Development Kit):</strong><ul><li>Programming language-based IaC</li><li>Type safety and IDE support</li><li>Higher-level constructs</li><li>Synthesizes to CloudFormation</li></ul></li><li><strong>Ansible:</strong><ul><li>Configuration management and automation</li><li>Agentless automation</li><li>Network device configuration</li><li>Playbook-based automation</li></ul></li></ul><strong>Network Automation Strategies:</strong><ul><li><strong>Network Configuration Templates:</strong><ul><li>Standardized VPC architectures</li><li>Reusable subnet patterns</li><li>Security group templates</li><li>Route table configurations</li></ul></li><li><strong>Automated Testing and Validation:</strong><ul><li>Network connectivity testing</li><li>Security rule validation</li><li>Performance testing automation</li><li>Compliance checking</li></ul></li><li><strong>CI/CD Pipelines for Network Changes:</strong><ul><li>Version-controlled network configurations</li><li>Automated deployment pipelines</li><li>Rollback capabilities</li><li>Change approval workflows</li></ul></li></ul><strong>Policy-Based Network Controls:</strong><ul><li><strong>AWS Config Rules:</strong><ul><li>Compliance monitoring</li><li>Automatic remediation</li><li>Configuration drift detection</li><li>Policy enforcement</li></ul></li><li><strong>Service Control Policies (SCPs):</strong><ul><li>Organizational guardrails</li><li>Prevent unauthorized network changes</li><li>Enforce security standards</li></ul></li><li><strong>IAM Policies:</strong><ul><li>Least privilege access</li><li>Role-based network permissions</li><li>Resource-based policies</li></ul></li></ul><strong>Implementation Best Practices:</strong><ul><li><strong>Version Control:</strong><ul><li>Git-based infrastructure repositories</li><li>Branching strategies for changes</li><li>Code review processes</li><li>Change documentation</li></ul></li><li><strong>Environment Management:</strong><ul><li>Separate environments (dev, staging, prod)</li><li>Environment-specific configurations</li><li>Promotion pipelines</li><li>Configuration parameterization</li></ul></li><li><strong>Testing Strategies:</strong><ul><li>Unit tests for infrastructure code</li><li>Integration testing</li><li>Security testing</li><li>Performance validation</li></ul></li></ul><strong>Monitoring and Observability:</strong><ul><li><strong>Infrastructure monitoring:</strong> CloudWatch, AWS Config</li><li><strong>Change tracking:</strong> CloudTrail, AWS Config</li><li><strong>Performance monitoring:</strong> Network performance metrics</li><li><strong>Cost monitoring:</strong> AWS Cost Explorer, budgets</li></ul><strong>Example Automation Workflows:</strong><ul><li><strong>VPC Creation:</strong> Automated multi-tier VPC with subnets, gateways, and security groups</li><li><strong>Security Group Management:</strong> Automated rule updates based on application changes</li><li><strong>Network ACL Updates:</strong> Policy-driven network access control</li><li><strong>Route Table Management:</strong> Dynamic routing based on infrastructure changes</li></ul>",
+        category: "Network Automation"
+      },
+      {
+        level: 3,
+        front: "Design a cost-optimized network architecture for a multi-tier application",
+        back: "<strong>Cost Optimization Strategies:</strong><ul><li><strong>Data Transfer Optimization:</strong><ul><li>Minimize cross-AZ data transfer charges</li><li>Reduce cross-region traffic</li><li>Use same-AZ placement when possible</li><li>Implement data compression</li><li>Cache frequently accessed data</li></ul></li><li><strong>NAT Gateway Optimization:</strong><ul><li>Use NAT instances for low-traffic scenarios</li><li>Right-size NAT Gateway bandwidth</li><li>Consolidate outbound traffic</li><li>Use VPC endpoints to avoid NAT charges</li></ul></li><li><strong>VPC Endpoints Implementation:</strong><ul><li>S3 Gateway endpoints (free)</li><li>DynamoDB Gateway endpoints (free)</li><li>Interface endpoints for other services</li><li>Reduce NAT Gateway usage</li></ul></li></ul><strong>Architecture Design for Cost Efficiency:</strong><ul><li><strong>Single AZ for Development:</strong><ul><li>Non-production environments in single AZ</li><li>Reduced cross-AZ charges</li><li>Lower infrastructure costs</li><li>Simplified architecture</li></ul></li><li><strong>Multi-AZ Only for Production:</strong><ul><li>High availability where required</li><li>Cost vs. availability trade-off</li><li>Strategic placement of critical components</li></ul></li><li><strong>Strategic Resource Placement:</strong><ul><li>Collocate communicating services</li><li>Use placement groups for cluster workloads</li><li>Optimize database and application proximity</li></ul></li></ul><strong>Load Balancer Optimization:</strong><ul><li><strong>Application Load Balancer efficiency:</strong><ul><li>Consolidate multiple applications</li><li>Use host-based and path-based routing</li><li>Optimize target group configurations</li><li>Monitor Load Balancer Capacity Units (LCUs)</li></ul></li><li><strong>Network Load Balancer considerations:</strong><ul><li>Use for high-performance requirements only</li><li>Consider ALB for cost-sensitive applications</li><li>Optimize connection handling</li></ul></li></ul><strong>Content Delivery and Caching:</strong><ul><li><strong>CloudFront implementation:</strong><ul><li>Reduce origin data transfer costs</li><li>Cache static and dynamic content</li><li>Use regional edge caches</li><li>Optimize cache policies</li></ul></li><li><strong>ElastiCache deployment:</strong><ul><li>Reduce database load and costs</li><li>Optimize cache hit ratios</li><li>Right-size cache clusters</li></ul></li></ul><strong>Network Monitoring and Cost Management:</strong><ul><li><strong>Cost visibility:</strong><ul><li>AWS Cost Explorer for network costs</li><li>Data transfer cost analysis</li><li>VPC Flow Logs for traffic analysis</li><li>Regular cost reviews</li></ul></li><li><strong>Billing alerts:</strong><ul><li>CloudWatch billing alarms</li><li>Budget notifications</li><li>Cost anomaly detection</li></ul></li><li><strong>Reserved capacity planning:</strong><ul><li>Reserved Instances for predictable workloads</li><li>Savings Plans for compute</li><li>Direct Connect for consistent high bandwidth</li></ul></li></ul><strong>Sample Cost-Optimized Architecture:</strong><ul><li><strong>Development Environment:</strong><ul><li>Single AZ deployment</li><li>Shared NAT instance</li><li>VPC endpoints for AWS services</li><li>Minimal load balancing</li></ul></li><li><strong>Production Environment:</strong><ul><li>Multi-AZ for critical tiers only</li><li>Optimized NAT Gateway placement</li><li>CloudFront for content delivery</li><li>Reserved capacity for predictable workloads</li></ul></li></ul><strong>Continuous Optimization:</strong><ul><li><strong>Regular reviews:</strong> Monthly cost analysis and optimization</li><li><strong>Right-sizing:</strong> Adjust resources based on actual usage</li><li><strong>Technology updates:</strong> Adopt new cost-efficient services</li><li><strong>Architecture evolution:</strong> Refactor based on usage patterns</li></ul>",
+        category: "Cost Optimization"
+      },
+      {
+        level: 3,
+        front: "Explain network troubleshooting methodology for complex AWS environments",
+        back: "<strong>Systematic Troubleshooting Approach:</strong><ol><li><strong>Problem Identification:</strong><ul><li>Define symptoms clearly and specifically</li><li>Determine scope and impact</li><li>Identify affected resources and users</li><li>Document timeline of issues</li></ul></li><li><strong>Information Gathering:</strong><ul><li>Collect logs from multiple sources</li><li>Review recent changes and deployments</li><li>Gather performance metrics</li><li>Document current configurations</li></ul></li><li><strong>Hypothesis Formation:</strong><ul><li>Develop potential root cause theories</li><li>Prioritize based on likelihood and impact</li><li>Consider common failure patterns</li><li>Review similar past incidents</li></ul></li><li><strong>Testing and Validation:</strong><ul><li>Test hypotheses systematically</li><li>Use isolated test scenarios</li><li>Validate with multiple data sources</li><li>Document findings</li></ul></li><li><strong>Resolution Implementation:</strong><ul><li>Implement fixes incrementally</li><li>Monitor impact of changes</li><li>Validate resolution effectiveness</li><li>Document resolution steps</li></ul></li></ol><strong>Essential Troubleshooting Tools:</strong><ul><li><strong>VPC Flow Logs Analysis:</strong><ul><li>Source and destination analysis</li><li>Protocol and port investigation</li><li>Accept/reject pattern analysis</li><li>Time-based correlation</li></ul></li><li><strong>Route Table Verification:</strong><ul><li>Route precedence and conflicts</li><li>Missing or incorrect routes</li><li>Route propagation issues</li><li>Target health verification</li></ul></li><li><strong>Security Group Auditing:</strong><ul><li>Inbound and outbound rule analysis</li><li>Security group chaining verification</li><li>Protocol and port matching</li><li>Source/destination validation</li></ul></li><li><strong>Network Connectivity Testing:</strong><ul><li>Ping and traceroute analysis</li><li>Port connectivity testing (telnet, nc)</li><li>DNS resolution verification</li><li>Load balancer health checks</li></ul></li></ul><strong>Advanced Diagnostic Techniques:</strong><ul><li><strong>Packet Capture and Analysis:</strong><ul><li>VPC Traffic Mirroring for deep inspection</li><li>Instance-level packet capture</li><li>Protocol analysis with Wireshark</li><li>Network timing analysis</li></ul></li><li><strong>Performance Analysis:</strong><ul><li>Bandwidth utilization monitoring</li><li>Latency measurement and analysis</li><li>Connection establishment times</li><li>Application-level performance correlation</li></ul></li></ul><strong>Common Network Issues and Solutions:</strong><ul><li><strong>Routing Problems:</strong><ul><li>Missing routes to destinations</li><li>Incorrect route priorities</li><li>Route table association issues</li><li>BGP routing convergence delays</li></ul></li><li><strong>Security Group Misconfigurations:</strong><ul><li>Blocked ports or protocols</li><li>Incorrect source/destination rules</li><li>Missing egress rules</li><li>Security group reference issues</li></ul></li><li><strong>DNS Resolution Issues:</strong><ul><li>VPC DNS settings (enableDnsHostnames/enableDnsSupport)</li><li>Route 53 resolver configuration</li><li>Private hosted zone associations</li><li>DHCP options set configuration</li></ul></li><li><strong>Load Balancer Issues:</strong><ul><li>Target health check failures</li><li>Listener configuration problems</li><li>SSL certificate issues</li><li>Target group registration problems</li></ul></li></ul><strong>Monitoring and Alerting Setup:</strong><ul><li><strong>Proactive monitoring:</strong><ul><li>CloudWatch metrics and alarms</li><li>Custom network health checks</li><li>Application performance monitoring</li><li>Synthetic transaction monitoring</li></ul></li><li><strong>Log aggregation:</strong><ul><li>Centralized logging strategy</li><li>Log correlation and analysis</li><li>Real-time alerting</li><li>Historical analysis capabilities</li></ul></li></ul><strong>Documentation and Knowledge Management:</strong><ul><li><strong>Incident documentation:</strong> Detailed records of issues and resolutions</li><li><strong>Runbook maintenance:</strong> Updated troubleshooting procedures</li><li><strong>Knowledge sharing:</strong> Team knowledge transfer</li><li><strong>Post-incident reviews:</strong> Process improvement identification</li></ul>",
+        category: "Troubleshooting"
+      }
+    ];
+
+    var questions = [
+      {
+        question: "Your organization is designing a new VPC for a three-tier web application that requires high availability across multiple AZs. The application will have web servers, application servers, and database servers. How should you design the subnet architecture?",
+        type: "checkbox",
+        scenario: "VPC Design",
+        options: [
+          "Create public subnets in each AZ for web tier with Internet Gateway routes",
+          "Create private subnets in each AZ for application tier with NAT Gateway routes",
+          "Create private subnets in each AZ for database tier with no internet access",
+          "Use a single large subnet spanning multiple AZs for cost optimization",
+          "Implement separate security groups for each tier with least privilege access"
+        ],
+        correct: ["Create public subnets in each AZ for web tier with Internet Gateway routes", "Create private subnets in each AZ for application tier with NAT Gateway routes", "Create private subnets in each AZ for database tier with no internet access", "Implement separate security groups for each tier with least privilege access"],
+        explanation: "A proper three-tier architecture requires dedicated subnets for each tier in multiple AZs. Public subnets for web tier enable internet access, private subnets for app tier allow outbound internet via NAT, database tier should have no internet access, and security groups enforce least privilege. Single large subnets don't provide proper isolation."
+      },
+      {
+        question: "A financial services company needs to implement a zero-trust network architecture for their AWS infrastructure handling sensitive customer data. What components should they implement?",
+        type: "checkbox",
+        scenario: "Zero-Trust Architecture",
+        options: [
+          "Implement microsegmentation using security groups and NACLs",
+          "Use AWS PrivateLink for private service access",
+          "Enable encryption in transit for all communications",
+          "Deploy AWS WAF for application layer protection",
+          "Use IAM roles everywhere instead of long-term credentials",
+          "Implement comprehensive logging with VPC Flow Logs and CloudTrail"
+        ],
+        correct: ["Implement microsegmentation using security groups and NACLs", "Use AWS PrivateLink for private service access", "Enable encryption in transit for all communications", "Use IAM roles everywhere instead of long-term credentials", "Implement comprehensive logging with VPC Flow Logs and CloudTrail"],
+        explanation: "Zero-trust requires: microsegmentation for network isolation, PrivateLink for private connectivity, encryption everywhere, identity-based access with IAM roles, and comprehensive monitoring. WAF protects applications but isn't core to zero-trust networking principles."
+      },
+      {
+        question: "Your application in us-east-1 needs to replicate data to eu-west-1 for disaster recovery. The data transfer costs are becoming significant. What solutions can reduce cross-region network costs?",
+        type: "checkbox",
+        scenario: "Cost Optimization",
+        options: [
+          "Use Direct Connect with cross-region connectivity",
+          "Implement data compression before transmission",
+          "Use Aurora Global Database for automatic optimization",
+          "Schedule data transfers during off-peak hours for discounts",
+          "Use S3 Transfer Acceleration for faster uploads"
+        ],
+        correct: ["Use Direct Connect with cross-region connectivity", "Implement data compression before transmission", "Use Aurora Global Database for automatic optimization"],
+        explanation: "Direct Connect provides lower data transfer rates for consistent high-volume traffic. Data compression reduces transfer volume. Aurora Global Database uses dedicated infrastructure optimized for replication. AWS doesn't offer time-based pricing discounts, and S3 Transfer Acceleration is for uploads to S3, not cross-region replication."
+      },
+      {
+        question: "A gaming company needs ultra-low latency networking for their real-time multiplayer game. Players are distributed globally, and the game requires sub-10ms latency. What AWS networking solutions should they implement?",
+        type: "checkbox",
+        scenario: "Low Latency Gaming",
+        options: [
+          "Use AWS Local Zones in major metropolitan areas",
+          "Deploy AWS Wavelength in 5G networks",
+          "Implement cluster placement groups for game servers",
+          "Use enhanced networking with SR-IOV",
+          "Deploy Global Accelerator for traffic optimization",
+          "Use standard load balancing across regions"
+        ],
+        correct: ["Use AWS Local Zones in major metropolitan areas", "Deploy AWS Wavelength in 5G networks", "Implement cluster placement groups for game servers", "Use enhanced networking with SR-IOV", "Deploy Global Accelerator for traffic optimization"],
+        explanation: "Ultra-low latency requires: Local Zones for single-digit millisecond latency, Wavelength for 5G edge computing, cluster placement groups for inter-server communication, enhanced networking for hardware optimization, and Global Accelerator for optimized routing. Standard load balancing doesn't optimize for latency."
+      },
+      {
+        question: "Your microservices architecture has 50+ services running in EKS that need to communicate securely. Service discovery is becoming complex, and you need traffic management capabilities. What solution provides comprehensive service networking?",
+        type: "radio",
+        scenario: "Service Mesh",
+        options: [
+          "Implement AWS App Mesh with Envoy proxies",
+          "Use Application Load Balancers for each service",
+          "Configure security groups for service-to-service communication",
+          "Deploy NGINX ingress controllers"
+        ],
+        correct: ["Implement AWS App Mesh with Envoy proxies"],
+        explanation: "AWS App Mesh provides comprehensive service mesh capabilities including service discovery, traffic management, security with mTLS, and observability for microservices. ALBs don't provide service mesh features, security groups are basic networking, and NGINX only provides ingress functionality."
+      },
+      {
+        question: "A multinational corporation needs to connect their on-premises data centers in 5 countries to AWS with guaranteed bandwidth and consistent performance. They also need backup connectivity. What hybrid connectivity solution should they implement?",
+        type: "checkbox",
+        scenario: "Hybrid Connectivity",
+        options: [
+          "Deploy Direct Connect in multiple locations",
+          "Use BGP for dynamic routing and failover",
+          "Implement Site-to-Site VPN as backup connectivity",
+          "Configure Transit Gateway for centralized connectivity",
+          "Use multiple internet connections for redundancy"
+        ],
+        correct: ["Deploy Direct Connect in multiple locations", "Use BGP for dynamic routing and failover", "Implement Site-to-Site VPN as backup connectivity", "Configure Transit Gateway for centralized connectivity"],
+        explanation: "Enterprise hybrid connectivity requires: Direct Connect for guaranteed bandwidth and performance, BGP for intelligent routing, VPN backup for redundancy, and Transit Gateway for centralized management. Multiple internet connections don't provide the guaranteed performance needed."
+      },
+      {
+        question: "Your application experiences intermittent connectivity issues. Some connections work while others fail randomly. VPC Flow Logs show both ACCEPT and REJECT for similar traffic patterns. What should you investigate first?",
+        type: "checkbox",
+        scenario: "Network Troubleshooting",
+        options: [
+          "Check security group rules for stateful connection tracking",
+          "Verify NACL rules and their order of precedence",
+          "Investigate ephemeral port ranges in security configurations",
+          "Check route table configurations for asymmetric routing",
+          "Verify DNS resolution settings"
+        ],
+        correct: ["Check security group rules for stateful connection tracking", "Verify NACL rules and their order of precedence", "Investigate ephemeral port ranges in security configurations"],
+        explanation: "Intermittent connectivity with mixed ACCEPT/REJECT patterns typically indicates: security group state tracking issues, NACL stateless rule problems (especially return traffic), or ephemeral port configuration issues. Route tables and DNS are less likely to cause intermittent issues with this pattern."
+      },
+      {
+        question: "A healthcare application processes PHI data and must comply with HIPAA requirements. The network architecture must ensure data never traverses the public internet and includes comprehensive audit logging. What implementation meets these requirements?",
+        type: "checkbox",
+        scenario: "HIPAA Compliance",
+        options: [
+          "Deploy resources in private subnets with no internet gateway access",
+          "Use VPC Endpoints for all AWS service access",
+          "Implement encryption in transit using TLS 1.2 or higher",
+          "Enable VPC Flow Logs with S3 storage",
+          "Use Direct Connect for on-premises connectivity",
+          "Deploy NAT gateways for application updates"
+        ],
+        correct: ["Deploy resources in private subnets with no internet gateway access", "Use VPC Endpoints for all AWS service access", "Implement encryption in transit using TLS 1.2 or higher", "Enable VPC Flow Logs with S3 storage", "Use Direct Connect for on-premises connectivity"],
+        explanation: "HIPAA compliance requires: private subnets to prevent internet exposure, VPC Endpoints for private AWS service access, strong encryption, comprehensive logging, and private connectivity. NAT gateways route traffic through the internet, violating the requirement that data never traverse public internet."
+      },
+      {
+        question: "Your containerized application in EKS needs to scale dynamically from 10 to 1000 pods based on demand. Each pod needs a unique IP address from your VPC CIDR. What networking configuration supports this scaling requirement?",
+        type: "checkbox",
+        scenario: "Container Scaling",
+        options: [
+          "Use AWS VPC CNI plugin for native VPC networking",
+          "Plan VPC CIDR blocks with sufficient IP addresses",
+          "Configure cluster autoscaling for worker nodes",
+          "Implement custom CNI plugin for overlay networking",
+          "Use multiple subnets across AZs for IP distribution"
+        ],
+        correct: ["Use AWS VPC CNI plugin for native VPC networking", "Plan VPC CIDR blocks with sufficient IP addresses", "Configure cluster autoscaling for worker nodes", "Use multiple subnets across AZs for IP distribution"],
+        explanation: "Large-scale EKS scaling requires: AWS VPC CNI for native IP assignment, sufficient CIDR space planning, cluster autoscaling for nodes, and distributed subnets for IP availability. Custom CNI plugins would create overlay networks, not using VPC IPs as required."
+      },
+      {
+        question: "A real-time analytics platform processes IoT data from thousands of devices. The application requires consistent sub-100ms latency and needs to handle traffic spikes of 10x normal volume. What network architecture optimizes for this use case?",
+        type: "checkbox",
+        scenario: "Real-time Analytics",
+        options: [
+          "Use enhanced networking with SR-IOV on compute instances",
+          "Deploy in cluster placement groups for low inter-instance latency",
+          "Implement Global Accelerator for optimized routing",
+          "Use Wavelength zones for 5G-connected IoT devices",
+          "Configure Auto Scaling for dynamic capacity",
+          "Use standard networking with cost optimization"
+        ],
+        correct: ["Use enhanced networking with SR-IOV on compute instances", "Deploy in cluster placement groups for low inter-instance latency", "Implement Global Accelerator for optimized routing", "Use Wavelength zones for 5G-connected IoT devices", "Configure Auto Scaling for dynamic capacity"],
+        explanation: "Real-time analytics with sub-100ms latency requires: enhanced networking for performance, cluster placement groups for inter-instance communication, Global Accelerator for optimized routing, Wavelength for 5G devices, and auto scaling for traffic spikes. Standard networking won't meet performance requirements."
+      },
+      {
+        question: "Your organization uses Infrastructure as Code (IaC) to manage network configurations across 100+ AWS accounts. You need to ensure consistent security policies and prevent unauthorized network changes. What governance approach should you implement?",
+        type: "checkbox",
+        scenario: "Network Governance",
+        options: [
+          "Use AWS Config rules to monitor network compliance",
+          "Implement Service Control Policies (SCPs) for guardrails",
+          "Deploy network configurations through CI/CD pipelines",
+          "Use CloudFormation StackSets for multi-account deployment",
+          "Enable CloudTrail for all network API calls",
+          "Allow individual account administrators full network permissions"
+        ],
+        correct: ["Use AWS Config rules to monitor network compliance", "Implement Service Control Policies (SCPs) for guardrails", "Deploy network configurations through CI/CD pipelines", "Use CloudFormation StackSets for multi-account deployment", "Enable CloudTrail for all network API calls"],
+        explanation: "Network governance at scale requires: Config rules for compliance monitoring, SCPs for preventive controls, CI/CD for controlled deployments, StackSets for consistent multi-account deployment, and CloudTrail for audit logging. Individual administrator permissions would violate governance principles."
+      },
+      {
+        question: "A media streaming company needs to deliver content globally with the lowest possible latency. They have origin servers in us-east-1 and need to serve users worldwide. What content delivery architecture should they implement?",
+        type: "checkbox",
+        scenario: "Global Content Delivery",
+        options: [
+          "Deploy CloudFront with global edge locations",
+          "Use Regional Edge Caches for frequently accessed content",
+          "Implement origin shield to protect origin servers",
+          "Configure multiple origin servers in different regions",
+          "Use S3 Transfer Acceleration for content uploads"
+        ],
+        correct: ["Deploy CloudFront with global edge locations", "Use Regional Edge Caches for frequently accessed content", "Implement origin shield to protect origin servers", "Configure multiple origin servers in different regions"],
+        explanation: "Global content delivery requires: CloudFront for edge distribution, Regional Edge Caches for popular content, origin shield for protection, and multi-region origins for optimal performance. S3 Transfer Acceleration is for uploads to S3, not content delivery."
+      },
+      {
+        question: "Your application connects to RDS databases, ElastiCache clusters, and S3 buckets from private subnets. NAT Gateway costs are becoming significant due to high data transfer volumes. How can you reduce these costs while maintaining security?",
+        type: "checkbox",
+        scenario: "NAT Cost Optimization",
+        options: [
+          "Implement VPC Gateway Endpoints for S3 access",
+          "Use VPC Interface Endpoints for other AWS services",
+          "Deploy NAT instances instead of NAT Gateways for lower traffic",
+          "Move databases to public subnets for direct access",
+          "Use VPC Endpoints for RDS and ElastiCache if available"
+        ],
+        correct: ["Implement VPC Gateway Endpoints for S3 access", "Use VPC Interface Endpoints for other AWS services", "Deploy NAT instances instead of NAT Gateways for lower traffic"],
+        explanation: "NAT cost optimization includes: S3 Gateway Endpoints (free), Interface Endpoints for other services, and NAT instances for lower-traffic scenarios. Moving databases to public subnets compromises security. VPC Endpoints aren't available for RDS/ElastiCache."
+      },
+      {
+        question: "A financial trading firm requires ultra-low latency connections between their trading algorithms and market data feeds. They need consistent sub-millisecond latency with minimal jitter. What networking configuration should they implement?",
+        type: "checkbox",
+        scenario: "Ultra-Low Latency Trading",
+        options: [
+          "Use cluster placement groups in single AZ",
+          "Enable enhanced networking with ENA drivers",
+          "Deploy in AWS Local Zones near financial districts",
+          "Use DPDK for user-space packet processing",
+          "Implement multiple AZ deployment for redundancy"
+        ],
+        correct: ["Use cluster placement groups in single AZ", "Enable enhanced networking with ENA drivers", "Deploy in AWS Local Zones near financial districts", "Use DPDK for user-space packet processing"],
+        explanation: "Ultra-low latency trading requires: cluster placement groups for proximity, enhanced networking for performance, Local Zones for minimal latency, and DPDK for optimized packet processing. Multiple AZ deployment would increase latency due to cross-AZ communication."
+      },
+      {
+        question: "Your company is implementing a multi-account AWS strategy with separate accounts for development, staging, and production. You need centralized network connectivity and security management. What architecture should you implement?",
+        type: "checkbox",
+        scenario: "Multi-Account Networking",
+        options: [
+          "Deploy AWS Transit Gateway in a central networking account",
+          "Share Transit Gateway across accounts using Resource Access Manager",
+          "Implement consistent CIDR allocation across accounts",
+          "Use VPC peering between all accounts",
+          "Deploy Route 53 Resolver for centralized DNS"
+        ],
+        correct: ["Deploy AWS Transit Gateway in a central networking account", "Share Transit Gateway across accounts using Resource Access Manager", "Implement consistent CIDR allocation across accounts", "Deploy Route 53 Resolver for centralized DNS"],
+        explanation: "Multi-account networking requires: centralized Transit Gateway for hub connectivity, RAM for cross-account sharing, consistent CIDR planning, and centralized DNS. VPC peering becomes complex and doesn't scale well for multiple accounts."
+      },
+      {
+        question: "An autonomous vehicle company needs to process real-time sensor data from vehicles using 5G connectivity. The processing must happen within 5ms of data generation to ensure safety. What AWS edge computing solution should they use?",
+        type: "radio",
+        scenario: "Autonomous Vehicles",
+        options: [
+          "AWS Wavelength zones integrated with 5G networks",
+          "AWS Local Zones in metropolitan areas",
+          "Standard AWS regions with enhanced networking",
+          "CloudFront edge locations for processing"
+        ],
+        correct: ["AWS Wavelength zones integrated with 5G networks"],
+        explanation: "Autonomous vehicles with 5G connectivity and 5ms processing requirements need AWS Wavelength, which is specifically designed for ultra-low latency applications within 5G networks. Local Zones, regions, and CloudFront can't meet the sub-5ms requirement for mobile 5G traffic."
+      },
+      {
+        question: "Your organization runs a Kubernetes cluster that needs to implement network policies for microsegmentation. Pods in the 'frontend' namespace should only communicate with pods in the 'backend' namespace on specific ports. How should you implement this?",
+        type: "checkbox",
+        scenario: "Kubernetes Network Policies",
+        options: [
+          "Install Calico CNI plugin for network policy support",
+          "Create NetworkPolicy resources with namespace selectors",
+          "Configure security groups for pod-level access control",
+          "Use AWS App Mesh for service-to-service communication",
+          "Implement Istio service mesh for policy enforcement"
+        ],
+        correct: ["Install Calico CNI plugin for network policy support", "Create NetworkPolicy resources with namespace selectors"],
+        explanation: "Kubernetes network policies require: a CNI plugin that supports policies (like Calico), and NetworkPolicy resources with appropriate selectors. Security groups work at instance level, not pod level. Service mesh solutions provide additional features but NetworkPolicy is the native Kubernetes approach."
+      },
+      {
+        question: "A global SaaS company needs to provide their application to customers while ensuring data residency requirements are met. Customers in Europe must have their data processed only in European AWS regions. What networking and architecture approach should they implement?",
+        type: "checkbox",
+        scenario: "Data Residency",
+        options: [
+          "Deploy separate application stacks in each required region",
+          "Use Route 53 geolocation routing to direct traffic by location",
+          "Implement cross-region VPC peering for data sharing",
+          "Use CloudFront with geographic restrictions",
+          "Deploy AWS WAF with geo-blocking rules"
+        ],
+        correct: ["Deploy separate application stacks in each required region", "Use Route 53 geolocation routing to direct traffic by location", "Use CloudFront with geographic restrictions"],
+        explanation: "Data residency requires: separate regional deployments to keep data local, geolocation routing to ensure users hit correct regions, and CloudFront geographic restrictions for compliance. Cross-region peering would violate data residency, and WAF geo-blocking is for security, not compliance."
+      },
+      {
+        question: "Your network monitoring shows asymmetric routing causing connection issues in your multi-AZ deployment. Traffic flows out through one AZ but returns through another, causing stateful security group rules to drop connections. How should you resolve this?",
+        type: "checkbox",
+        scenario: "Asymmetric Routing",
+        options: [
+          "Configure route tables to ensure symmetric routing paths",
+          "Use NACLs instead of security groups for stateless filtering",
+          "Implement source-destination checking on instances",
+          "Deploy NAT Gateways in each AZ with AZ-specific routing",
+          "Use Application Load Balancer with cross-zone load balancing disabled"
+        ],
+        correct: ["Configure route tables to ensure symmetric routing paths", "Deploy NAT Gateways in each AZ with AZ-specific routing"],
+        explanation: "Asymmetric routing solutions include: configuring routes for symmetric paths and deploying NAT Gateways per AZ with AZ-specific routing. NACLs are stateless but don't solve the routing issue. Source-destination checking doesn't resolve asymmetric routing. Disabling cross-zone load balancing doesn't address the root cause."
+      },
+      {
+        question: "A machine learning company processes large datasets stored in S3 from EC2 instances in private subnets. The data transfer through NAT Gateways is causing high costs and performance bottlenecks. What solution optimizes both cost and performance?",
+        type: "radio",
+        scenario: "S3 Access Optimization",
+        options: [
+          "Implement S3 VPC Gateway Endpoint for direct private access",
+          "Move EC2 instances to public subnets with Elastic IPs",
+          "Use S3 Transfer Acceleration for faster transfers",
+          "Deploy multiple NAT Gateways for load distribution"
+        ],
+        correct: ["Implement S3 VPC Gateway Endpoint for direct private access"],
+        explanation: "S3 VPC Gateway Endpoint provides direct, private access to S3 from private subnets without NAT Gateway costs or performance limitations. Moving to public subnets compromises security, Transfer Acceleration is for internet uploads, and multiple NAT Gateways still incur costs and don't solve the core issue."
+      },
+      {
+        question: "Your application uses IPv6 addressing and needs to communicate with legacy IPv4-only services. Some users access the application over IPv6-only networks. How should you handle this mixed environment?",
+        type: "checkbox",
+        scenario: "IPv6 Transition",
+        options: [
+          "Implement dual-stack configuration supporting both IPv4 and IPv6",
+          "Deploy NAT64 gateways for IPv6 to IPv4 translation",
+          "Use Application Load Balancer with dual-stack support",
+          "Configure Route 53 with both A and AAAA records",
+          "Force all communications to use IPv4 for consistency"
+        ],
+        correct: ["Implement dual-stack configuration supporting both IPv4 and IPv6", "Deploy NAT64 gateways for IPv6 to IPv4 translation", "Use Application Load Balancer with dual-stack support", "Configure Route 53 with both A and AAAA records"],
+        explanation: "Mixed IPv4/IPv6 environments require: dual-stack support for both protocols, NAT64 for IPv6-only to IPv4-only communication, dual-stack load balancers, and DNS records for both protocols. Forcing IPv4-only would break IPv6-only clients."
+      },
+      {
+        question: "A startup is designing their first AWS network architecture. They expect to grow from a few users to millions over the next 2 years. The application will be a standard three-tier web application. What network design principles should they follow?",
+        type: "checkbox",
+        scenario: "Scalable Architecture Design",
+        options: [
+          "Design VPC CIDR blocks with room for future growth",
+          "Implement Auto Scaling for application and web tiers",
+          "Use managed services like RDS and ElastiCache to reduce operational overhead",
+          "Start with multi-AZ deployment for high availability",
+          "Plan for global expansion with multi-region architecture",
+          "Optimize for lowest initial cost regardless of future scalability"
+        ],
+        correct: ["Design VPC CIDR blocks with room for future growth", "Implement Auto Scaling for application and web tiers", "Use managed services like RDS and ElastiCache to reduce operational overhead", "Start with multi-AZ deployment for high availability"],
+        explanation: "Scalable startup architecture requires: CIDR planning for growth, auto scaling for dynamic capacity, managed services for operational efficiency, and multi-AZ for availability. Multi-region can be added later as needed. Optimizing only for initial cost compromises future scalability."
+      },
+      {
+        question: "Your organization needs to implement a network security monitoring strategy that can detect advanced threats and provide forensic capabilities. The solution must monitor both north-south and east-west traffic. What components should you implement?",
+        type: "checkbox",
+        scenario: "Advanced Security Monitoring",
+        options: [
+          "Enable VPC Flow Logs on all network interfaces",
+          "Deploy AWS GuardDuty for machine learning-based threat detection",
+          "Implement VPC Traffic Mirroring for deep packet inspection",
+          "Use Amazon Detective for security investigation",
+          "Configure AWS Network Firewall for IDS/IPS capabilities",
+          "Enable only basic CloudWatch monitoring to reduce costs"
+        ],
+        correct: ["Enable VPC Flow Logs on all network interfaces", "Deploy AWS GuardDuty for machine learning-based threat detection", "Implement VPC Traffic Mirroring for deep packet inspection", "Use Amazon Detective for security investigation", "Configure AWS Network Firewall for IDS/IPS capabilities"],
+        explanation: "Comprehensive security monitoring requires: VPC Flow Logs for traffic analysis, GuardDuty for threat detection, Traffic Mirroring for deep inspection, Detective for investigation, and Network Firewall for IDS/IPS. Basic monitoring alone is insufficient for advanced threat detection."
+      },
+      {
+        question: "A gaming company experiences significant latency variations affecting player experience during peak hours. Their infrastructure spans multiple AWS regions and uses CloudFront for content delivery. What optimizations should they implement to provide consistent low-latency experience?",
+        type: "checkbox",
+        scenario: "Gaming Performance Optimization",
+        options: [
+          "Implement AWS Global Accelerator for consistent routing performance",
+          "Use Local Zones in major gaming markets for ultra-low latency",
+          "Deploy dedicated instances with enhanced networking",
+          "Configure CloudFront with optimized cache behaviors for game assets",
+          "Use cluster placement groups for game server communication",
+          "Implement standard EC2 instances to reduce costs"
+        ],
+        correct: ["Implement AWS Global Accelerator for consistent routing performance", "Use Local Zones in major gaming markets for ultra-low latency", "Deploy dedicated instances with enhanced networking", "Configure CloudFront with optimized cache behaviors for game assets", "Use cluster placement groups for game server communication"],
+        explanation: "Gaming performance optimization requires: Global Accelerator for consistent routing, Local Zones for ultra-low latency, dedicated instances with enhanced networking, optimized CloudFront caching, and cluster placement groups. Standard instances won't provide the performance guarantees needed for gaming."
+      },
+      {
+        question: "Your company is migrating a legacy application that uses hardcoded IP addresses for service discovery. The application will run in containers on EKS. How should you implement service discovery while minimizing application changes?",
+        type: "checkbox",
+        scenario: "Legacy Application Migration",
+        options: [
+          "Use AWS Cloud Map for DNS-based service discovery",
+          "Configure Kubernetes Services with stable ClusterIP addresses",
+          "Implement AWS App Mesh for service mesh capabilities",
+          "Use AWS PrivateLink for service-to-service communication",
+          "Modify application code to use dynamic service discovery"
+        ],
+        correct: ["Use AWS Cloud Map for DNS-based service discovery", "Configure Kubernetes Services with stable ClusterIP addresses"],
+        explanation: "Legacy applications with hardcoded IPs need: Cloud Map for DNS-based discovery (minimal code changes), and Kubernetes Services with stable ClusterIPs. App Mesh and PrivateLink require more significant changes. The goal is minimizing application modifications during migration."
+      },
+      {
+        question: "A healthcare organization needs to implement a disaster recovery solution that meets a 1-hour RTO and 15-minute RPO for their critical patient data systems. The primary infrastructure is in us-east-1. What network and data replication strategy should they implement?",
+        type: "checkbox",
+        scenario: "Healthcare DR",
+        options: [
+          "Deploy Aurora Global Database for automatic cross-region replication",
+          "Use Route 53 health checks with automatic failover",
+          "Implement cross-region VPC peering for quick connectivity",
+          "Configure AWS Backup with cross-region backup copying",
+          "Use S3 Cross-Region Replication for critical data",
+          "Rely on manual processes to reduce complexity"
+        ],
+        correct: ["Deploy Aurora Global Database for automatic cross-region replication", "Use Route 53 health checks with automatic failover", "Implement cross-region VPC peering for quick connectivity", "Use S3 Cross-Region Replication for critical data"],
+        explanation: "Healthcare DR with aggressive RTO/RPO requires: Aurora Global Database for fast replication, Route 53 for automatic failover, cross-region connectivity for quick recovery, and S3 CRR for data replication. AWS Backup and manual processes won't meet the 15-minute RPO requirement."
+      },
+      {
+        question: "Your organization runs a real-time bidding platform for digital advertising that processes millions of requests per second. Latency must be under 10ms for bid responses. The platform needs to scale globally. What network architecture optimizes for this use case?",
+        type: "checkbox",
+        scenario: "Real-Time Bidding",
+        options: [
+          "Deploy in AWS Local Zones in major advertising markets",
+          "Use enhanced networking with cluster placement groups",
+          "Implement in-memory caching with ElastiCache",
+          "Use AWS Global Accelerator for optimized global routing",
+          "Deploy containerized applications with Fargate for serverless scaling",
+          "Use standard networking to minimize complexity"
+        ],
+        correct: ["Deploy in AWS Local Zones in major advertising markets", "Use enhanced networking with cluster placement groups", "Implement in-memory caching with ElastiCache", "Use AWS Global Accelerator for optimized global routing"],
+        explanation: "Real-time bidding with sub-10ms latency requires: Local Zones for ultra-low latency, enhanced networking with cluster placement, in-memory caching for fast data access, and Global Accelerator for routing optimization. Fargate introduces latency overhead, and standard networking won't meet performance requirements."
+      },
+      {
+        question: "A financial institution needs to connect 20 branch offices to AWS with guaranteed bandwidth and backup connectivity. Each office has different bandwidth requirements (100Mbps to 1Gbps). Compliance requires private connectivity with no internet routing. What hybrid connectivity solution should they implement?",
+        type: "checkbox",
+        scenario: "Financial Institution Connectivity",
+        options: [
+          "Deploy AWS Direct Connect with hosted connections for smaller offices",
+          "Use dedicated Direct Connect connections for high-bandwidth offices",
+          "Implement Site-to-Site VPN as secondary connectivity",
+          "Configure Transit Gateway for centralized hub connectivity",
+          "Use BGP routing with AS path manipulation for traffic engineering",
+          "Rely on internet-based VPN connections for cost savings"
+        ],
+        correct: ["Deploy AWS Direct Connect with hosted connections for smaller offices", "Use dedicated Direct Connect connections for high-bandwidth offices", "Implement Site-to-Site VPN as secondary connectivity", "Configure Transit Gateway for centralized hub connectivity", "Use BGP routing with AS path manipulation for traffic engineering"],
+        explanation: "Financial institution connectivity requires: Direct Connect (hosted for smaller, dedicated for larger offices), VPN backup, Transit Gateway for centralization, and BGP for traffic engineering. Internet-based VPN violates the private connectivity compliance requirement."
+      },
+      {
+        question: "Your microservices application experiences performance issues during high traffic periods. Network monitoring shows high latency between services and connection timeouts. The application runs on EKS with 100+ microservices. What network optimizations should you implement?",
+        type: "checkbox",
+        scenario: "Microservices Performance",
+        options: [
+          "Implement connection pooling and keep-alive connections",
+          "Use AWS App Mesh for service mesh capabilities",
+          "Deploy services in cluster placement groups where latency-critical",
+          "Configure Kubernetes horizontal pod autoscaling",
+          "Implement circuit breaker patterns for resilience",
+          "Increase instance sizes for all services uniformly"
+        ],
+        correct: ["Implement connection pooling and keep-alive connections", "Use AWS App Mesh for service mesh capabilities", "Deploy services in cluster placement groups where latency-critical", "Configure Kubernetes horizontal pod autoscaling", "Implement circuit breaker patterns for resilience"],
+        explanation: "Microservices performance optimization requires: connection pooling for efficiency, service mesh for traffic management, placement groups for critical services, auto scaling for capacity, and circuit breakers for resilience. Uniformly increasing instance sizes is costly and doesn't address network-specific issues."
+      },
+      {
+        question: "A media company streams live video content globally and needs to minimize latency while handling traffic spikes during major events. They use multiple content origins and need intelligent traffic routing. What architecture should they implement?",
+        type: "checkbox",
+        scenario: "Live Video Streaming",
+        options: [
+          "Deploy CloudFront with multiple origin servers in different regions",
+          "Use AWS Global Accelerator for intelligent traffic routing",
+          "Implement origin failover with health checks",
+          "Configure adaptive bitrate streaming for network optimization",
+          "Use Regional Edge Caches for popular content",
+          "Rely on single origin server to simplify architecture"
+        ],
+        correct: ["Deploy CloudFront with multiple origin servers in different regions", "Use AWS Global Accelerator for intelligent traffic routing", "Implement origin failover with health checks", "Use Regional Edge Caches for popular content"],
+        explanation: "Live video streaming requires: multi-origin CloudFront for global delivery, Global Accelerator for intelligent routing, origin failover for reliability, and Regional Edge Caches for popular content. Adaptive bitrate is application-level, and single origin doesn't provide global performance or reliability."
+      }
+    ];
+    
+    function showTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(function(tab) {
+        tab.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-button').forEach(function(btn) {
+        btn.classList.remove('active');
+      });
+      
+      document.getElementById(tabName).classList.add('active');
+      event.target.classList.add('active');
+      
+      if (tabName === 'assessment') {
+        generateQuiz();
+        startTimer();
+      } else {
+        stopTimer();
+      }
+    }
+    
+    function loadCard() {
+      var card = flashcards[currentCard];
+      
+      updateDifficultyIndicator(card.level);
+      
+      document.getElementById('frontCategory').textContent = card.category;
+      document.getElementById('frontTitle').textContent = card.front;
+      document.getElementById('backText').innerHTML = card.back;
+      
+      document.getElementById('progressText').textContent = "Card " + (currentCard + 1) + " of " + flashcards.length;
+      
+      document.getElementById('prevBtn').disabled = currentCard === 0;
+      document.getElementById('nextBtn').disabled = currentCard === flashcards.length - 1;
+    }
+    
+    function updateDifficultyIndicator(level) {
+      var dots = [
+        document.getElementById('diff1'),
+        document.getElementById('diff2'), 
+        document.getElementById('diff3')
+      ];
+      var label = document.getElementById('diffLabel');
+      
+      dots.forEach(function(dot) {
+        dot.className = 'difficulty-dot';
+      });
+      
+      for (var i = 0; i < level; i++) {
+        if (i === 0) dots[i].classList.add('active');
+        else if (i === 1) dots[i].classList.add('medium');
+        else dots[i].classList.add('hard');
+      }
+      
+      var labels = ['Foundation', 'Intermediate', 'Advanced'];
+      label.textContent = labels[level - 1];
+    }
+    
+    function flipCard() {
+      var card = document.getElementById('flashcard');
+      card.classList.toggle('flip');
+      isFlipped = !isFlipped;
+    }
+    
+    function nextCard() {
+      if (currentCard < flashcards.length - 1) {
+        currentCard++;
+        if (isFlipped) {
+          var card = document.getElementById('flashcard');
+          card.classList.remove('flip');
+          isFlipped = false;
+        }
+        loadCard();
+      }
+    }
+    
+    function prevCard() {
+      if (currentCard > 0) {
+        currentCard--;
+        if (isFlipped) {
+          var card = document.getElementById('flashcard');
+          card.classList.remove('flip');
+          isFlipped = false;
+        }
+        loadCard();
+      }
+    }
+    
+    function generateQuiz() {
+      var container = document.getElementById('quiz-questions');
+      if (container.innerHTML !== '') return;
+      
+      container.innerHTML = '';
+      document.getElementById('totalQuestions').textContent = questions.length;
+      
+      questions.forEach(function(q, index) {
+        var questionDiv = document.createElement('div');
+        questionDiv.className = 'question-container' + (index === 0 ? ' active' : '');
+        questionDiv.id = 'question-' + index;
+        
+        var optionsHtml = q.options.map(function(option, optIndex) {
+          return '<div class="option" onclick="selectOption(' + index + ', ' + optIndex + ', this)">' +
+                 '<input type="' + q.type + '" name="q' + index + '" value="' + option + '" id="q' + index + '_' + optIndex + '">' +
+                 '<label for="q' + index + '_' + optIndex + '">' + option + '</label>' +
+                 '</div>';
+        }).join('');
+        
+        questionDiv.innerHTML = '<div class="question-header">' +
+          '<div class="scenario-tag">' + q.scenario + '</div>' +
+          '<div class="question-title">' + (index + 1) + '. ' + q.question + '</div>' +
+          '</div>' +
+          '<div class="question-body">' +
+          '<div class="option-group">' + optionsHtml + '</div>' +
+          '</div>';
+        
+        container.appendChild(questionDiv);
+      });
+      
+      updateQuestionNavigation();
+    }
+    
+    function selectOption(questionIndex, optionIndex, element) {
+      var questionContainer = element.closest('.question-container');
+      var inputType = element.querySelector('input').type;
+      
+      if (inputType === 'radio') {
+        questionContainer.querySelectorAll('.option').forEach(function(opt) {
+          opt.classList.remove('selected');
+        });
+        element.classList.add('selected');
+        element.querySelector('input').checked = true;
+      } else {
+        element.classList.toggle('selected');
+        var input = element.querySelector('input');
+        input.checked = element.classList.contains('selected');
+      }
+      
+      updateProgress();
+    }
+    
+    function updateProgress() {
+      var totalQuestions = questions.length;
+      var answeredQuestions = 0;
+      
+      questions.forEach(function(q, index) {
+        var questionContainer = document.getElementById('question-' + index);
+        if (questionContainer.querySelector('input:checked')) {
+          answeredQuestions++;
+        }
+      });
+      
+      var progressPercentage = (answeredQuestions / totalQuestions) * 100;
+      document.getElementById('progressBar').style.width = progressPercentage + '%';
+    }
+    
+    function nextQuestion() {
+      if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        showQuestion(currentQuestionIndex);
+      }
+    }
+    
+    function previousQuestion() {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        showQuestion(currentQuestionIndex);
+      }
+    }
+    
+    function showQuestion(index) {
+      document.querySelectorAll('.question-container').forEach(function(q) {
+        q.classList.remove('active');
+      });
+      
+      document.getElementById('question-' + index).classList.add('active');
+      document.getElementById('currentQuestion').textContent = index + 1;
+      
+      updateQuestionNavigation();
+    }
+    
+    function updateQuestionNavigation() {
+      document.getElementById('prevQuestionBtn').disabled = currentQuestionIndex === 0;
+      document.getElementById('nextQuestionBtn').disabled = currentQuestionIndex === questions.length - 1;
+    }
+    
+    function startTimer() {
+      stopTimer();
+      timeRemaining = 3000; // 50 minutes
+      
+      timerInterval = setInterval(function() {
+        timeRemaining--;
+        
+        var minutes = Math.floor(timeRemaining / 60);
+        var seconds = timeRemaining % 60;
+        var timerDisplay = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+        
+        var timerElement = document.getElementById('timer');
+        timerElement.textContent = timerDisplay;
+        
+        if (timeRemaining <= 600) { // 10 minutes
+          timerElement.classList.add('danger');
+        } else if (timeRemaining <= 1200) { // 20 minutes
+          timerElement.classList.add('warning');
+        }
+        
+        if (timeRemaining <= 0) {
+          stopTimer();
+          submitQuiz();
+        }
+      }, 1000);
+    }
+    
+    function stopTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+    }
+    
+    function submitQuiz() {
+      stopTimer();
+      checkAnswers();
+    }
+    
+    function checkAnswers() {
+      var score = 0;
+      var results = [];
+      
+      questions.forEach(function(q, index) {
+        var questionContainer = document.getElementById('question-' + index);
+        var selectedOptions = Array.from(questionContainer.querySelectorAll('input:checked')).map(function(input) {
+          return input.value;
+        });
+        
+        var isCorrect = false;
+        
+        if (q.type === "radio") {
+          isCorrect = selectedOptions.length === 1 && selectedOptions[0] === q.correct[0];
+        } else {
+          var correctSet = new Set(q.correct);
+          var selectedSet = new Set(selectedOptions);
+          isCorrect = correctSet.size === selectedSet.size && 
+                     Array.from(correctSet).every(function(answer) { return selectedSet.has(answer); });
+        }
+        
+        if (isCorrect) score++;
+        
+        results.push({
+          question: q.question,
+          selected: selectedOptions,
+          correct: q.correct,
+          isCorrect: isCorrect,
+          explanation: q.explanation,
+          scenario: q.scenario
+        });
+      });
+      
+      displayResults(score, results);
+    }
+    
+    function displayResults(score, results) {
+      var resultBox = document.getElementById('resultBox');
+      var percentage = Math.round((score / questions.length) * 100);
+      
+      document.querySelector('.question-nav-container').style.display = 'none';
+      document.querySelector('.assessment-header').style.display = 'none';
+      
+      var resultHTML = '<div class="score-circle">' + percentage + '%</div>' +
+        '<div class="result-title">AWS Networking Assessment Complete</div>' +
+        '<div class="result-subtitle">You scored ' + score + ' out of ' + questions.length + ' questions correctly</div>';
+      
+      if (percentage >= 85) {
+        resultHTML += '<p style="color: #1b660f; font-weight: 500;">Outstanding! You have expert-level AWS networking knowledge.</p>';
+      } else if (percentage >= 70) {
+        resultHTML += '<p style="color: #ff9900; font-weight: 500;">Good foundation! Review advanced networking concepts for mastery.</p>';
+      } else {
+        resultHTML += '<p style="color: #d13212; font-weight: 500;">Keep studying! Focus on VPC fundamentals and security concepts.</p>';
+      }
+      
+      resultHTML += '<div class="result-details">';
+      
+      results.forEach(function(result, index) {
+        var statusClass = result.isCorrect ? 'correct' : 'incorrect';
+        var statusIcon = result.isCorrect ? '✓ Correct' : '✗ Incorrect';
+        
+        resultHTML += '<div class="result-item ' + statusClass + '">' +
+          '<div class="result-item-header">' + statusIcon + ' - ' + result.scenario + ' - Question ' + (index + 1) + '</div>' +
+          '<div class="result-item-explanation">' + result.explanation + '</div>' +
+          '</div>';
+      });
+      
+      resultHTML += '</div>';
+      resultHTML += '<button class="btn-reset" onclick="resetQuiz()">Retake Assessment</button>';
+      
+      resultBox.innerHTML = resultHTML;
+      resultBox.classList.add('show');
+      resultBox.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    function resetQuiz() {
+      document.querySelectorAll('.option').forEach(function(opt) {
+        opt.classList.remove('selected');
+      });
+      document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(function(input) {
+        input.checked = false;
+      });
+      
+      document.getElementById('resultBox').classList.remove('show');
+      document.querySelector('.question-nav-container').style.display = 'block';
+      document.querySelector('.assessment-header').style.display = 'flex';
+      
+      currentQuestionIndex = 0;
+      showQuestion(0);
+      updateProgress();
+      startTimer();
+      
+      document.getElementById('quiz-questions').scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      loadCard();
+    });
+    
+    // Make functions globally available
+    window.flipCard = flipCard;
+    window.nextCard = nextCard;
+    window.prevCard = prevCard;
+    window.showTab = showTab;
+    window.submitQuiz = submitQuiz;
+    window.selectOption = selectOption;
+    window.nextQuestion = nextQuestion;
+    window.previousQuestion = previousQuestion;
+    window.resetQuiz = resetQuiz;
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+      var activeTab = document.querySelector('.tab-content.active').id;
+      
+      if (activeTab === 'learn') {
+        if (e.code === 'ArrowLeft') {
+          e.preventDefault();
+          prevCard();
+        } else if (e.code === 'ArrowRight') {
+          e.preventDefault();
+          nextCard();
+        } else         if (e.code === 'Space') {
+          e.preventDefault();
+          flipCard();
+        }
+      } else if (activeTab === 'assessment') {
+        if (e.code === 'ArrowLeft') {
+          e.preventDefault();
+          previousQuestion();
+        } else if (e.code === 'ArrowRight') {
+          e.preventDefault();
+          nextQuestion();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
