@@ -250,6 +250,10 @@
     .card-header.day5 {
       background: linear-gradient(135deg, #6f42c1 0%, #8e44ad 100%);
     }
+
+    .card-header.day6 {
+      background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
+    }
     
     .card-header::before {
       content: '';
@@ -385,6 +389,11 @@
     .difficulty-advanced {
       background-color: #fdf2f2;
       color: #d13212;
+    }
+
+    .difficulty-expert {
+      background-color: #f3e5f5;
+      color: #6a1b9a;
     }
     
     .progress-section {
@@ -735,7 +744,7 @@
 
   <!-- Daily capsules banner -->
   <div class="daily-banner">
-    <span class="banner-text">📚 <span class="banner-highlight">NEW!</span> We add daily AWS learning capsules - Stay tuned for fresh content!</span>
+    <span class="banner-text">🌐 <span class="banner-highlight">NEW!</span> Day 6: AWS Networking Deep Dive now available - Master enterprise networking!</span>
   </div>
   
   <!-- AWS-style breadcrumb -->
@@ -969,7 +978,7 @@
           </div>
         </div>
 
-        <!-- Day 5 Card - NEW -->
+        <!-- Day 5 Card -->
         <div class="training-card" onclick="openDay5()">
           <div class="card-header day5">
             <div class="card-day">Day 5</div>
@@ -1014,12 +1023,58 @@
             </div>
           </div>
         </div>
+
+        <!-- Day 6 Card - NEW -->
+        <div class="training-card" onclick="openDay6()">
+          <div class="card-header day6">
+            <div class="card-day">Day 6</div>
+            <h3 class="card-title">Networking Deep Dive</h3>
+            <p class="card-subtitle">Enterprise-Grade Network Architecture</p>
+          </div>
+          <div class="card-body">
+            <p class="card-description">
+              Master AWS networking from VPC fundamentals to advanced enterprise architectures. Learn security implementation, 
+              hybrid connectivity, performance optimization, and cutting-edge services like Wavelength and Local Zones.
+            </p>
+            <div class="card-topics">
+              <h4 class="topics-title">Key Topics</h4>
+              <div class="topic-list">
+                <span class="topic-tag">VPC Design</span>
+                <span class="topic-tag">Security Groups</span>
+                <span class="topic-tag">Direct Connect</span>
+                <span class="topic-tag">Transit Gateway</span>
+                <span class="topic-tag">Service Mesh</span>
+                <span class="topic-tag">Edge Computing</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-stats">
+            <div class="stats-row">
+              <div class="stat-item">
+                <span class="stat-icon">📚</span>
+                <span>40 Flashcards</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-icon">❓</span>
+                <span>30 Questions</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-icon">⏱️</span>
+                <span>50 min</span>
+              </div>
+            </div>
+            <div style="height: 20px;"></div>
+            <div class="badge-row">
+              <div class="difficulty-badge difficulty-expert">Expert</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
   <script>
-    // Enhanced progress tracking with user data (updated for Day 5)
+    // Enhanced progress tracking with user data (updated for Day 6)
     function getStoredData() {
       const stored = localStorage.getItem('awsTrainingProgress');
       if (stored) {
@@ -1041,7 +1096,7 @@
     }
 
     function calculateStreak(data) {
-      const days = ['day1_completed', 'day2_completed', 'day3_completed', 'day4_completed', 'day5_completed'];
+      const days = ['day1_completed', 'day2_completed', 'day3_completed', 'day4_completed', 'day5_completed', 'day6_completed'];
       let streak = 0;
       const today = new Date();
       
@@ -1074,27 +1129,31 @@
       const day3Done = data.day3_completed;
       const day4Done = data.day4_completed;
       const day5Done = data.day5_completed;
+      const day6Done = data.day6_completed;
       
       let progress = 0;
       let message = 'Ready to begin your AWS journey';
       
-      const completed = [day1Done, day2Done, day3Done, day4Done, day5Done].filter(Boolean).length;
+      const completed = [day1Done, day2Done, day3Done, day4Done, day5Done, day6Done].filter(Boolean).length;
       
-      if (completed === 5) {
+      if (completed === 6) {
         progress = 100;
-        message = 'Congratulations! You\'ve completed all AWS topics! 🎉';
+        message = 'Amazing! You\'ve mastered all AWS topics! 🎉 You\'re ready for enterprise-level challenges!';
+      } else if (completed === 5) {
+        progress = 83;
+        message = `Outstanding! ${completed}/6 topics completed. One final expert-level topic awaits! 💪`;
       } else if (completed === 4) {
-        progress = 80;
-        message = `Outstanding! ${completed}/5 topics completed. One more to go! 💪`;
+        progress = 67;
+        message = `Excellent progress! ${completed}/6 topics completed. Advanced topics ahead! 🚀`;
       } else if (completed === 3) {
-        progress = 60;
-        message = `Great progress! ${completed}/5 topics completed. Keep going! 🚀`;
+        progress = 50;
+        message = `Halfway there! ${completed}/6 topics completed. Keep building expertise! 🌟`;
       } else if (completed === 2) {
-        progress = 40;
-        message = `Good momentum! ${completed}/5 topics completed. Keep learning! 🌟`;
+        progress = 33;
+        message = `Good momentum! ${completed}/6 topics completed. Building solid foundations! ⭐`;
       } else if (completed === 1) {
-        progress = 20;
-        message = `Good start! ${completed}/5 topics completed. Continue your journey! ⭐`;
+        progress = 17;
+        message = `Great start! ${completed}/6 topics completed. Continue your cloud journey! 🌱`;
       }
       
       document.getElementById('progressBar').style.width = progress + '%';
@@ -1110,6 +1169,7 @@
         if (day3Done) details += `✅ Day 3 completed on <span class="completion-date">${day3Done}</span><br>`;
         if (day4Done) details += `✅ Day 4 completed on <span class="completion-date">${day4Done}</span><br>`;
         if (day5Done) details += `✅ Day 5 completed on <span class="completion-date">${day5Done}</span><br>`;
+        if (day6Done) details += `✅ Day 6 completed on <span class="completion-date">${day6Done}</span><br>`;
         
         if (streak > 0) {
           details += `<br><span class="streak-info">🔥 Learning streak: ${streak} topic${streak > 1 ? 's' : ''} completed!</span>`;
@@ -1140,10 +1200,11 @@
       history += `Day 2 (Security & Identity): ${data.day2_completed || 'Not completed'}\n`;
       history += `Day 3 (Compute & Storage): ${data.day3_completed || 'Not completed'}\n`;
       history += `Day 4 (Load Balancing & Auto Scaling): ${data.day4_completed || 'Not completed'}\n`;
-      history += `Day 5 (RDS, Aurora & ElastiCache): ${data.day5_completed || 'Not completed'}\n\n`;
+      history += `Day 5 (RDS, Aurora & ElastiCache): ${data.day5_completed || 'Not completed'}\n`;
+      history += `Day 6 (Networking Deep Dive): ${data.day6_completed || 'Not completed'}\n\n`;
       
-      const completed = [data.day1_completed, data.day2_completed, data.day3_completed, data.day4_completed, data.day5_completed].filter(Boolean).length;
-      history += `Total Progress: ${completed}/5 topics completed`;
+      const completed = [data.day1_completed, data.day2_completed, data.day3_completed, data.day4_completed, data.day5_completed, data.day6_completed].filter(Boolean).length;
+      history += `Total Progress: ${completed}/6 topics completed`;
 
       alert(history);
     }
@@ -1163,7 +1224,8 @@
           day2_completed: data.day2_completed || null,
           day3_completed: data.day3_completed || null,
           day4_completed: data.day4_completed || null,
-          day5_completed: data.day5_completed || null
+          day5_completed: data.day5_completed || null,
+          day6_completed: data.day6_completed || null
         }
       };
 
@@ -1220,7 +1282,8 @@
         day2_completed: null,
         day3_completed: null,
         day4_completed: null,
-        day5_completed: null
+        day5_completed: null,
+        day6_completed: null
       };
 
       saveProgress(data);
@@ -1250,8 +1313,13 @@
 
     function openDay5() {
       markDayComplete(5);
-      // Replace this with your actual Day 5 URL when deployed
       window.location.href = 'https://codewrapr.github.io/AWS-Cloud-Challenge/Sol_Arch/Day5/';
+    }
+
+    function openDay6() {
+      markDayComplete(6);
+      // Replace this with your actual Day 6 URL when deployed
+      window.location.href = 'https://codewrapr.github.io/AWS-Cloud-Challenge/Sol_Arch/Day6/';
     }
 
     function startAnimations() {
