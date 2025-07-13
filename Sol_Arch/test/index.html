@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>AWS Training Hub</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Amazon Ember', 'Helvetica Neue', Roboto, Arial, sans-serif;
+      background-color: #f2f3f3;
+      color: #232f3e;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    
+    /* AWS-style header */
+    .aws-header {
+      background-color: #232f3e;
+      color: white;
+      padding: 0;
+      border-bottom: 1px solid #3c4043;
+    }
+    
+    .aws-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      height: 60px;
+    }
+    
+    .aws-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 18px;
+      font-weight: 600;
+      color: #ff9900;
+    }
+    
+    .aws-service-name {
+      margin-left: 20px;
+      font-size: 16px;
+      color: white;
+      border-left: 1px solid #666;
+      padding-left: 20px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .nav-item {
+      color: #ff9900;
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .nav-item:hover {
+      color: #ffb84d;
+    }
+    
+    /* Daily capsules banner */
+    .daily-banner {
+      background: linear-gradient(135deg, #0073bb 0%, #005a9f 100%);
+      color: white;
+      text-align: center;
+      padding: 12px 20px;
+      font-size: 14px;
+      border-bottom: 3px solid #ff9900;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { background: linear-gradient(135deg, #0073bb 0%, #005a9f 100%); }
+      50% { background: linear-gradient(135deg, #005a9f 0%, #0073bb 100%); }
+      100% { background: linear-gradient(135deg, #0073bb 0%, #005a9f 100%); }
+    }
+
+    .banner-text {
+      font-weight: 500;
+    }
+
+    .banner-highlight {
+      color: #ff9900;
+      font-weight: 600;
+    }
+    
+    /* Main content container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+    
+    /* Hero section */
+    .hero-section {
+      text-align: center;
+      margin-bottom: 48px;
+      padding: 48px 24px;
+      background: linear-gradient(135deg, #232f3e 0%, #3c4043 100%);
+      color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+    
+    .hero-title {
+      font-size: 36px;
+      font-weight: 300;
+      margin-bottom: 16px;
+      color: #ff9900;
+    }
+    
+    .hero-subtitle {
+      font-size: 18px;
+      margin-bottom: 24px;
+      opacity: 0.9;
+      line-height: 1.5;
+    }
+    
+    .hero-description {
+      font-size: 16px;
+      opacity: 0.8;
+      max-width: 600px;
+      margin: 0 auto 32px;
+    }
+
+    /* Quick Stats Section */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .stat-number {
+      font-size: 32px;
+      font-weight: 600;
+      color: #ff9900;
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: #687078;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Learning Path Tabs */
+    .path-tabs {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 32px;
+      border-bottom: 2px solid #d5dbdb;
+    }
+
+    .path-tab {
+      padding: 12px 24px;
+      background: none;
+      border: none;
+      font-size: 16px;
+      font-weight: 500;
+      color: #687078;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-bottom: 3px solid transparent;
+    }
+
+    .path-tab.active {
+      color: #ff9900;
+      border-bottom-color: #ff9900;
+    }
+
+    .path-tab:hover {
+      color: #ff9900;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+
+
+    /* Achievement System */
+    .achievements-section {
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 32px;
+    }
+
+    .achievements-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .achievements-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: #232f3e;
+    }
+
+    .achievements-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 16px;
+    }
+
+    .achievement-badge {
+      text-align: center;
+      padding: 16px 8px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .achievement-badge.unlocked {
+      background: linear-gradient(135deg, #ff9900 0%, #ffb84d 100%);
+      color: white;
+      transform: scale(1.02);
+    }
+
+    .achievement-badge.locked {
+      background: #f8f9fa;
+      border: 2px dashed #d5dbdb;
+      color: #687078;
+    }
+
+    .badge-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .badge-name {
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    /* Study Streak */
+    .streak-section {
+      background: linear-gradient(135deg, #1b660f 0%, #28a745 100%);
+      color: white;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 32px;
+      text-align: center;
+    }
+
+    .streak-flame {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .streak-count {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .streak-label {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    /* Training path cards (keeping existing styles) */
+    .training-path {
+      margin-bottom: 48px;
+    }
+    
+    .path-header {
+      margin-bottom: 32px;
+      text-align: center;
+    }
+    
+    .path-title {
+      font-size: 28px;
+      font-weight: 300;
+      color: #232f3e;
+      margin-bottom: 8px;
+    }
+    
+    .path-description {
+      font-size: 16px;
+      color: #687078;
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    
+    .training-cards {
+      display: flex;
+      gap: 20px;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      padding: 10px 0;
+      scroll-snap-type: x mandatory;
+    }
+
+    .training-cards::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .training-cards::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    .training-cards::-webkit-scrollbar-thumb {
+      background: #ff9900;
+      border-radius: 10px;
+    }
+    
+    .training-card {
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      flex: 0 0 320px;
+      min-height: 350px;
+      scroll-snap-align: start;
+      position: relative;
+    }
+
+    .training-card.completed::before {
+      content: '✓';
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: #1b660f;
+      color: white;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: bold;
+      z-index: 10;
+    }
+    
+    .training-card:hover {
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      transform: translateY(-2px);
+      border-color: #ff9900;
+    }
+    
+    .card-header {
+      background: linear-gradient(135deg, #ff9900 0%, #ffb84d 100%);
+      color: white;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-header.day2 { background: linear-gradient(135deg, #0073bb 0%, #0099e6 100%); }
+    .card-header.day3 { background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%); }
+    .card-header.day4 { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); }
+    .card-header.day5 { background: linear-gradient(135deg, #6f42c1 0%, #8e44ad 100%); }
+    .card-header.day6 { background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%); }
+    
+    .card-day {
+      font-size: 12px;
+      font-weight: 500;
+      opacity: 0.9;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .card-title {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+    
+    .card-subtitle {
+      font-size: 13px;
+      opacity: 0.9;
+    }
+    
+    .card-body {
+      padding: 16px;
+    }
+    
+    .card-description {
+      font-size: 12px;
+      color: #687078;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+    
+    .card-topics {
+      margin-bottom: 16px;
+    }
+    
+    .topics-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-bottom: 8px;
+    }
+    
+    .topic-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    
+    .topic-tag {
+      background-color: #f0f8ff;
+      color: #0073bb;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 500;
+      border: 1px solid #e1f0ff;
+    }
+    
+    .card-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 12px 16px;
+      background-color: #fafafa;
+      border-top: 1px solid #d5dbdb;
+      font-size: 12px;
+      color: #687078;
+    }
+
+    .stats-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .badge-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-right: 12px;
+    }
+    
+    .stat-item:last-child {
+      margin-right: 0;
+    }
+    
+    .stat-icon {
+      font-size: 13px;
+    }
+    
+    .difficulty-badge {
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+    }
+    
+    .difficulty-beginner {
+      background-color: #e8f5e8;
+      color: #1b660f;
+    }
+    
+    .difficulty-intermediate {
+      background-color: #fff4e6;
+      color: #cc6600;
+    }
+    
+    .difficulty-advanced {
+      background-color: #fdf2f2;
+      color: #d13212;
+    }
+
+    .difficulty-expert {
+      background-color: #f3e5f5;
+      color: #6a1b9a;
+    }
+    
+    .progress-section {
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 32px;
+    }
+    
+    .progress-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: #232f3e;
+      margin-bottom: 16px;
+    }
+    
+    .progress-bar-container {
+      background-color: #f0f0f0;
+      border-radius: 8px;
+      height: 8px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #ff9900 0%, #ffb84d 100%);
+      width: 0%;
+      transition: width 0.3s ease;
+      border-radius: 8px;
+    }
+    
+    .progress-text {
+      font-size: 14px;
+      color: #687078;
+      text-align: center;
+    }
+
+    /* Enhanced progress section */
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .user-greeting {
+      font-size: 16px;
+      color: #ff9900;
+      font-weight: 500;
+    }
+
+    .progress-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .progress-btn {
+      background: #f0f8ff;
+      color: #0073bb;
+      border: 1px solid #0073bb;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .progress-btn:hover {
+      background: #0073bb;
+      color: white;
+    }
+
+    .progress-details {
+      margin-top: 12px;
+      padding: 12px;
+      background: #f9f9f9;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #687078;
+    }
+
+    .completion-date {
+      color: #1b660f;
+      font-weight: 500;
+    }
+
+    .streak-info {
+      color: #ff9900;
+      font-weight: 500;
+    }
+
+    /* Tips & Resources Section */
+    .tips-section {
+      background: white;
+      border: 1px solid #d5dbdb;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 32px;
+    }
+
+    .tips-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .tips-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .tip-card {
+      background: #f8f9fa;
+      border-left: 4px solid #ff9900;
+      padding: 16px;
+      border-radius: 6px;
+    }
+
+    .tip-title {
+      font-weight: 500;
+      color: #232f3e;
+      margin-bottom: 8px;
+    }
+
+    .tip-content {
+      font-size: 14px;
+      color: #687078;
+      line-height: 1.5;
+    }
+
+
+
+    /* Welcome modal styles (keeping existing) */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .welcome-modal {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: #232f3e;
+      margin-bottom: 16px;
+    }
+
+    .modal-subtitle {
+      font-size: 16px;
+      color: #687078;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .name-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #d5dbdb;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-bottom: 20px;
+      transition: border-color 0.3s ease;
+    }
+
+    .name-input:focus {
+      outline: none;
+      border-color: #ff9900;
+    }
+
+    .modal-btn {
+      background: #ff9900;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      width: 100%;
+    }
+
+    .modal-btn:hover {
+      background: #e88900;
+    }
+
+    .modal-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 16px 12px;
+      }
+      
+      .aws-nav {
+        padding: 0 12px;
+        height: 50px;
+      }
+      
+      .aws-logo {
+        font-size: 14px;
+        gap: 8px;
+      }
+      
+      .aws-service-name {
+        display: none;
+      }
+
+      .nav-links {
+        gap: 8px;
+      }
+
+      .nav-item {
+        font-size: 11px;
+      }
+
+      .hero-section {
+        padding: 32px 16px;
+        margin-bottom: 32px;
+      }
+      
+      .hero-title {
+        font-size: 28px;
+      }
+      
+      .hero-subtitle {
+        font-size: 16px;
+      }
+
+      .controls-section {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .search-box {
+        max-width: none;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .achievements-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .tips-list {
+        grid-template-columns: 1fr;
+      }
+      
+      .training-cards {
+        gap: 16px;
+        padding: 10px 5px;
+      }
+      
+      .training-card {
+        flex: 0 0 280px;
+        min-height: 320px;
+      }
+
+      .path-tabs {
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .path-tab {
+        padding: 8px 16px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+    <!-- Welcome Modal -->
+    <div id="welcomeModal" class="modal-overlay hidden">
+      <div class="welcome-modal">
+        <h2 class="modal-title">Welcome to AWS Training! 🚀</h2>
+        <p class="modal-subtitle">Let's personalize your learning journey. What should we call you?</p>
+        <input type="text" id="userName" class="name-input" placeholder="Enter your name" maxlength="30">
+        <button id="startJourney" class="modal-btn" disabled>Start My AWS Journey</button>
+      </div>
+    </div>
+
+    <!-- AWS Console-style header -->
+    <div class="aws-header">
+      <div class="aws-nav">
+        <div style="display: flex; align-items: center;">
+          <div class="aws-logo">
+            <span>🟠</span> AWS
+          </div>
+          <div class="aws-service-name">Training Hub</div>
+        </div>
+        <div class="nav-links">
+          <a href="https://www.linkedin.com/in/vamshi-majhi-a59727102/" target="_blank" rel="noopener noreferrer" class="nav-item">
+            💼 LinkedIn
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Daily capsules banner -->
+    <div class="daily-banner">
+      <span class="banner-text">🌐 <span class="banner-highlight">NEW!</span> Day 6: AWS Networking Deep Dive now available - Master enterprise networking!</span>
+    </div>
+    
+    <div class="container">
+      <!-- Hero Section -->
+      <div class="hero-section">
+        <h1 class="hero-title">AWS Cloud Topics</h1>
+        <p class="hero-subtitle">Master the essentials of Amazon Web Services</p>
+        <p class="hero-description">
+          Build your cloud expertise with our comprehensive training program. Learn core AWS services, 
+          security best practices, and hands-on skills through interactive lessons and scenario-based learning.
+        </p>
+
+        <!-- Quick Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number" id="totalCards">146</div>
+            <div class="stat-label">Flashcards</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="totalQuestions">131</div>
+            <div class="stat-label">Practice Questions</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="totalTime">200+</div>
+            <div class="stat-label">Minutes Content</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="completionRate">0%</div>
+            <div class="stat-label">Your Progress</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Study Streak -->
+      <div class="streak-section">
+        <div class="streak-flame">🔥</div>
+        <div class="streak-count" id="streakCount">0</div>
+        <div class="streak-label">Day Learning Streak</div>
+      </div>
+
+      <!-- Achievements Section -->
+      <div class="achievements-section">
+        <div class="achievements-header">
+          <h2 class="achievements-title">🏆 Your Achievements</h2>
+        </div>
+        <div class="achievements-grid" id="achievementsGrid">
+          <div class="achievement-badge locked" data-achievement="first-step">
+            <div class="badge-icon">🌱</div>
+            <div class="badge-name">First Steps</div>
+          </div>
+          <div class="achievement-badge locked" data-achievement="security-expert">
+            <div class="badge-icon">🔒</div>
+            <div class="badge-name">Security Expert</div>
+          </div>
+          <div class="achievement-badge locked" data-achievement="cloud-architect">
+            <div class="badge-icon">🏗️</div>
+            <div class="badge-name">Cloud Architect</div>
+          </div>
+          <div class="achievement-badge locked" data-achievement="scaling-master">
+            <div class="badge-icon">📈</div>
+            <div class="badge-name">Scaling Master</div>
+          </div>
+          <div class="achievement-badge locked" data-achievement="database-guru">
+            <div class="badge-icon">🗄️</div>
+            <div class="badge-name">Database Guru</div>
+          </div>
+          <div class="achievement-badge locked" data-achievement="network-ninja">
+            <div class="badge-icon">🌐</div>
+            <div class="badge-name">Network Ninja</div>
+          </div>
+          <div class="achievement-badge locked" data-achievement="streak-warrior">
+            <div class="badge-icon">⚡</div>
+            <div class="badge-name">Streak Warrior</div>
+          </div>
+          <div class="achievement-badge locked" data-achievement="cloud-master">
+            <div class="badge-icon">☁️</div>
+            <div class="badge-name">Cloud Master</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress Section -->
+      <div class="progress-section">
+        <div class="progress-header">
+          <h2 class="progress-title">Your Learning Progress</h2>
+          <div class="progress-actions">
+            <button class="progress-btn" onclick="showProgressHistory()">View History</button>
+            <button class="progress-btn" onclick="exportProgress()">Export</button>
+            <button class="progress-btn" onclick="resetProgress()">Reset</button>
+          </div>
+        </div>
+        <div id="userGreeting" class="user-greeting"></div>
+        <div class="progress-bar-container">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <p class="progress-text" id="progressText">Ready to begin your AWS journey</p>
+        <div id="progressDetails" class="progress-details hidden"></div>
+      </div>
+
+
+
+      <!-- Learning Path Tabs -->
+      <div class="path-tabs">
+        <button class="path-tab active" onclick="showTab('main-path')">Main Learning Path</button>
+        <button class="path-tab" onclick="showTab('advanced-topics')">Advanced Topics</button>
+      </div>
+
+
+
+      <!-- Main Learning Path -->
+      <div id="main-path" class="tab-content active">
+        <div class="training-path">
+          <div class="path-header">
+            <h2 class="path-title">Core Learning Path</h2>
+            <p class="path-description">
+              Start your AWS journey with these carefully designed modules that build upon each other. 
+              Each day focuses on core concepts with hands-on exercises and real-world scenarios.
+            </p>
+          </div>
+          
+          <div class="training-cards" id="mainTrainingCards">
+            <!-- Day 1 Card -->
+            <div class="training-card" onclick="openDay1()" data-difficulty="beginner">
+              <div class="card-header">
+                <div class="card-day">Day 1</div>
+                <h3 class="card-title">Cloud Fundamentals</h3>
+                <p class="card-subtitle">Introduction to AWS Core Services</p>
+              </div>
+              <div class="card-body">
+                <p class="card-description">
+                  Learn the fundamental concepts of cloud computing and AWS. Explore core services including 
+                  EC2, S3, and VPC. Understand AWS pricing models, global infrastructure, and the shared responsibility model.
+                </p>
+                <div class="card-topics">
+                  <h4 class="topics-title">Key Topics</h4>
+                  <div class="topic-list">
+                    <span class="topic-tag">EC2 Instances</span>
+                    <span class="topic-tag">S3 Storage</span>
+                    <span class="topic-tag">VPC Networking</span>
+                    <span class="topic-tag">Cloud Concepts</span>
+                    <span class="topic-tag">AWS Regions</span>
+                    <span class="topic-tag">Pricing Models</span>
+                  </div>
+                </div>
+              </div>
+              <div class="card-stats">
+                <div class="stats-row">
+                  <div class="stat-item">
+                    <span class="stat-icon">📚</span>
+                    <span>27 Flashcards</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-icon">❓</span>
+                    <span>10 Questions</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-icon">⏱️</span>
+                    <span>30 min</span>
+                  </div>
+                </div>
+                <div style="height: 20px;"></div>
+                <div class="badge-row">
+                  <div class="difficulty-badge difficulty-beginner">Beginner</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Day 2-6 Cards (keeping existing structure) -->
+            <div class="training-card" onclick="openDay2()" data-difficulty="intermediate">
+              <div class="card-header day2">
+                <div class="card-day">Day 2</div>
+                <h3 class="card-title">Security & Identity</h3>
+                <p class="card-subtitle">IAM, Security Services & Best Practices</p>
+              </div>
+              <div class="card-body">
+                <p class="card-description">
+                  Master AWS security fundamentals with deep dives into IAM, security services, and compliance. 
+                  Learn through real-world scenarios including incident response and enterprise security architecture.
+                </p>
+                <div class="card-topics">
+                  <h4 class="topics-title">Key Topics</h4>
+                  <div class="topic-list">
+                    <span class="topic-tag">IAM Users & Roles</span>
+                    <span class="topic-tag">Security Policies</span>
+                    <span class="topic-tag">CloudTrail</span>
+                    <span class="topic-tag">GuardDuty</span>
+                    <span class="topic-tag">Encryption</span>
+                    <span class="topic-tag">Compliance</span>
+                  </div>
+                </div>
+              </div>
+              <div class="card-stats">
+                <div class="stats-row">
+                  <div class="stat-item">
+                    <span class="stat-icon">📚</span>
+                    <span>17 Flashcards</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-icon">❓</span>
+                    <span>18 Questions</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-icon">⏱️</span>
+                    <span>30 min</span>
+                  </div>
+                </div>
+                <div style="height: 20px;"></div>
+                <div class="badge-row">
+                  <div class="difficulty-badge difficulty-intermediate">Intermediate</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Continue with remaining cards... -->
+            <div class="training-card" onclick="openDay3()" data-difficulty="intermediate">
+              <div class="card-header day3">
+                <div class="card-day">Day 3</div>
+                <h3 class="card-title">AWS Compute and Storage</h3>
+                <p class="card-subtitle">Advanced Computing & Storage Solutions</p>
+              </div>
+              <div class="card-body">
+                <p class="card-description">
+                  Explore advanced AWS compute and storage services. Learn about different compute options, storage types, 
+                  and optimization strategies.
+                </p>
+                <div class="card-topics">
+                  <h4 class="topics-title">Key Topics</h4>
+                  <div class="topic-list">
+                    <span class="topic-tag">EC2 Advanced</span>
+                    <span class="topic-tag">Lambda Functions</span>
+                    <span class="topic-tag">S3 Advanced</span>
+                    <span class="topic-tag">EBS & EFS</span>
+                    <span class="topic-tag">Auto Scaling</span>
+                    <span class="topic-tag">Cost Optimization</span>
+                  </div>
+                </div>
+              </div>
+              <div class="card-stats">
+                <div class="stats-row">
+                  <div class="stat-item">
+                    <span class="stat-icon">📚</span>
+                    <span>17 Flashcards</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-icon">❓</span>
+                    <span>20 Questions</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-icon">⏱️</span>
+                    <span>30 min</span>
+                  </div>
+                </div>
+                <div style="height: 20px;"></div>
+                <div class="badge-row">
+                  <div class="difficulty-badge difficulty-intermediate">Intermediate</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="training-card" onclick="openDay4()" data-difficulty="intermediate">
+              <div class="card-header day4">
+                <div class="card-day">Day 4</div>
+                <h3 class="card-title">Load Balancing & Auto Scaling</h3>
+                <p class="card-subtitle">High Availability & Scalable Architectures</p>
+              </div>
+              <div class="card-body">
+                <p class="card-description">
+                  Master AWS load balancing and auto scaling fundamentals. Build highly available, fault-tolerant 
+                  architectures that automatically scale based on demand.
+                </p>
+                <div class="card-topics">
+                  <h4 class="topics-title">Key Topics</h4>
+                  <div class="topic-list">
+                    <span class="topic-tag">Application Load Balancer</span>
+                    <span class="topic-tag">Network Load Balancer</span>
+                    <span class="topic-tag">Target Groups</span>
+                    <span class="topic-tag">Health Checks</span>
+                    <span class="topic-tag">Auto Scaling Groups</span>
+                    <span class="topic-tag">Scaling Policies</span>
+                  </div>
+                </div>
+              </div>
+              <div class="card-stats">
+                <div class="stats-row">
+                  <div class="stat-item">
+                    <span class="stat-icon">📚</span>
+                    <span>27 Flashcards</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-icon">❓</span>
+                    <span>20 Questions</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-icon">⏱️</span>
+                    <span>30 min</span>
+                  </div>
+                </div>
+                <div style="height: 20px;"></div>
+                <div class="badge-row">
+                  <div class="difficulty-badge difficulty-intermediate">Intermediate</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="training-card" onclick="openDay5()" data-difficulty="advanced">
+              <div class="card-header day5">
+                <div class="card-day">Day 5</div>
+                <h3 class="card-title">RDS, Aurora & ElastiCache</h3>
+                <p class="card-subtitle">Database Services & Caching Solutions</p>
+              </div>
+              <div class="card-body">
+                <p class="card-description">
+                  Master AWS database services including RDS engines, Aurora features, ElastiCache implementations, 
+                  backup strategies, and performance optimization.
+                </p>
+                <div class="card-topics">
+                  <h4 class="topics-title">Key Topics</h4>
+                  <div class="topic-list">
+                    <span class="topic-tag">RDS Multi-AZ</span>
+                    <span class="topic-tag">Aurora Architecture</span>
+                    <span class="topic-tag">Read Replicas</span>
+                    <span class="topic-tag">ElastiCache Redis</span>
+                    <span class="topic-tag">MemoryDB</span>
+                    <span class="topic-tag">Database Security</span>
+                  </div>
+                </div>
+              </div>
+              <div class="card-stats">
+                <div class="stats-row">
+                  <div class="stat-item">
+                    <span class="stat-icon">📚</span>
+                    <span>18 Flashcards</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-icon">❓</span>
+                    <span>33 Questions</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-icon">⏱️</span>
+                    <span>40 min</span>
+                  </div>
+                </div>
+                <div style="height: 20px;"></div>
+                <div class="badge-row">
+                  <div class="difficulty-badge difficulty-advanced">Advanced</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="training-card" onclick="openDay6()" data-difficulty="expert">
+              <div class="card-header day6">
+                <div class="card-day">Day 6</div>
+                <h3 class="card-title">Networking Deep Dive</h3>
+                <p class="card-subtitle">Enterprise-Grade Network Architecture</p>
+              </div>
+              <div class="card-body">
+                <p class="card-description">
+                  Master AWS networking from VPC fundamentals to advanced enterprise architectures. Learn security implementation, 
+                  hybrid connectivity, and performance optimization.
+                </p>
+                <div class="card-topics">
+                  <h4 class="topics-title">Key Topics</h4>
+                  <div class="topic-list">
+                    <span class="topic-tag">VPC Design</span>
+                    <span class="topic-tag">Security Groups</span>
+                    <span class="topic-tag">Direct Connect</span>
+                    <span class="topic-tag">Transit Gateway</span>
+                    <span class="topic-tag">Service Mesh</span>
+                    <span class="topic-tag">Edge Computing</span>
+                  </div>
+                </div>
+              </div>
+              <div class="card-stats">
+                <div class="stats-row">
+                  <div class="stat-item">
+                    <span class="stat-icon">📚</span>
+                    <span>40 Flashcards</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-icon">❓</span>
+                    <span>30 Questions</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-icon">⏱️</span>
+                    <span>50 min</span>
+                  </div>
+                </div>
+                <div style="height: 20px;"></div>
+                <div class="badge-row">
+                  <div class="difficulty-badge difficulty-expert">Expert</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Advanced Topics Tab -->
+      <div id="advanced-topics" class="tab-content">
+        <div class="training-path">
+          <div class="path-header">
+            <h2 class="path-title">Advanced AWS Topics</h2>
+            <p class="path-description">
+              Deep dive into advanced AWS services and architectural patterns. These topics are designed for 
+              experienced cloud practitioners looking to expand their expertise.
+            </p>
+          </div>
+          
+          <div class="training-cards">
+            <div class="training-card" data-difficulty="expert">
+              <div class="card-header" style="background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);">
+                <div class="card-day">Advanced</div>
+                <h3 class="card-title">Serverless Architecture</h3>
+                <p class="card-subtitle">Lambda, API Gateway, DynamoDB</p>
+              </div>
+              <div class="card-body">
+                <p class="card-description">
+                  Master serverless computing with AWS Lambda, API Gateway, and DynamoDB. Build scalable, 
+                  event-driven applications without managing servers.
+                </p>
+                <div class="card-topics">
+                  <h4 class="topics-title">Key Topics</h4>
+                  <div class="topic-list">
+                    <span class="topic-tag">Lambda Functions</span>
+                    <span class="topic-tag">API Gateway</span>
+                    <span class="topic-tag">DynamoDB</span>
+                    <span class="topic-tag">Event-Driven</span>
+                    <span class="topic-tag">SAM</span>
+                  </div>
+                </div>
+              </div>
+              <div class="card-stats">
+                <div class="stats-row">
+                  <div class="stat-item">
+                    <span class="stat-icon">📚</span>
+                    <span>25 Flashcards</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-icon">❓</span>
+                    <span>15 Questions</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-icon">⏱️</span>
+                    <span>45 min</span>
+                  </div>
+                </div>
+                <div style="height: 20px;"></div>
+                <div class="badge-row">
+                  <div class="difficulty-badge difficulty-expert">Expert</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="training-card" data-difficulty="expert">
+              <div class="card-header" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
+                <div class="card-day">Advanced</div>
+                <h3 class="card-title">Container Orchestration</h3>
+                <p class="card-subtitle">ECS, EKS, Fargate</p>
+              </div>
+              <div class="card-body">
+                <p class="card-description">
+                  Deep dive into container services on AWS. Learn ECS, EKS, and Fargate for running 
+                  containerized applications at scale.
+                </p>
+                <div class="card-topics">
+                  <h4 class="topics-title">Key Topics</h4>
+                  <div class="topic-list">
+                    <span class="topic-tag">ECS</span>
+                    <span class="topic-tag">EKS</span>
+                    <span class="topic-tag">Fargate</span>
+                    <span class="topic-tag">Docker</span>
+                    <span class="topic-tag">Kubernetes</span>
+                  </div>
+                </div>
+              </div>
+              <div class="card-stats">
+                <div class="stats-row">
+                  <div class="stat-item">
+                    <span class="stat-icon">📚</span>
+                    <span>30 Flashcards</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-icon">❓</span>
+                    <span>20 Questions</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-icon">⏱️</span>
+                    <span>60 min</span>
+                  </div>
+                </div>
+                <div style="height: 20px;"></div>
+                <div class="badge-row">
+                  <div class="difficulty-badge difficulty-expert">Expert</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tips & Resources Section -->
+      <div class="tips-section">
+        <div class="tips-header">
+          <h2 class="progress-title">💡 Study Tips & Resources</h2>
+        </div>
+        <div class="tips-list">
+          <div class="tip-card">
+            <div class="tip-title">📚 Study Schedule</div>
+            <div class="tip-content">
+              Dedicate 30-45 minutes daily for consistent learning. Break complex topics into smaller, 
+              manageable sessions for better retention.
+            </div>
+          </div>
+          <div class="tip-card">
+            <div class="tip-title">🎯 Hands-On Practice</div>
+            <div class="tip-content">
+              Create a free AWS account and practice with the services you learn. Hands-on experience 
+              reinforces theoretical knowledge.
+            </div>
+          </div>
+          <div class="tip-card">
+            <div class="tip-title">🔄 Spaced Repetition</div>
+            <div class="tip-content">
+              Review flashcards regularly using spaced repetition. Focus more time on topics you find 
+              challenging.
+            </div>
+          </div>
+          <div class="tip-card">
+            <div class="tip-title">👥 Community Learning</div>
+            <div class="tip-content">
+              Join AWS study groups and forums. Discussing concepts with others helps deepen your 
+              understanding and fills knowledge gaps.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Enhanced progress tracking with achievements
+      function getStoredData() {
+        const stored = localStorage.getItem('awsTrainingProgress');
+        if (stored) {
+          return JSON.parse(stored);
+        }
+        return null;
+      }
+
+      function saveProgress(data) {
+        localStorage.setItem('awsTrainingProgress', JSON.stringify(data));
+      }
+
+      function getCurrentDate() {
+        return new Date().toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+      }
+
+      function calculateStreak(data) {
+        const days = ['day1_completed', 'day2_completed', 'day3_completed', 'day4_completed', 'day5_completed', 'day6_completed'];
+        let streak = 0;
+        const today = new Date();
+        
+        for (let day of days) {
+          if (data[day]) {
+            const completionDate = new Date(data[day]);
+            const daysDiff = Math.floor((today - completionDate) / (1000 * 60 * 60 * 24));
+            if (daysDiff <= 7) {
+              streak++;
+            }
+          }
+        }
+        return streak;
+      }
+
+      function updateAchievements(data) {
+        const achievements = {
+          'first-step': data.day1_completed,
+          'security-expert': data.day2_completed,
+          'cloud-architect': data.day3_completed,
+          'scaling-master': data.day4_completed,
+          'database-guru': data.day5_completed,
+          'network-ninja': data.day6_completed,
+          'streak-warrior': calculateStreak(data) >= 3,
+          'cloud-master': data.day1_completed && data.day2_completed && data.day3_completed && data.day4_completed && data.day5_completed && data.day6_completed
+        };
+
+        Object.keys(achievements).forEach(achievementId => {
+          const badge = document.querySelector(`[data-achievement="${achievementId}"]`);
+          if (badge) {
+            if (achievements[achievementId]) {
+              badge.classList.remove('locked');
+              badge.classList.add('unlocked');
+            } else {
+              badge.classList.remove('unlocked');
+              badge.classList.add('locked');
+            }
+          }
+        });
+      }
+
+
+
+      function trackProgress() {
+        const data = getStoredData();
+        
+        if (!data || !data.userName) {
+          document.getElementById('welcomeModal').classList.remove('hidden');
+          return;
+        }
+
+        // Update greeting
+        document.getElementById('userGreeting').textContent = `Hello, ${data.userName}! 👋`;
+
+        // Calculate progress
+        const completed = [data.day1_completed, data.day2_completed, data.day3_completed, 
+                          data.day4_completed, data.day5_completed, data.day6_completed].filter(Boolean).length;
+        
+        let progress = Math.round((completed / 6) * 100);
+        let message = 'Ready to begin your AWS journey';
+        
+        // Update progress messages
+        if (completed === 6) {
+          message = 'Amazing! You\'ve mastered all AWS topics! 🎉 You\'re ready for enterprise-level challenges!';
+        } else if (completed === 5) {
+          message = `Outstanding! ${completed}/6 topics completed. One final expert-level topic awaits! 💪`;
+        } else if (completed === 4) {
+          message = `Excellent progress! ${completed}/6 topics completed. Advanced topics ahead! 🚀`;
+        } else if (completed === 3) {
+          message = `Halfway there! ${completed}/6 topics completed. Keep building expertise! 🌟`;
+        } else if (completed === 2) {
+          message = `Good momentum! ${completed}/6 topics completed. Building solid foundations! ⭐`;
+        } else if (completed === 1) {
+          message = `Great start! ${completed}/6 topics completed. Continue your cloud journey! 🌱`;
+        }
+        
+        document.getElementById('progressBar').style.width = progress + '%';
+        document.getElementById('progressText').textContent = message;
+        document.getElementById('completionRate').textContent = progress + '%';
+
+        // Update streak
+        const streak = calculateStreak(data);
+        document.getElementById('streakCount').textContent = streak;
+
+        // Update achievements
+        updateAchievements(data);
+
+        // Mark completed cards
+        const cards = document.querySelectorAll('.training-card');
+        cards.forEach((card, index) => {
+          const dayNum = index + 1;
+          const dayKey = `day${dayNum}_completed`;
+          if (data[dayKey]) {
+            card.classList.add('completed');
+          }
+        });
+      }
+
+      function markDayComplete(dayNumber) {
+        const data = getStoredData() || {};
+        const dayKey = `day${dayNumber}_completed`;
+        data[dayKey] = getCurrentDate();
+        saveProgress(data);
+        trackProgress();
+      }
+
+      // Tab functionality
+      function showTab(tabId) {
+        // Hide all tab contents
+        document.querySelectorAll('.tab-content').forEach(tab => {
+          tab.classList.remove('active');
+        });
+        
+        // Remove active class from all tabs
+        document.querySelectorAll('.path-tab').forEach(tab => {
+          tab.classList.remove('active');
+        });
+        
+        // Show selected tab
+        document.getElementById(tabId).classList.add('active');
+        
+        // Add active class to clicked tab
+        event.target.classList.add('active');
+      }
+
+      // Additional functions
+      function showProgressHistory() {
+        const data = getStoredData();
+        if (!data) {
+          alert('No progress data found!');
+          return;
+        }
+
+        let history = `📚 ${data.userName}'s AWS Learning Journey\n\n`;
+        history += `Day 1 (Cloud Fundamentals): ${data.day1_completed || 'Not completed'}\n`;
+        history += `Day 2 (Security & Identity): ${data.day2_completed || 'Not completed'}\n`;
+        history += `Day 3 (Compute & Storage): ${data.day3_completed || 'Not completed'}\n`;
+        history += `Day 4 (Load Balancing & Auto Scaling): ${data.day4_completed || 'Not completed'}\n`;
+        history += `Day 5 (RDS, Aurora & ElastiCache): ${data.day5_completed || 'Not completed'}\n`;
+        history += `Day 6 (Networking Deep Dive): ${data.day6_completed || 'Not completed'}\n\n`;
+        
+        const completed = [data.day1_completed, data.day2_completed, data.day3_completed, data.day4_completed, data.day5_completed, data.day6_completed].filter(Boolean).length;
+        history += `Total Progress: ${completed}/6 topics completed\n`;
+        history += `Learning Streak: ${calculateStreak(data)} days`;
+
+        alert(history);
+      }
+
+      function exportProgress() {
+        const data = getStoredData();
+        if (!data) {
+          alert('No progress data to export!');
+          return;
+        }
+
+        const exportData = {
+          userName: data.userName,
+          exportDate: getCurrentDate(),
+          progress: {
+            day1_completed: data.day1_completed || null,
+            day2_completed: data.day2_completed || null,
+            day3_completed: data.day3_completed || null,
+            day4_completed: data.day4_completed || null,
+            day5_completed: data.day5_completed || null,
+            day6_completed: data.day6_completed || null
+          },
+          stats: {
+            completionRate: Math.round((Object.values(data).filter(v => v && v !== data.userName && v !== data.joinDate).length / 6) * 100),
+            streak: calculateStreak(data)
+          }
+        };
+
+        const dataStr = JSON.stringify(exportData, null, 2);
+        const dataBlob = new Blob([dataStr], {type: 'application/json'});
+        const url = URL.createObjectURL(dataBlob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `aws-training-progress-${data.userName}-${getCurrentDate().replace(/\s+/g, '-')}.json`;
+        link.click();
+        
+        URL.revokeObjectURL(url);
+      }
+
+      function resetProgress() {
+        if (confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
+          localStorage.removeItem('awsTrainingProgress');
+          location.reload();
+        }
+      }
+
+      // Welcome modal functions
+      function initializeWelcome() {
+        const nameInput = document.getElementById('userName');
+        const startBtn = document.getElementById('startJourney');
+
+        nameInput.addEventListener('input', function() {
+          startBtn.disabled = this.value.trim().length < 2;
+        });
+
+        nameInput.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter' && !startBtn.disabled) {
+            startJourney();
+          }
+        });
+
+        startBtn.addEventListener('click', startJourney);
+      }
+
+      function startJourney() {
+        const nameInput = document.getElementById('userName');
+        const name = nameInput.value.trim();
+        
+        if (name.length < 2) {
+          alert('Please enter a valid name (at least 2 characters)');
+          return;
+        }
+
+        const data = {
+          userName: name,
+          joinDate: getCurrentDate(),
+          day1_completed: null,
+          day2_completed: null,
+          day3_completed: null,
+          day4_completed: null,
+          day5_completed: null,
+          day6_completed: null
+        };
+
+        saveProgress(data);
+        document.getElementById('welcomeModal').classList.add('hidden');
+        trackProgress();
+      }
+
+      // Day navigation functions
+      function openDay1() {
+        markDayComplete(1);
+        window.location.href = 'https://codewrapr.github.io/AWS-Cloud-Challenge/Sol_Arch/Day1/';
+      }
+
+      function openDay2() {
+        markDayComplete(2);
+        window.location.href = 'https://codewrapr.github.io/AWS-Cloud-Challenge/Sol_Arch/Day2/';
+      }
+
+      function openDay3() {
+        markDayComplete(3);
+        window.location.href = 'https://codewrapr.github.io/AWS-Cloud-Challenge/Sol_Arch/Day3/';
+      }
+
+      function openDay4() {
+        markDayComplete(4);
+        window.location.href = 'https://codewrapr.github.io/AWS-Cloud-Challenge/Sol_Arch/Day4/';
+      }
+
+      function openDay5() {
+        markDayComplete(5);
+        window.location.href = 'https://codewrapr.github.io/AWS-Cloud-Challenge/Sol_Arch/Day5/';
+      }
+
+      function openDay6() {
+        markDayComplete(6);
+        window.location.href = 'https://codewrapr.github.io/AWS-Cloud-Challenge/Sol_Arch/Day6/';
+      }
+
+      function startAnimations() {
+        const cards = document.querySelectorAll('.training-card');
+        cards.forEach((card, index) => {
+          card.style.opacity = '0';
+          card.style.transform = 'translateY(20px)';
+          
+          setTimeout(() => {
+            card.style.transition = 'all 0.6s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+          }, index * 200);
+        });
+      }
+
+      // Initialize everything when the page loads
+      document.addEventListener('DOMContentLoaded', function() {
+        initializeWelcome();
+        trackProgress();
+        setTimeout(startAnimations, 300);
+        
+        // Add hover effects to cards
+        document.querySelectorAll('.training-card').forEach(card => {
+          card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px)';
+          });
+          
+          card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(-2px)';
+          });
+        });
+
+        // Add achievement hover effects
+        document.querySelectorAll('.achievement-badge').forEach(badge => {
+          badge.addEventListener('click', function() {
+            const achievement = this.getAttribute('data-achievement');
+            const achievementNames = {
+              'first-step': 'First Steps: Complete your first AWS topic',
+              'security-expert': 'Security Expert: Master AWS security fundamentals',
+              'cloud-architect': 'Cloud Architect: Learn compute and storage services',
+              'scaling-master': 'Scaling Master: Master load balancing and auto scaling',
+              'database-guru': 'Database Guru: Become proficient with AWS databases',
+              'network-ninja': 'Network Ninja: Master AWS networking',
+              'streak-warrior': 'Streak Warrior: Complete 3 topics within a week',
+              'cloud-master': 'Cloud Master: Complete all 6 AWS topics'
+            };
+            
+            const isUnlocked = this.classList.contains('unlocked');
+            alert(`${achievementNames[achievement]}\n\nStatus: ${isUnlocked ? '🏆 Unlocked!' : '🔒 Locked'}`);
+          });
+        });
+      });
+    </script>
+</body>
+</html>
